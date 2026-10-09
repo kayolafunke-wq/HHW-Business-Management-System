@@ -1,0 +1,241 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id           String   @id @default(uuid())
+  firebaseUid  String   @unique
+  name         String
+  email        String   @unique
+  username     String   @unique
+  role         Role     @default(SALES_USER)
+  status       UserStatus @default(ACTIVE)
+  lastLogin    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  sales        Sale[]
+  auditLogs    AuditLog[]
+  @@map("users")
+}
+
+enum Role {
+  ADMINISTRATOR
+  SALES_USER
+  INVENTORY_USER
+  HR_USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+// Product Management
+model Product {
+  id          String   @id @default(uuid())
+  sku         String   @unique
+  name        String
+  category    Category
+  description String?
+  cost        Float
+  price       Float
+  stock       Int      @default(0)
+  minStock    Int      @default(0)
+  status      ProductStatus @default(IN_STOCK)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  saleItems       SaleItem[]
+  stockMovements  StockMovement[]
+
+  @@map("products")
+}
+
+enum Category {
+  ELECTRONICS
+  GROCERIES
+  BEVERAGES
+  STATIONERY
+  HOUSEHOLD
+  CLOTHING
+  OTHER
+}
+
+enum ProductStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+// Sales Management
+model Sale {
+  id          String   @id @default(uuid())
+  invoiceNo   String   @unique
+  customer    String
+  customerPhone String?
+  subtotal    Float
+  discount    Float    @default(0)
+  taxable     Float
+  vat         Float
+  total       Float
+  paymentMethod PaymentMethod @default(CASH)
+  paymentStatus PaymentStatus @default(PENDING)
+  cashier     String
+  notes       String?
+  saleDate    DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  items       SaleItem[]
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id        String   @id @default(uuid())
+  quantity  Int
+  price     Float
+  total     Float
+  createdAt DateTime @default(now())
+
+  // Relations
+  saleId    String
+  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("sale_items")
+}
+
+enum PaymentMethod {
+  CASH
+  BANK
+  MOBILE_MONEY
+}
+
+enum PaymentStatus {
+  PAID
+  PARTIALLY_PAID
+  PENDING
+}
+
+// Inventory Management
+model StockMovement {
+  id          String   @id @default(uuid())
+  type        MovementType
+  quantity    Int
+  reference   String
+  supplier    String?
+  reason      String?
+  notes       String?
+  movementDate DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  // Relations
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+
+  @@map("stock_movements")
+}
+
+enum MovementType {
+  IN
+  OUT
+}
+
+// Employee Management
+model Employee {
+  id             String   @id @default(uuid())
+  employeeId     String   @unique
+  name           String
+  email          String   @unique
+  phone          String
+  position       String
+  department     String
+  salary         Float
+  dateEmployed   DateTime
+  status         EmployeeStatus @default(ACTIVE)
+  address        String?
+  emergencyContact String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  attendance     Attendance[]
+
+  @@map("employees")
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  ON_LEAVE
+  INACTIVE
+}
+
+// Attendance Tracking
+model Attendance {
+  id          String   @id @default(uuid())
+  date        DateTime
+  status      AttendanceStatus @default(PRESENT)
+  checkIn     DateTime?
+  checkOut    DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, date])
+  @@map("attendance")
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  LEAVE
+}
+
+// Audit Log
+model AuditLog {
+  id          String   @id @default(uuid())
+  action      String
+  details     String?
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+
+  // Relations
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// Business Configuration
+model BusinessConfig {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("business_config")
+}
