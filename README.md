@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # HHW Business Management System
 
 A comprehensive full-stack business management solution for inventory, sales, HR, and financial operations.
@@ -275,3 +276,6 @@ Built by SWANTIN
 
 **Version**: 1.0.0  
 **Last Updated**: 2026
+=======
+# HHW-Business-Management-System
+>>>>>>> 68e3768d2a0879e60c74e67c9601dd7b59f1cfde
