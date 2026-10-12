@@ -1,8 +1,17 @@
+import { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
+import { useApiStore } from '@/store/apiStore'
 
 export default function MainLayout() {
+  const initializeData = useApiStore((state) => state.initializeData)
+
+  // Initialize data from API when layout mounts
+  useEffect(() => {
+    initializeData()
+  }, [initializeData])
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
