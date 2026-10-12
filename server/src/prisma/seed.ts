@@ -1,163 +1,354 @@
-import prisma from '../config/database.js'
-import { auth } from '../config/firebase.js'
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+
+const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Seeding database...')
+  console.log('🌱 Starting database seed...')
 
-  // Create demo users in Firebase and database
-  const demoUsers = [
-    {
-      name: 'Admin User',
+  // Clear existing data (optional - be careful in production!)
+  console.log('🗑️  Clearing existing data...')
+  await prisma.saleItem.deleteMany()
+  await prisma.sale.deleteMany()
+  await prisma.stockMovement.deleteMany()
+  await prisma.attendance.deleteMany()
+  await prisma.employee.deleteMany()
+  await prisma.product.deleteMany()
+  await prisma.auditLog.deleteMany()
+  await prisma.user.deleteMany()
+  await prisma.businessConfig.deleteMany()
+
+  // Create Users
+  console.log('👥 Creating users...')
+  const hashedPassword = await bcrypt.hash('password123', 10)
+  
+  const admin = await prisma.user.create({
+    data: {
+      firebaseUid: 'firebase-admin-uid',
+      name: 'Chikondi Mvula',
       email: 'admin@hhw.com',
       username: 'admin',
-      password: 'password123',
       role: 'ADMINISTRATOR',
+      status: 'ACTIVE',
     },
-    {
+  })
+
+  const salesUser = await prisma.user.create({
+    data: {
+      firebaseUid: 'firebase-sales-uid',
       name: 'Grace Mwale',
-      email: 'sales@hhw.com',
+      email: 'grace.sales@hhw.com',
       username: 'grace.sales',
-      password: 'password123',
       role: 'SALES_USER',
+      status: 'ACTIVE',
     },
-    {
+  })
+
+  const inventoryUser = await prisma.user.create({
+    data: {
+      firebaseUid: 'firebase-inventory-uid',
       name: 'Steven Mbewe',
-      email: 'inventory@hhw.com',
+      email: 'steven.inv@hhw.com',
       username: 'steven.inv',
-      password: 'password123',
       role: 'INVENTORY_USER',
+      status: 'ACTIVE',
     },
-    {
+  })
+
+  const hrUser = await prisma.user.create({
+    data: {
+      firebaseUid: 'firebase-hr-uid',
       name: 'Faith Nyasulu',
-      email: 'hr@hhw.com',
+      email: 'faith.hr@hhw.com',
       username: 'faith.hr',
-      password: 'password123',
       role: 'HR_USER',
+      status: 'ACTIVE',
     },
+  })
+
+  console.log(`✅ Created ${4} users`)
+
+  // Create Products
+  console.log('📦 Creating products...')
+  const products = [
+    // Electronics
+    { sku: 'SKU-ELE-101', name: 'Samsung Galaxy A54', category: 'ELECTRONICS', cost: 280000, price: 350000, stock: 25, minStock: 5 },
+    { sku: 'SKU-ELE-102', name: 'HP Laptop 15-inch', category: 'ELECTRONICS', cost: 450000, price: 550000, stock: 15, minStock: 3 },
+    { sku: 'SKU-ELE-103', name: 'Dell Monitor 24"', category: 'ELECTRONICS', cost: 120000, price: 150000, stock: 30, minStock: 5 },
+    { sku: 'SKU-ELE-104', name: 'Smartphone Charger Type-C', category: 'ELECTRONICS', cost: 3500, price: 5000, stock: 100, minStock: 20 },
+    { sku: 'SKU-ELE-105', name: 'Wireless Mouse Logitech', category: 'ELECTRONICS', cost: 8000, price: 12000, stock: 50, minStock: 10 },
+    
+    // Groceries
+    { sku: 'SKU-GRO-201', name: 'Rice 25kg Bag', category: 'GROCERIES', cost: 28000, price: 35000, stock: 200, minStock: 30 },
+    { sku: 'SKU-GRO-202', name: 'Sugar 10kg', category: 'GROCERIES', cost: 15000, price: 18500, stock: 150, minStock: 25 },
+    { sku: 'SKU-GRO-203', name: 'Cooking Oil 5L', category: 'GROCERIES', cost: 14000, price: 18000, stock: 80, minStock: 15 },
+    { sku: 'SKU-GRO-204', name: 'Maize Flour 25kg', category: 'GROCERIES', cost: 22000, price: 27000, stock: 120, minStock: 20 },
+    { sku: 'SKU-GRO-205', name: 'Salt 1kg Pack', category: 'GROCERIES', cost: 800, price: 1200, stock: 300, minStock: 50 },
+    
+    // Beverages
+    { sku: 'SKU-BEV-301', name: 'Coca Cola 500ml (Crate)', category: 'BEVERAGES', cost: 12000, price: 15000, stock: 100, minStock: 15 },
+    { sku: 'SKU-BEV-302', name: 'Fanta Orange 500ml (Crate)', category: 'BEVERAGES', cost: 11500, price: 14500, stock: 80, minStock: 15 },
+    { sku: 'SKU-BEV-303', name: 'Bottled Water 500ml (Pack 24)', category: 'BEVERAGES', cost: 8000, price: 10000, stock: 150, minStock: 20 },
+    { sku: 'SKU-BEV-304', name: 'Carlsberg Beer (Crate)', category: 'BEVERAGES', cost: 18000, price: 23000, stock: 60, minStock: 10 },
+    { sku: 'SKU-BEV-305', name: 'Juice Box Assorted (Pack 12)', category: 'BEVERAGES', cost: 7000, price: 9500, stock: 90, minStock: 15 },
+    
+    // Stationery
+    { sku: 'SKU-STA-401', name: 'A4 Paper Ream', category: 'STATIONERY', cost: 5500, price: 7500, stock: 200, minStock: 30 },
+    { sku: 'SKU-STA-402', name: 'Pen Box (50pcs)', category: 'STATIONERY', cost: 8000, price: 11000, stock: 80, minStock: 15 },
+    { sku: 'SKU-STA-403', name: 'Exercise Books (Pack 10)', category: 'STATIONERY', cost: 4000, price: 6000, stock: 150, minStock: 25 },
+    { sku: 'SKU-STA-404', name: 'Stapler Heavy Duty', category: 'STATIONERY', cost: 3500, price: 5500, stock: 40, minStock: 8 },
+    { sku: 'SKU-STA-405', name: 'Calculator Scientific', category: 'STATIONERY', cost: 12000, price: 16000, stock: 30, minStock: 5 },
+    
+    // Household
+    { sku: 'SKU-HOU-501', name: 'Detergent Powder 2kg', category: 'HOUSEHOLD', cost: 6000, price: 8500, stock: 100, minStock: 20 },
+    { sku: 'SKU-HOU-502', name: 'Bleach 2L', category: 'HOUSEHOLD', cost: 3000, price: 4500, stock: 80, minStock: 15 },
+    { sku: 'SKU-HOU-503', name: 'Dish Soap 750ml', category: 'HOUSEHOLD', cost: 2500, price: 3800, stock: 120, minStock: 20 },
+    { sku: 'SKU-HOU-504', name: 'Toilet Paper (Pack 12)', category: 'HOUSEHOLD', cost: 8000, price: 11000, stock: 90, minStock: 15 },
+    { sku: 'SKU-HOU-505', name: 'Broom Plastic', category: 'HOUSEHOLD', cost: 2000, price: 3500, stock: 50, minStock: 10 },
   ]
 
-  console.log('Creating demo users...')
-  for (const userData of demoUsers) {
-    try {
-      // Check if user exists in Firebase
-      let firebaseUser
-      try {
-        firebaseUser = await auth.getUserByEmail(userData.email)
-        console.log(`  ✓ Firebase user already exists: ${userData.email}`)
-      } catch {
-        // Create in Firebase
-        firebaseUser = await auth.createUser({
-          email: userData.email,
-          password: userData.password,
-          displayName: userData.name,
-        })
-        console.log(`  ✓ Created Firebase user: ${userData.email}`)
-      }
-
-      // Check if user exists in database
-      const existingUser = await prisma.user.findUnique({
-        where: { firebaseUid: firebaseUser.uid },
-      })
-
-      if (!existingUser) {
-        await prisma.user.create({
-          data: {
-            firebaseUid: firebaseUser.uid,
-            name: userData.name,
-            email: userData.email,
-            username: userData.username,
-            role: userData.role as any,
-            status: 'ACTIVE',
-          },
-        })
-        console.log(`  ✓ Created database user: ${userData.name}`)
-      } else {
-        console.log(`  ✓ Database user already exists: ${userData.name}`)
-      }
-    } catch (error) {
-      console.error(`  ✗ Error creating user ${userData.email}:`, error)
-    }
-  }
-
-  // Seed Products
-  console.log('\nCreating sample products...')
-  const productData = [
-    { name: 'Samsung 32" LED TV', category: 'ELECTRONICS', cost: 210000, price: 265000, stock: 14, minStock: 5 },
-    { name: 'HP LaserJet Printer', category: 'ELECTRONICS', cost: 185000, price: 235000, stock: 6, minStock: 4 },
-    { name: 'Wireless Mouse Logitech', category: 'ELECTRONICS', cost: 9500, price: 15500, stock: 42, minStock: 15 },
-    { name: 'Rice 25kg Bag', category: 'GROCERIES', cost: 38000, price: 46000, stock: 32, minStock: 10 },
-    { name: 'Cooking Oil 5L', category: 'GROCERIES', cost: 21000, price: 27500, stock: 18, minStock: 10 },
-    { name: 'Coca-Cola 500ml (Crate)', category: 'BEVERAGES', cost: 13500, price: 18500, stock: 26, minStock: 8 },
-    { name: 'A4 Paper Ream', category: 'STATIONERY', cost: 9800, price: 13500, stock: 55, minStock: 15 },
-    { name: 'Laundry Detergent 2kg', category: 'HOUSEHOLD', cost: 6900, price: 10200, stock: 37, minStock: 12 },
-    { name: "Men's Cotton T-Shirt", category: 'CLOTHING', cost: 5200, price: 9800, stock: 22, minStock: 10 },
-    { name: 'Office Chair', category: 'OTHER', cost: 45000, price: 62000, stock: 8, minStock: 5 },
-  ]
-
-  for (let i = 0; i < productData.length; i++) {
-    const product = productData[i]
-    const sku = `SKU-${product.category.slice(0, 3)}-${100 + i}`
+  const createdProducts = []
+  for (const product of products) {
     let status: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' = 'IN_STOCK'
     if (product.stock === 0) status = 'OUT_OF_STOCK'
     else if (product.stock <= product.minStock) status = 'LOW_STOCK'
 
-    await prisma.product.upsert({
-      where: { sku },
-      update: {},
-      create: {
-        sku,
-        name: product.name,
-        category: product.category as any,
-        cost: product.cost,
-        price: product.price,
-        stock: product.stock,
-        minStock: product.minStock,
+    const p = await prisma.product.create({
+      data: {
+        ...product,
         status,
       },
     })
+    createdProducts.push(p)
   }
-  console.log(`  ✓ Created ${productData.length} products`)
 
-  // Seed Employees
-  console.log('\nCreating sample employees...')
-  const employeeData = [
-    { name: 'John Banda', email: 'john.banda@hhw.com', phone: '+265881234567', position: 'Sales Associate', department: 'Sales', salary: 180000 },
-    { name: 'Grace Phiri', email: 'grace.phiri@hhw.com', phone: '+265881234568', position: 'Store Keeper', department: 'Inventory', salary: 195000 },
-    { name: 'Bright Kamanga', email: 'bright.kamanga@hhw.com', phone: '+265881234569', position: 'Cashier', department: 'Finance', salary: 175000 },
-    { name: 'Chisomo Zulu', email: 'chisomo.zulu@hhw.com', phone: '+265881234570', position: 'HR Officer', department: 'HR', salary: 220000 },
-    { name: 'Patricia Nkhoma', email: 'patricia.nkhoma@hhw.com', phone: '+265881234571', position: 'Operations Manager', department: 'Operations', salary: 285000 },
+  console.log(`✅ Created ${createdProducts.length} products`)
+
+  // Create Employees
+  console.log('👔 Creating employees...')
+  const employees = [
+    {
+      employeeId: 'EMP-001',
+      name: 'Chikondi Mvula',
+      email: 'chikondi@hhw.com',
+      phone: '+265999123456',
+      position: 'General Manager',
+      department: 'Management',
+      salary: 850000,
+      dateEmployed: new Date('2020-01-15'),
+      status: 'ACTIVE' as const,
+    },
+    {
+      employeeId: 'EMP-002',
+      name: 'Grace Mwale',
+      email: 'grace@hhw.com',
+      phone: '+265999234567',
+      position: 'Sales Manager',
+      department: 'Sales',
+      salary: 550000,
+      dateEmployed: new Date('2021-03-10'),
+      status: 'ACTIVE' as const,
+    },
+    {
+      employeeId: 'EMP-003',
+      name: 'Steven Mbewe',
+      email: 'steven@hhw.com',
+      phone: '+265999345678',
+      position: 'Inventory Manager',
+      department: 'Warehouse',
+      salary: 500000,
+      dateEmployed: new Date('2021-06-01'),
+      status: 'ACTIVE' as const,
+    },
+    {
+      employeeId: 'EMP-004',
+      name: 'Faith Nyasulu',
+      email: 'faith@hhw.com',
+      phone: '+265999456789',
+      position: 'HR Officer',
+      department: 'Human Resources',
+      salary: 480000,
+      dateEmployed: new Date('2022-02-14'),
+      status: 'ACTIVE' as const,
+    },
+    {
+      employeeId: 'EMP-005',
+      name: 'James Banda',
+      email: 'james@hhw.com',
+      phone: '+265999567890',
+      position: 'Sales Representative',
+      department: 'Sales',
+      salary: 380000,
+      dateEmployed: new Date('2022-08-20'),
+      status: 'ACTIVE' as const,
+    },
   ]
 
-  for (let i = 0; i < employeeData.length; i++) {
-    const emp = employeeData[i]
-    const employeeId = `EMP-${100 + i}`
-
-    await prisma.employee.upsert({
-      where: { employeeId },
-      update: {},
-      create: {
-        employeeId,
-        name: emp.name,
-        email: emp.email,
-        phone: emp.phone,
-        position: emp.position,
-        department: emp.department,
-        salary: emp.salary,
-        dateEmployed: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000), // 1 year ago
-        status: 'ACTIVE',
-        address: 'Area 47, Lilongwe',
-        emergencyContact: '+265991234567',
-      },
-    })
+  for (const employee of employees) {
+    await prisma.employee.create({ data: employee })
   }
-  console.log(`  ✓ Created ${employeeData.length} employees`)
 
-  console.log('\n✅ Seeding completed successfully!')
+  console.log(`✅ Created ${employees.length} employees`)
+
+  // Create Sample Sales
+  console.log('💰 Creating sample sales...')
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  // Sale 1 - Yesterday
+  const sale1 = await prisma.sale.create({
+    data: {
+      invoiceNo: 'INV-2025-000001',
+      customer: 'ABC Trading Ltd',
+      customerPhone: '+265999111222',
+      subtotal: 385000,
+      discount: 0,
+      taxable: 385000,
+      vat: 67375,
+      total: 452375,
+      paymentMethod: 'CASH',
+      paymentStatus: 'PAID',
+      cashier: 'Grace Mwale',
+      saleDate: yesterday,
+      userId: salesUser.id,
+      items: {
+        create: [
+          {
+            quantity: 10,
+            price: 35000,
+            total: 350000,
+            productId: createdProducts.find(p => p.sku === 'SKU-GRO-201')!.id,
+          },
+          {
+            quantity: 2,
+            price: 17500,
+            total: 35000,
+            productId: createdProducts.find(p => p.sku === 'SKU-GRO-202')!.id,
+          },
+        ],
+      },
+    },
+  })
+
+  // Update stock for sale 1
+  await prisma.product.update({
+    where: { sku: 'SKU-GRO-201' },
+    data: { stock: { decrement: 10 } },
+  })
+  await prisma.product.update({
+    where: { sku: 'SKU-GRO-202' },
+    data: { stock: { decrement: 2 } },
+  })
+
+  // Sale 2 - Today
+  const sale2 = await prisma.sale.create({
+    data: {
+      invoiceNo: 'INV-2025-000002',
+      customer: 'John Phiri',
+      customerPhone: '+265888222333',
+      subtotal: 362000,
+      discount: 12000,
+      taxable: 350000,
+      vat: 61250,
+      total: 411250,
+      paymentMethod: 'MOBILE_MONEY',
+      paymentStatus: 'PAID',
+      cashier: 'Grace Mwale',
+      saleDate: today,
+      userId: salesUser.id,
+      items: {
+        create: [
+          {
+            quantity: 1,
+            price: 350000,
+            total: 350000,
+            productId: createdProducts.find(p => p.sku === 'SKU-ELE-101')!.id,
+          },
+          {
+            quantity: 1,
+            price: 12000,
+            total: 12000,
+            productId: createdProducts.find(p => p.sku === 'SKU-ELE-105')!.id,
+          },
+        ],
+      },
+    },
+  })
+
+  // Update stock for sale 2
+  await prisma.product.update({
+    where: { sku: 'SKU-ELE-101' },
+    data: { stock: { decrement: 1 } },
+  })
+  await prisma.product.update({
+    where: { sku: 'SKU-ELE-105' },
+    data: { stock: { decrement: 1 } },
+  })
+
+  console.log(`✅ Created 2 sample sales`)
+
+  // Create Stock Movements
+  console.log('📊 Creating stock movements...')
+  const movements = [
+    {
+      type: 'IN' as const,
+      quantity: 50,
+      reference: 'PO-2025-001',
+      supplier: 'Tech Distributors',
+      reason: 'Purchase Order',
+      notes: 'Monthly stock replenishment',
+      movementDate: new Date('2025-01-10'),
+      productId: createdProducts.find(p => p.sku === 'SKU-ELE-101')!.id,
+    },
+    {
+      type: 'OUT' as const,
+      quantity: 10,
+      reference: 'INV-2025-000001',
+      reason: 'Sale',
+      movementDate: yesterday,
+      productId: createdProducts.find(p => p.sku === 'SKU-GRO-201')!.id,
+    },
+    {
+      type: 'OUT' as const,
+      quantity: 1,
+      reference: 'INV-2025-000002',
+      reason: 'Sale',
+      movementDate: today,
+      productId: createdProducts.find(p => p.sku === 'SKU-ELE-101')!.id,
+    },
+  ]
+
+  for (const movement of movements) {
+    await prisma.stockMovement.create({ data: movement })
+  }
+
+  console.log(`✅ Created ${movements.length} stock movements`)
+
+  // Create Business Config
+  console.log('⚙️  Creating business configuration...')
+  const configs = [
+    { key: 'business_name', value: 'H.H Wholesalers', description: 'Company name' },
+    { key: 'business_address', value: 'Area 4, Chilambura Road, Opposite Chipiku, Lilongwe', description: 'Physical address' },
+    { key: 'business_phone', value: '+265 (0) 999 888 747', description: 'Contact phone' },
+    { key: 'business_email', value: 'hhw.malawi@gmail.com', description: 'Contact email' },
+    { key: 'vat_number', value: 'VAT-88214', description: 'VAT registration number' },
+    { key: 'vat_rate', value: '17.5', description: 'VAT percentage' },
+    { key: 'currency', value: 'MK', description: 'Currency symbol' },
+  ]
+
+  for (const config of configs) {
+    await prisma.businessConfig.create({ data: config })
+  }
+
+  console.log(`✅ Created ${configs.length} configuration entries`)
+
+  console.log('✅ Database seed completed successfully!')
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seeding failed:', e)
+    console.error('❌ Seed failed:', e)
     process.exit(1)
   })
   .finally(async () => {
