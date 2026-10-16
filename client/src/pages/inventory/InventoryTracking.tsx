@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Pagination } from '@/components/ui/pagination'
 import { usePagination } from '@/hooks/usePagination'
 import { inventoryApi, type StockMovement } from '@/services/api'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 
 interface InventoryMovement {
   id: string
