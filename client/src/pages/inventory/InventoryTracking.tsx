@@ -23,11 +23,10 @@ interface InventoryMovement {
   userName: string
 }
 
-function getInitials(name: string): string {
-  return name.split(' ').map(n => n[0]).join('').substring(0, 2)
-}
-
 export default function InventoryTracking() {
+  // Debug: Log component mount
+  console.log('InventoryTracking component mounted')
+  
   const [movements, setMovements] = useState<InventoryMovement[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -56,12 +55,12 @@ export default function InventoryTracking() {
           productName: movement.product?.name || 'Unknown Product',
           productSKU: movement.product?.sku || 'N/A',
           quantity: movement.quantity,
-          beforeAmount: 0, // API doesn't track before amount
-          afterAmount: 0, // API doesn't track after amount
+          beforeAmount: 0,
+          afterAmount: 0,
           reason: movement.reason || 'N/A',
           reference: movement.reference || 'N/A',
           user: movement.product?.name?.substring(0, 2).toUpperCase() || 'UN',
-          userName: 'System User', // API doesn't track user
+          userName: 'System User',
         }
       })
       
@@ -71,7 +70,7 @@ export default function InventoryTracking() {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load inventory movements'
       setError(errorMessage)
       toast.error(errorMessage)
-      setMovements([]) // Set empty array on error
+      setMovements([])
     } finally {
       setLoading(false)
     }
@@ -87,8 +86,16 @@ export default function InventoryTracking() {
     return matchesType && matchesSearch
   })
 
-  // Pagination
-  const { currentPage, totalPages, paginatedItems, setCurrentPage, totalItems, itemsPerPage } = usePagination(filteredMovements, 15)
+  // Pagination - with safety check
+  let paginationData
+  try {
+    paginationData = usePagination(filteredMovements, 15)
+  } catch (err) {
+    console.error('Pagination error:', err)
+    return <div className="p-4">Error initializing pagination</div>
+  }
+
+  const { currentPage, totalPages, paginatedItems, setCurrentPage, totalItems, itemsPerPage } = paginationData
 
   // Calculate stats
   const totalStockIn = movements.filter(m => m.type === 'Stock In').reduce((sum, m) => sum + m.quantity, 0)
