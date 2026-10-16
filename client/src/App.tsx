@@ -33,6 +33,14 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    // Redirect to role-appropriate page
+    if (user.role === 'Sales User') {
+      return <Navigate to="/sales" replace />
+    } else if (user.role === 'Inventory User') {
+      return <Navigate to="/products" replace />
+    } else if (user.role === 'HR User') {
+      return <Navigate to="/employees" replace />
+    }
     return <Navigate to="/dashboard" replace />
   }
 
