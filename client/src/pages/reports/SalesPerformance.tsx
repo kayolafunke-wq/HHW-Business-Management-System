@@ -40,10 +40,15 @@ interface EmployeePerformance {
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 
 export default function SalesPerformance() {
-  const { sales } = useApiStore()
+  const { sales, fetchSales } = useApiStore()
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
   const [selectedYear, setSelectedYear] = useState<string>('2026')
   const [employeePerformance, setEmployeePerformance] = useState<EmployeePerformance[]>([])
+
+  // Fetch fresh data on component mount
+  useEffect(() => {
+    fetchSales()
+  }, [])
 
   useEffect(() => {
     calculatePerformance()
@@ -125,6 +130,15 @@ export default function SalesPerformance() {
           <p className="page-sub">Track individual salesperson performance and rankings</p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={() => fetchSales()}
+            className="px-4 py-2 bg-[#2f5df5] text-white rounded-lg text-sm font-medium hover:bg-[#2651d4] transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh Data
+          </button>
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
