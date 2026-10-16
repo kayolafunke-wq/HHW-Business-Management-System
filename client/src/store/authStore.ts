@@ -52,6 +52,14 @@ const DEMO_USERS: Record<string, User> = {
     username: 'faith.hr',
     role: 'HR User',
     status: 'Active'
+  },
+  'Accountant': {
+    id: 'U6',
+    name: 'Finance Manager',
+    email: 'finance@hhw.com',
+    username: 'finance',
+    role: 'Accountant',
+    status: 'Active'
   }
 }
 
