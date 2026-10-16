@@ -32,16 +32,33 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
     return <Navigate to="/login" replace />
   }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    // Redirect to role-appropriate page
-    if (user.role === 'Sales User') {
-      return <Navigate to="/sales" replace />
-    } else if (user.role === 'Inventory User') {
-      return <Navigate to="/products" replace />
-    } else if (user.role === 'HR User') {
-      return <Navigate to="/employees" replace />
+  if (allowedRoles && user) {
+    // Normalize role formats: convert 'SALES_USER' to 'Sales User' and vice versa
+    const userRole = user.role
+    const normalizedUserRole = userRole.replace(/_/g, ' ')
+    const upperUserRole = userRole.replace(/ /g, '_').toUpperCase()
+    
+    // Check if user's role (in any format) is in allowed roles (in any format)
+    const hasAccess = allowedRoles.some(allowedRole => {
+      const normalizedAllowed = allowedRole.replace(/_/g, ' ')
+      const upperAllowed = allowedRole.replace(/ /g, '_').toUpperCase()
+      
+      return userRole === allowedRole || 
+             normalizedUserRole.toLowerCase() === normalizedAllowed.toLowerCase() ||
+             upperUserRole === upperAllowed
+    })
+    
+    if (!hasAccess) {
+      // Redirect to role-appropriate page
+      if (userRole.includes('SALES') || userRole.includes('Sales')) {
+        return <Navigate to="/sales" replace />
+      } else if (userRole.includes('INVENTORY') || userRole.includes('Inventory')) {
+        return <Navigate to="/products" replace />
+      } else if (userRole.includes('HR') || userRole.includes('Hr')) {
+        return <Navigate to="/employees" replace />
+      }
+      return <Navigate to="/dashboard" replace />
     }
-    return <Navigate to="/dashboard" replace />
   }
 
   return <>{children}</>
@@ -55,9 +72,10 @@ function App() {
   // Get role-based default route
   const getDefaultRoute = () => {
     if (!user) return '/dashboard'
-    if (user.role === 'Sales User') return '/sales'
-    if (user.role === 'Inventory User') return '/products'
-    if (user.role === 'HR User') return '/employees'
+    const role = user.role
+    if (role.includes('SALES') || role.includes('Sales')) return '/sales'
+    if (role.includes('INVENTORY') || role.includes('Inventory')) return '/products'
+    if (role.includes('HR') || role.includes('Hr')) return '/employees'
     return '/dashboard'
   }
 
