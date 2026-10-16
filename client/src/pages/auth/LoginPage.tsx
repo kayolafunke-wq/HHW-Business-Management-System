@@ -46,7 +46,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex overflow-hidden">
       {/* Left side - Branding - FIXED NO SCROLL */}
-      <div className="w-1/2 bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] relative overflow-hidden text-white p-12 flex flex-col justify-between fixed left-0 top-0 h-screen">
+      <div className="w-1/2 bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] relative overflow-hidden text-white p-8 flex flex-col justify-between fixed left-0 top-0 h-screen">
         {/* Animated gradient orbs - MORE VISIBLE */}
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#3b82f6]/40 to-[#8b5cf6]/30 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#8b5cf6]/40 to-[#3b82f6]/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
@@ -87,7 +87,7 @@ export default function LoginPage() {
 
         <div className="relative z-10">
           {/* Logo with glow effect */}
-          <div className="flex items-center gap-3 mb-20 group">
+          <div className="flex items-center gap-3 mb-12 group">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] rounded-xl blur-xl opacity-60 group-hover:opacity-90 transition-opacity" />
               <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] flex items-center justify-center font-display font-bold text-white text-xl shadow-2xl ring-2 ring-blue-400/30">
@@ -104,17 +104,17 @@ export default function LoginPage() {
 
           <div className="max-w-lg">
             {/* Main headline with gradient */}
-            <h1 className="font-display font-bold text-[42px] leading-[1.1] mb-5 bg-gradient-to-br from-white via-blue-100 to-purple-200 bg-clip-text text-transparent drop-shadow-2xl">
+            <h1 className="font-display font-bold text-[36px] leading-[1.1] mb-4 bg-gradient-to-br from-white via-blue-100 to-purple-200 bg-clip-text text-transparent drop-shadow-2xl">
               Run your entire business from one dashboard.
             </h1>
             
-            <p className="text-[15px] text-blue-100/95 leading-relaxed mb-10 font-medium">
+            <p className="text-[14px] text-blue-100/95 leading-relaxed mb-8 font-medium">
               Inventory, sales, invoicing, employees and performance — unified, in real time, for
               teams that need clarity over chaos.
             </p>
 
             {/* Feature highlights with icons */}
-            <div className="space-y-4 mb-12">
+            <div className="space-y-3 mb-8">
               <div className="flex items-center gap-3 text-sm group hover:translate-x-1 transition-transform">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/30 to-blue-600/20 flex items-center justify-center backdrop-blur-sm border border-blue-400/40 shadow-lg shadow-blue-500/20">
                   <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,18 +142,18 @@ export default function LoginPage() {
             </div>
 
             {/* Stats with glass effect */}
-            <div className="flex gap-5">
-              <div className="backdrop-blur-xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-5 border border-white/30 flex-1 shadow-xl shadow-blue-900/20 hover:scale-105 transition-transform">
-                <div className="font-display text-[32px] font-bold bg-gradient-to-br from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">25</div>
-                <div className="text-[12px] text-blue-100/90 font-medium tracking-wide">Products tracked</div>
+            <div className="flex gap-4">
+              <div className="backdrop-blur-xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-4 border border-white/30 flex-1 shadow-xl shadow-blue-900/20 hover:scale-105 transition-transform">
+                <div className="font-display text-[28px] font-bold bg-gradient-to-br from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">25</div>
+                <div className="text-[11px] text-blue-100/90 font-medium tracking-wide">Products tracked</div>
               </div>
-              <div className="backdrop-blur-xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-5 border border-white/30 flex-1 shadow-xl shadow-purple-900/20 hover:scale-105 transition-transform">
-                <div className="font-display text-[32px] font-bold bg-gradient-to-br from-white via-purple-100 to-purple-200 bg-clip-text text-transparent">12</div>
-                <div className="text-[12px] text-blue-100/90 font-medium tracking-wide">Team members</div>
+              <div className="backdrop-blur-xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-4 border border-white/30 flex-1 shadow-xl shadow-purple-900/20 hover:scale-105 transition-transform">
+                <div className="font-display text-[28px] font-bold bg-gradient-to-br from-white via-purple-100 to-purple-200 bg-clip-text text-transparent">12</div>
+                <div className="text-[11px] text-blue-100/90 font-medium tracking-wide">Team members</div>
               </div>
-              <div className="backdrop-blur-xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-5 border border-white/30 flex-1 shadow-xl shadow-indigo-900/20 hover:scale-105 transition-transform">
-                <div className="font-display text-[32px] font-bold bg-gradient-to-br from-white via-indigo-100 to-indigo-200 bg-clip-text text-transparent">21M</div>
-                <div className="text-[12px] text-blue-100/90 font-medium tracking-wide">MK in sales</div>
+              <div className="backdrop-blur-xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-4 border border-white/30 flex-1 shadow-xl shadow-indigo-900/20 hover:scale-105 transition-transform">
+                <div className="font-display text-[28px] font-bold bg-gradient-to-br from-white via-indigo-100 to-indigo-200 bg-clip-text text-transparent">21M</div>
+                <div className="text-[11px] text-blue-100/90 font-medium tracking-wide">MK in sales</div>
               </div>
             </div>
           </div>
