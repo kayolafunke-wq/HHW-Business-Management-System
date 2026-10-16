@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import { useApiStore } from '@/store/apiStore'
-import { TrendingUp, TrendingDown, Award, Users, DollarSign, ShoppingCart } from 'lucide-react'
+import { TrendingUp, TrendingDown, Award, Users, DollarSign, ShoppingCart, Calendar } from 'lucide-react'
 import {
   BarChart,
   Bar,
@@ -15,6 +15,8 @@ import {
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
 } from 'recharts'
 
 function money(n: number): string {
@@ -348,6 +350,202 @@ export default function SalesPerformance() {
           </table>
         </div>
       </Card>
+
+      {/* Monthly Performance Comparison */}
+      <Card className="mt-5">
+        <div className="mb-4">
+          <h2 className="font-display font-semibold text-base text-gray-900 mb-1">
+            Monthly Performance Trend
+          </h2>
+          <p className="text-xs text-gray-500">
+            Compare employee performance across the last 6 months
+          </p>
+        </div>
+
+        <MonthlyComparisonTable sales={sales} />
+      </Card>
     </div>
+  )
+}
+
+// Monthly Comparison Component
+function MonthlyComparisonTable({ sales }: { sales: any[] }) {
+  const [monthlyData, setMonthlyData] = useState<any[]>([])
+  const [chartData, setChartData] = useState<any[]>([])
+
+  useEffect(() => {
+    calculateMonthlyPerformance()
+  }, [sales])
+
+  const calculateMonthlyPerformance = () => {
+    // Get last 6 months
+    const months: string[] = []
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const currentDate = new Date()
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1)
+      months.push(`${monthNames[date.getMonth()]} ${date.getFullYear()}`)
+    }
+
+    // Group sales by employee and month
+    const employeeMonthlyMap = new Map<string, Map<string, { revenue: number; count: number }>>()
+
+    sales.forEach(sale => {
+      const saleDate = new Date(sale.saleDate)
+      const monthKey = `${monthNames[saleDate.getMonth()]} ${saleDate.getFullYear()}`
+      const employeeName = sale.cashier || sale.user?.name || 'Walk-in Customer'
+
+      if (!employeeMonthlyMap.has(employeeName)) {
+        employeeMonthlyMap.set(employeeName, new Map())
+      }
+
+      const employeeData = employeeMonthlyMap.get(employeeName)!
+      if (!employeeData.has(monthKey)) {
+        employeeData.set(monthKey, { revenue: 0, count: 0 })
+      }
+
+      const monthData = employeeData.get(monthKey)!
+      monthData.revenue += sale.total
+      monthData.count += 1
+    })
+
+    // Convert to table format
+    const tableData: any[] = []
+    employeeMonthlyMap.forEach((monthsMap, employee) => {
+      const row: any = { employee }
+      months.forEach(month => {
+        const data = monthsMap.get(month) || { revenue: 0, count: 0 }
+        row[month] = data
+      })
+      // Calculate total
+      row.total = Array.from(monthsMap.values()).reduce((sum, data) => sum + data.revenue, 0)
+      tableData.push(row)
+    })
+
+    // Sort by total revenue
+    tableData.sort((a, b) => b.total - a.total)
+    setMonthlyData(tableData)
+
+    // Prepare chart data (revenue trend for top 3 employees)
+    const top3 = tableData.slice(0, 3)
+    const chartDataArray = months.map(month => {
+      const dataPoint: any = { month: month.split(' ')[0] } // Just month name
+      top3.forEach(emp => {
+        dataPoint[emp.employee] = emp[month]?.revenue || 0
+      })
+      return dataPoint
+    })
+    setChartData(chartDataArray)
+  }
+
+  const getMonthColumns = () => {
+    if (monthlyData.length === 0) return []
+    const firstRow = monthlyData[0]
+    return Object.keys(firstRow).filter(key => key !== 'employee' && key !== 'total')
+  }
+
+  const monthColumns = getMonthColumns()
+
+  return (
+    <>
+      {/* Trend Chart */}
+      {chartData.length > 0 && monthlyData.length > 0 && (
+        <div className="mb-6">
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
+              <Tooltip
+                formatter={(value: number) => money(value)}
+                contentStyle={{ fontSize: 12 }}
+              />
+              <Legend />
+              {monthlyData.slice(0, 3).map((emp, index) => (
+                <Line
+                  key={emp.employee}
+                  type="monotone"
+                  dataKey={emp.employee}
+                  stroke={COLORS[index]}
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Monthly Table */}
+      <div className="data-table-wrapper" style={{ overflowX: 'auto' }}>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th style={{ position: 'sticky', left: 0, background: 'white', zIndex: 1 }}>
+                Employee
+              </th>
+              {monthColumns.map(month => (
+                <th key={month} className="text-right" style={{ minWidth: '120px' }}>
+                  {month}
+                </th>
+              ))}
+              <th className="text-right" style={{ minWidth: '140px' }}>
+                Total (6 months)
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {monthlyData.length === 0 ? (
+              <tr>
+                <td colSpan={monthColumns.length + 2} className="text-center text-gray-500 py-8">
+                  No sales data available
+                </td>
+              </tr>
+            ) : (
+              monthlyData.map((row, index) => (
+                <tr key={row.employee}>
+                  <td style={{ position: 'sticky', left: 0, background: 'white', zIndex: 1 }}>
+                    <div className="flex items-center gap-2">
+                      {index < 3 && (
+                        <div className="flex-shrink-0">
+                          {index === 0 && <Award className="w-4 h-4 text-yellow-500" />}
+                          {index === 1 && <Award className="w-4 h-4 text-gray-400" />}
+                          {index === 2 && <Award className="w-4 h-4 text-orange-600" />}
+                        </div>
+                      )}
+                      <div className="cell-strong">{row.employee}</div>
+                    </div>
+                  </td>
+                  {monthColumns.map(month => {
+                    const data = row[month]
+                    const hasData = data && data.revenue > 0
+                    return (
+                      <td key={month} className="text-right">
+                        {hasData ? (
+                          <>
+                            <div className="text-sm font-medium text-gray-900">
+                              {money(data.revenue)}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {data.count} {data.count === 1 ? 'sale' : 'sales'}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-sm text-gray-400">-</div>
+                        )}
+                      </td>
+                    )
+                  })}
+                  <td className="text-right">
+                    <div className="cell-strong">{money(row.total)}</div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }
