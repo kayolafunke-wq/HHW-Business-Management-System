@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Package, TrendingUp, TrendingDown, Search } from 'lucide-react'
-import Card from '@/components/ui/Card'
+import { Card } from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Badge from '@/components/ui/Badge'
 import { Pagination, usePagination } from '@/components/ui/Pagination'
