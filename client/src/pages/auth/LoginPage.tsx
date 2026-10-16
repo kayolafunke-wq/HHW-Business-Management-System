@@ -45,8 +45,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left side - Branding */}
-      <div className="flex-1 bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] relative overflow-hidden text-white p-12 flex flex-col justify-between">
+      {/* Left side - Branding - FIXED NO SCROLL */}
+      <div className="flex-1 bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] relative overflow-hidden text-white p-12 flex flex-col justify-between fixed left-0 top-0 bottom-0 w-1/2">
         {/* Animated gradient orbs - MORE VISIBLE */}
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#3b82f6]/40 to-[#8b5cf6]/30 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#8b5cf6]/40 to-[#3b82f6]/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
@@ -171,8 +171,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right side - Login form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      {/* Right side - Login form - SCROLLABLE */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-white ml-[50%] min-h-screen overflow-y-auto">
         <div className="w-full max-w-[380px]">
           <div className="mb-6">
             <h2 className="font-display font-semibold text-[22px] mb-1">Welcome back</h2>
