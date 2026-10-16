@@ -46,7 +46,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex overflow-hidden">
       {/* Left side - Branding - FIXED NO SCROLL */}
-      <div className="w-1/2 bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] relative overflow-hidden text-white p-8 flex flex-col justify-between fixed left-0 top-0 h-screen">
+      <div className="w-1/2 bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] overflow-y-hidden text-white p-8 flex flex-col justify-between fixed left-0 top-0 h-screen z-10">
+        {/* Background container - relative positioning */}
+        <div className="absolute inset-0 overflow-hidden">
         {/* Animated gradient orbs - MORE VISIBLE */}
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#3b82f6]/40 to-[#8b5cf6]/30 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#8b5cf6]/40 to-[#3b82f6]/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
@@ -84,6 +86,7 @@ export default function LoginPage() {
         {/* Glowing accent lines */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
         <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+        </div>
 
         <div className="relative z-10">
           {/* Logo with glow effect */}
