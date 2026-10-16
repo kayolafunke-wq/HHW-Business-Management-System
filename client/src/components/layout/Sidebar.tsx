@@ -40,57 +40,57 @@ const NAV_CONFIG: NavSection[] = [
   {
     section: 'Overview',
     items: [
-      { key: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard', roles: ['Administrator', 'Inventory User', 'HR User', 'Accountant'] },
+      { key: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard', roles: ['Administrator', 'ADMINISTRATOR', 'Inventory User', 'INVENTORY_USER', 'HR User', 'HR_USER', 'Accountant', 'ACCOUNTANT'] },
     ],
   },
   {
     section: 'Sales',
     items: [
-      { key: 'sales', label: 'Sales', icon: ShoppingCart, path: '/sales', roles: ['Administrator', 'Sales User', 'Accountant'] },
-      { key: 'createsale', label: 'Create Sale', icon: Plus, path: '/sales/create', roles: ['Administrator', 'Sales User'] },
-      { key: 'invoices', label: 'Invoices', icon: FileText, path: '/invoices', roles: ['Administrator', 'Sales User', 'Accountant'] },
+      { key: 'sales', label: 'Sales', icon: ShoppingCart, path: '/sales', roles: ['Administrator', 'ADMINISTRATOR', 'Sales User', 'SALES_USER', 'Accountant', 'ACCOUNTANT'] },
+      { key: 'createsale', label: 'Create Sale', icon: Plus, path: '/sales/create', roles: ['Administrator', 'ADMINISTRATOR', 'Sales User', 'SALES_USER'] },
+      { key: 'invoices', label: 'Invoices', icon: FileText, path: '/invoices', roles: ['Administrator', 'ADMINISTRATOR', 'Sales User', 'SALES_USER', 'Accountant', 'ACCOUNTANT'] },
     ],
   },
   {
     section: 'Business',
     items: [
-      { key: 'quotations', label: 'Quotations', icon: FileText, path: '/quotations', roles: ['Administrator', 'Sales User'] },
-      { key: 'deliverynotes', label: 'Delivery Notes', icon: Package, path: '/delivery-notes', roles: ['Administrator', 'Sales User', 'Inventory User'] },
-      { key: 'debtors', label: 'Debtors', icon: ArrowDownCircle, path: '/debtors', roles: ['Administrator', 'Accountant'] },
-      { key: 'creditors', label: 'Creditors', icon: ArrowUpCircle, path: '/creditors', roles: ['Administrator', 'Accountant'] },
+      { key: 'quotations', label: 'Quotations', icon: FileText, path: '/quotations', roles: ['Administrator', 'ADMINISTRATOR', 'Sales User', 'SALES_USER'] },
+      { key: 'deliverynotes', label: 'Delivery Notes', icon: Package, path: '/delivery-notes', roles: ['Administrator', 'ADMINISTRATOR', 'Sales User', 'SALES_USER', 'Inventory User', 'INVENTORY_USER'] },
+      { key: 'debtors', label: 'Debtors', icon: ArrowDownCircle, path: '/debtors', roles: ['Administrator', 'ADMINISTRATOR', 'Accountant', 'ACCOUNTANT'] },
+      { key: 'creditors', label: 'Creditors', icon: ArrowUpCircle, path: '/creditors', roles: ['Administrator', 'ADMINISTRATOR', 'Accountant', 'ACCOUNTANT'] },
     ],
   },
   {
     section: 'Inventory',
     items: [
-      { key: 'products', label: 'Products', icon: Package, path: '/products', roles: ['Administrator', 'Inventory User', 'Sales User'] },
-      { key: 'inventory', label: 'Inventory', icon: Layers, path: '/inventory', roles: ['Administrator', 'Inventory User'] },
-      { key: 'tracking', label: 'Inventory Tracking', icon: Clock, path: '/inventory/tracking', roles: ['Administrator', 'Inventory User'] },
-      { key: 'fastslow', label: 'Fast / Slow Movers', icon: Zap, path: '/inventory/fast-slow', roles: ['Administrator', 'Inventory User'] },
+      { key: 'products', label: 'Products', icon: Package, path: '/products', roles: ['Administrator', 'ADMINISTRATOR', 'Inventory User', 'INVENTORY_USER', 'Sales User', 'SALES_USER'] },
+      { key: 'inventory', label: 'Inventory', icon: Layers, path: '/inventory', roles: ['Administrator', 'ADMINISTRATOR', 'Inventory User', 'INVENTORY_USER'] },
+      { key: 'tracking', label: 'Inventory Tracking', icon: Clock, path: '/inventory/tracking', roles: ['Administrator', 'ADMINISTRATOR', 'Inventory User', 'INVENTORY_USER'] },
+      { key: 'fastslow', label: 'Fast / Slow Movers', icon: Zap, path: '/inventory/fast-slow', roles: ['Administrator', 'ADMINISTRATOR', 'Inventory User', 'INVENTORY_USER'] },
     ],
   },
   {
     section: 'Human Resources',
     items: [
-      { key: 'employees', label: 'Employees', icon: Users, path: '/employees', roles: ['Administrator', 'HR User'] },
-      { key: 'employeereg', label: 'Employee Registration', icon: UserPlus, path: '/employees/register', roles: ['Administrator', 'HR User'] },
-      { key: 'attendance', label: 'Attendance', icon: Calendar, path: '/attendance', roles: ['Administrator', 'HR User'] },
+      { key: 'employees', label: 'Employees', icon: Users, path: '/employees', roles: ['Administrator', 'ADMINISTRATOR', 'HR User', 'HR_USER'] },
+      { key: 'employeereg', label: 'Employee Registration', icon: UserPlus, path: '/employees/register', roles: ['Administrator', 'ADMINISTRATOR', 'HR User', 'HR_USER'] },
+      { key: 'attendance', label: 'Attendance', icon: Calendar, path: '/attendance', roles: ['Administrator', 'ADMINISTRATOR', 'HR User', 'HR_USER'] },
     ],
   },
   {
     section: 'Insights',
     items: [
-      { key: 'performance', label: 'Business Performance', icon: TrendingUp, path: '/performance', roles: ['Administrator', 'Accountant'] },
-      { key: 'sales-performance', label: 'Sales Performance', icon: Award, path: '/sales-performance', roles: ['Administrator'] },
-      { key: 'reports', label: 'Reports', icon: BarChart3, path: '/reports', roles: ['Administrator', 'Inventory User', 'HR User', 'Accountant'] },
+      { key: 'performance', label: 'Business Performance', icon: TrendingUp, path: '/performance', roles: ['Administrator', 'ADMINISTRATOR', 'Accountant', 'ACCOUNTANT'] },
+      { key: 'sales-performance', label: 'Sales Performance', icon: Award, path: '/sales-performance', roles: ['Administrator', 'ADMINISTRATOR'] },
+      { key: 'reports', label: 'Reports', icon: BarChart3, path: '/reports', roles: ['Administrator', 'ADMINISTRATOR', 'Inventory User', 'INVENTORY_USER', 'HR User', 'HR_USER', 'Accountant', 'ACCOUNTANT'] },
     ],
   },
   {
     section: 'Administration',
     items: [
-      { key: 'users', label: 'User Management', icon: Shield, path: '/users', roles: ['Administrator'] },
-      { key: 'auditlog', label: 'Audit Log', icon: Clock, path: '/audit-log', roles: ['Administrator'] },
-      { key: 'settings', label: 'Settings', icon: Settings, path: '/settings', roles: ['Administrator'] },
+      { key: 'users', label: 'User Management', icon: Shield, path: '/users', roles: ['Administrator', 'ADMINISTRATOR'] },
+      { key: 'auditlog', label: 'Audit Log', icon: Clock, path: '/audit-log', roles: ['Administrator', 'ADMINISTRATOR'] },
+      { key: 'settings', label: 'Settings', icon: Settings, path: '/settings', roles: ['Administrator', 'ADMINISTRATOR'] },
     ],
   },
 ]
