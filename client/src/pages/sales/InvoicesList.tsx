@@ -1,13 +1,759 @@
-export default function InvoicesList() {
+import { useState } from 'react'
+import { Eye, Search, Plus, Download, X, Printer } from 'lucide-react'
+import { Card } from '@/components/ui/Card'
+import Badge from '@/components/ui/Badge'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
+import { Pagination, usePagination } from '@/components/ui/Pagination'
+import { useDataStore } from '@/store/dataStore'
+import type { Sale } from '@/services/dataGenerator'
+import toast from 'react-hot-toast'
+
+function money(n: number): string {
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-display font-semibold text-gray-900">Invoices</h1>
-        <p className="text-sm text-gray-600 mt-1">Manage customer invoices</p>
+    'MK ' +
+    Number(n).toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+  )
+}
+
+function fmtDateLong(dstr: string): string {
+  const d = new Date(dstr + 'T00:00:00')
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+interface InvoiceItem {
+  productId: string
+  name: string
+  price: number
+  quantity: number
+  total: number
+}
+
+interface CreatedInvoice {
+  invoiceNo: string
+  customerName: string
+  phoneNumber: string
+  date: string
+  items: InvoiceItem[]
+  subtotal: number
+  discount: number
+  vat: number
+  total: number
+  status: string
+}
+
+// View Invoice Modal
+function ViewInvoiceModal({ invoice, onClose }: { invoice: Sale | CreatedInvoice; onClose: () => void }) {
+  const { inventoryMovements } = useDataStore()
+  
+  // Get invoice number from either Sale or CreatedInvoice
+  const isSale = 'customer' in invoice
+  const invoiceNo = isSale ? (invoice as Sale).invoiceNo : (invoice as CreatedInvoice).invoiceNo
+  const customerName = isSale ? (invoice as Sale).customer : (invoice as CreatedInvoice).customerName
+  
+  // Find related inventory movements for this invoice
+  const relatedMovements = inventoryMovements.filter(m => m.reference === invoiceNo)
+  
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const handleDownload = () => {
+    // Create a simple text invoice
+    const invoiceText = `
+H.H WHOLESALERS
+Area 4, Chilambura Road, Opposite Chipiku
+Lilongwe, Malawi
++265 (0) 999 888 747 · hhw.malawi@gmail.com
+VAT Reg. No. VAT-88214
+
+========================
+INVOICE
+========================
+
+Invoice No: ${invoiceNo}
+Date: ${fmtDateLong(invoice.date)}
+Customer: ${customerName}
+Status: ${invoice.status || (invoice as any).payStatus || 'Pending'}
+
+------------------------
+ITEMS
+------------------------
+${!isSale && (invoice as CreatedInvoice).items ? 
+  (invoice as CreatedInvoice).items.map(item => 
+    `${item.name}\n  ${item.quantity} x ${money(item.price)} = ${money(item.total)}`
+  ).join('\n\n') : 
+  'See invoice for item details'}
+
+------------------------
+TOTALS
+------------------------
+Subtotal:    ${money((invoice as any).subtotal)}
+Discount:   -${money((invoice as CreatedInvoice).discount || 0)}
+VAT (17.5%): ${money((invoice as any).vat)}
+------------------------
+TOTAL:       ${money((invoice as any).total)}
+========================
+
+Thank you for your business!
+    `
+
+    const blob = new Blob([invoiceText], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `invoice-${invoiceNo}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success('Invoice downloaded')
+  }
+
+  // Variables are already declared at component level (lines 52-54)
+  const items = isSale ? [] : (invoice as CreatedInvoice).items
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal modal-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <div className="modal-title">{isSale ? (invoice as Sale).invoiceNo : (invoice as CreatedInvoice).invoiceNo}</div>
+          <button onClick={onClose} className="icon-btn">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="modal-body">
+          {/* Company Header */}
+          <div className="flex items-start justify-between mb-6 pb-4 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-lg">
+                H
+              </div>
+              <div>
+                <div className="font-display font-semibold text-base text-gray-900">
+                  H.H Wholesalers
+                </div>
+                <div className="text-xs text-gray-500">Area 4, Chilambura Road, Opposite Chipiku</div>
+                <div className="text-xs text-gray-500">Lilongwe, Malawi</div>
+                <div className="text-xs text-gray-500">+265 (0) 999 888 747 · hhw.malawi@gmail.com</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-display font-bold text-lg text-gray-900 mb-1">INVOICE</div>
+              <div className="text-sm font-semibold text-gray-900">
+                {isSale ? (invoice as Sale).invoiceNo : (invoice as CreatedInvoice).invoiceNo}
+              </div>
+              <div className="text-xs text-gray-500">{fmtDateLong(invoice.date)}</div>
+            </div>
+          </div>
+
+          {/* Billed To & Payment Status */}
+          <div className="flex justify-between mb-6">
+            <div>
+              <div className="text-xs font-semibold text-gray-500 mb-2">BILLED TO</div>
+              <div className="font-semibold text-sm text-gray-900">{customerName}</div>
+              {!isSale && (invoice as CreatedInvoice).phoneNumber && (
+                <div className="text-xs text-gray-500">{(invoice as CreatedInvoice).phoneNumber}</div>
+              )}
+            </div>
+            <div className="text-right">
+              <div className="text-xs font-semibold text-gray-500 mb-2">PAYMENT STATUS</div>
+              <Badge
+                variant={
+                  invoice.status === 'Paid' || (invoice as any).payStatus === 'Paid'
+                    ? 'success'
+                    : 'warning'
+                }
+              >
+                {invoice.status || (invoice as any).payStatus || 'Pending'}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Items Table */}
+          <div className="mb-6">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th className="text-center">Qty</th>
+                  <th className="text-right">Unit Price</th>
+                  <th className="text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!isSale && items.length > 0 ? (
+                  items.map((item, i) => (
+                    <tr key={i}>
+                      <td>
+                        <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                      </td>
+                      <td className="text-center">
+                        <div className="text-sm text-gray-700">{item.quantity}</div>
+                      </td>
+                      <td className="text-right">
+                        <div className="text-sm text-gray-700">{money(item.price)}</div>
+                      </td>
+                      <td className="text-right">
+                        <div className="text-sm font-semibold text-gray-900">{money(item.total)}</div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  // For sales without item details, show sample items
+                  Array.from({ length: (invoice as any).items || 3 }, (_, i) => {
+                    const products = ['Sugar 2kg', 'LED Bulb 9W (Pack of 4)', 'Salt 1kg (Pack of 10)']
+                    const price = Math.floor((invoice as any).subtotal / ((invoice as any).items || 3))
+                    return (
+                      <tr key={i}>
+                        <td>
+                          <div className="text-sm font-medium text-gray-900">{products[i]}</div>
+                        </td>
+                        <td className="text-center">
+                          <div className="text-sm text-gray-700">{Math.floor(Math.random() * 3) + 1}</div>
+                        </td>
+                        <td className="text-right">
+                          <div className="text-sm text-gray-700">{money(price)}</div>
+                        </td>
+                        <td className="text-right">
+                          <div className="text-sm font-semibold text-gray-900">{money(price)}</div>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Totals */}
+          <div className="flex justify-end">
+            <div className="w-64 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Subtotal</span>
+                <span className="font-semibold text-gray-900">{money((invoice as any).subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Discount</span>
+                <span className="font-semibold text-gray-900">-{money((invoice as CreatedInvoice).discount || 0)}</span>
+              </div>
+              <div className="divider"></div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">VAT (17.5%)</span>
+                <span className="font-semibold text-gray-900">{money((invoice as any).vat)}</span>
+              </div>
+              <div className="divider"></div>
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-900">Total</span>
+                <span className="font-bold text-lg text-gray-900">{money((invoice as any).total)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-foot">
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
+          <Button variant="outline" onClick={handleDownload}>
+            <Download className="w-4 h-4" />
+            Download
+          </Button>
+          <Button onClick={handlePrint}>
+            <Printer className="w-4 h-4" />
+            Print Invoice
+          </Button>
+        </div>
       </div>
-      <div className="bg-white p-6 rounded-xl border border-gray-200">
-        <p className="text-sm text-gray-600">Page content coming soon...</p>
+    </div>
+  )
+}
+
+// Create Invoice Modal
+function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCreated: (invoice: CreatedInvoice) => void }) {
+  const { products } = useDataStore()
+  const [customerName, setCustomerName] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [items, setItems] = useState<InvoiceItem[]>([])
+  const [discount, setDiscount] = useState(0)
+
+  // Filter products
+  const filteredProducts = products
+    .filter(p => 
+      p.stock > 0 && 
+      (p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       p.sku.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+    .slice(0, 10)
+
+  // Add item
+  const addItem = (productId: string) => {
+    const product = products.find(p => p.id === productId)
+    if (!product) return
+
+    const existing = items.find(i => i.productId === productId)
+    if (existing) {
+      setItems(items.map(i => 
+        i.productId === productId 
+          ? { ...i, quantity: i.quantity + 1, total: (i.quantity + 1) * i.price }
+          : i
+      ))
+    } else {
+      setItems([...items, {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        total: product.price,
+      }])
+    }
+    setSearchQuery('')
+  }
+
+  // Remove item
+  const removeItem = (productId: string) => {
+    setItems(items.filter(i => i.productId !== productId))
+  }
+
+  // Calculate totals
+  const subtotal = items.reduce((sum, item) => sum + item.total, 0)
+  const discountAmount = discount
+  const vat = (subtotal - discountAmount) * 0.175
+  const total = subtotal - discountAmount + vat
+
+  // Generate invoice
+  const handleGenerate = () => {
+    if (!customerName.trim()) {
+      toast.error('Please enter customer name')
+      return
+    }
+    if (items.length === 0) {
+      toast.error('Please add at least one item')
+      return
+    }
+
+    const invoice: CreatedInvoice = {
+      invoiceNo: 'INV-' + Math.floor(Math.random() * 10000),
+      customerName,
+      phoneNumber,
+      date: new Date().toISOString().split('T')[0],
+      items,
+      subtotal,
+      discount: discountAmount,
+      vat,
+      total,
+      status: 'Pending',
+    }
+
+    toast.success('Invoice created successfully!')
+    onCreated(invoice)
+    onClose()
+  }
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal modal-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <div className="modal-title">Create Invoice</div>
+          <button onClick={onClose} className="icon-btn">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="modal-body">
+          <p className="text-xs text-gray-600 mb-4">
+            Use this for a client who just wants a bill or quote — it won't record a sale or reduce stock.
+          </p>
+
+          {/* Customer Info */}
+          <div className="grid grid-2 gap-3 mb-4">
+            <div>
+              <label className="text-xs font-semibold text-gray-700 mb-1.5 block">
+                Customer Name
+              </label>
+              <Input
+                type="text"
+                placeholder="e.g. Chikondi Banda"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-700 mb-1.5 block">
+                Phone Number
+              </label>
+              <Input
+                type="text"
+                placeholder="+265 99 000 0000"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Product Search */}
+          <div className="mb-4">
+            <Input
+              type="text"
+              placeholder="Search product to add..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && filteredProducts.length > 0 && (
+              <div className="mt-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg">
+                {filteredProducts.map(product => (
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between p-2 hover:bg-gray-50 border-b last:border-b-0"
+                  >
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm font-semibold text-gray-900">{money(product.price)}</div>
+                      <button
+                        onClick={() => addItem(product.id)}
+                        className="text-xs font-semibold text-brand hover:text-brand-dark"
+                      >
+                        + Add
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Items List */}
+          <div className="mb-4">
+            {items.length === 0 ? (
+              <div className="text-center py-8 border border-dashed border-gray-300 rounded-lg">
+                <svg className="w-10 h-10 text-gray-400 mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M16 2H8a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2Z"/>
+                  <path d="M9 8h6M9 12h6M9 16h4"/>
+                </svg>
+                <div className="text-sm font-semibold text-gray-600 mb-1">No items added yet</div>
+                <div className="text-xs text-gray-500">Search above and add the products or services to include.</div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {items.map(item => (
+                  <div key={item.productId} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {item.quantity} × {money(item.price)}
+                      </div>
+                    </div>
+                    <div className="text-sm font-bold text-gray-900">{money(item.total)}</div>
+                    <button
+                      onClick={() => removeItem(item.productId)}
+                      className="w-6 h-6 rounded bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="divider"></div>
+
+          {/* Discount */}
+          <div className="mb-4">
+            <label className="text-xs font-semibold text-gray-700 mb-1.5 block">
+              Discount (MK)
+            </label>
+            <Input
+              type="number"
+              value={discount}
+              onChange={(e) => setDiscount(Number(e.target.value))}
+              min="0"
+              max={subtotal}
+            />
+          </div>
+
+          {/* Totals */}
+          <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Subtotal</span>
+              <span className="font-semibold text-gray-900">{money(subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Discount</span>
+              <span className="font-semibold text-red-600">-{money(discountAmount)}</span>
+            </div>
+            <div className="divider !my-2"></div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">VAT (17.5%)</span>
+              <span className="font-semibold text-gray-900">{money(vat)}</span>
+            </div>
+            <div className="divider !my-2"></div>
+            <div className="flex justify-between">
+              <span className="font-bold text-gray-900">Total Due</span>
+              <span className="font-bold text-lg text-gray-900">{money(total)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-foot">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleGenerate}>
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M16 2H8a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2Z"/>
+              <path d="M9 8h6M9 12h6M9 16h4"/>
+            </svg>
+            Generate Invoice
+          </Button>
+        </div>
       </div>
+    </div>
+  )
+}
+
+export default function InvoicesList() {
+  const { sales } = useDataStore()
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>('All')
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [selectedInvoice, setSelectedInvoice] = useState<Sale | CreatedInvoice | null>(null)
+
+  // Use sales as invoices
+  const invoices = sales
+
+  // Calculate KPIs
+  const totalInvoices = invoices.length
+  const paidCount = invoices.filter(i => i.payStatus === 'Paid').length
+  const pendingCount = invoices.filter(i => i.payStatus === 'Pending').length  
+  const totalRevenue = invoices.reduce((sum, i) => sum + i.total, 0)
+
+  // Filter invoices
+  const filteredInvoices = invoices.filter(i => {
+    const matchesSearch = i.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         i.invoiceNo.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = statusFilter === 'All' || i.payStatus === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
+  // Pagination
+  const { currentPage, totalPages, paginatedItems, setCurrentPage, totalItems, itemsPerPage } = usePagination(filteredInvoices, 15)
+
+  return (
+    <div className="fade-in">
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">Invoices</h1>
+          <p className="page-sub">Manage customer invoices</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+          <Button onClick={() => setShowCreateModal(true)}>
+            <Plus className="w-4 h-4" />
+            New Invoice
+          </Button>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-4 mb-5">
+        <Card className="kpi">
+          <div className="kpi-top">
+            <div className="kpi-icon bg-[#e8eefd]">
+              <svg className="w-4 h-4 text-[#2f5df5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 2H8a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2Z"/>
+                <path d="M9 8h6M9 12h6M9 16h4"/>
+              </svg>
+            </div>
+          </div>
+          <div className="kpi-label">Total Invoices</div>
+          <div className="kpi-value">{totalInvoices}</div>
+        </Card>
+
+        <Card className="kpi">
+          <div className="kpi-top">
+            <div className="kpi-icon bg-[#e3f8f2]">
+              <svg className="w-4 h-4 text-[#0ea885]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+          </div>
+          <div className="kpi-label">Paid</div>
+          <div className="kpi-value">{paidCount}</div>
+        </Card>
+
+        <Card className="kpi">
+          <div className="kpi-top">
+            <div className="kpi-icon bg-[#fbf0dd]">
+              <svg className="w-4 h-4 text-[#c97a1a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+          </div>
+          <div className="kpi-label">Pending</div>
+          <div className="kpi-value">{pendingCount}</div>
+        </Card>
+
+        <Card className="kpi">
+          <div className="kpi-top">
+            <div className="kpi-icon bg-[#efeafb]">
+              <svg className="w-4 h-4 text-[#6a4fd6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+          </div>
+          <div className="kpi-label">Total Revenue</div>
+          <div className="kpi-value">{money(totalRevenue)}</div>
+        </Card>
+      </div>
+
+      {/* Filters and Search */}
+      <Card>
+        <div className="toolbar">
+          <div className="toolbar-left">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search customer or invoice..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-64"
+              />
+            </div>
+            <select
+              className="input filter-input"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="All">All Status</option>
+              <option value="Paid">Paid</option>
+              <option value="Pending">Pending</option>
+              <option value="Partially Paid">Partially Paid</option>
+            </select>
+          </div>
+          <div className="text-xs text-gray-500">
+            {filteredInvoices.length} invoice{filteredInvoices.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+
+        {/* Invoices Table */}
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Invoice No</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Subtotal</th>
+                <th>VAT</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedItems.map((invoice) => (
+                <tr key={invoice.id}>
+                  <td>
+                    <div className="cell-strong">{invoice.invoiceNo}</div>
+                  </td>
+                  <td>
+                    <div className="cell-strong">{invoice.customer}</div>
+                  </td>
+                  <td>
+                    <div className="cell-sub">{fmtDateLong(invoice.date)}</div>
+                  </td>
+                  <td>
+                    <div className="text-gray-700">{invoice.items} item(s)</div>
+                  </td>
+                  <td>
+                    <div className="text-gray-700">{money(invoice.subtotal)}</div>
+                  </td>
+                  <td>
+                    <div className="text-gray-700">{money(invoice.vat)}</div>
+                  </td>
+                  <td>
+                    <div className="cell-strong">{money(invoice.total)}</div>
+                  </td>
+                  <td>
+                    <Badge
+                      variant={
+                        invoice.payStatus === 'Paid'
+                          ? 'success'
+                          : invoice.payStatus === 'Pending'
+                          ? 'warning'
+                          : 'default'
+                      }
+                    >
+                      {invoice.payStatus}
+                    </Badge>
+                  </td>
+                  <td>
+                    <button 
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => setSelectedInvoice(invoice)}
+                    >
+                      <Eye className="w-3 h-3" />
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          totalItems={totalItems}
+        />
+
+        {filteredInvoices.length === 0 && (
+          <div className="empty-state">
+            <svg className="w-10 h-10 text-gray-400 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.3-4.3"/>
+            </svg>
+            <div className="text-sm font-semibold text-gray-700 mb-1">No invoices found</div>
+            <div className="text-xs text-gray-500">Try adjusting your search or filters</div>
+          </div>
+        )}
+      </Card>
+
+      {/* Create Invoice Modal */}
+      {showCreateModal && (
+        <CreateInvoiceModal 
+          onClose={() => setShowCreateModal(false)}
+          onCreated={(invoice) => {
+            setSelectedInvoice(invoice)
+          }}
+        />
+      )}
+
+      {/* View Invoice Modal */}
+      {selectedInvoice && (
+        <ViewInvoiceModal 
+          invoice={selectedInvoice}
+          onClose={() => setSelectedInvoice(null)}
+        />
+      )}
     </div>
   )
 }

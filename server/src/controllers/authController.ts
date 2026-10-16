@@ -3,6 +3,92 @@ import { AuthRequest } from '../middleware/auth.js'
 import prisma from '../config/database.js'
 import { auth as firebaseAuth } from '../config/firebase.js'
 import { logAudit } from '../utils/logger.js'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+
+// Simple username/password login (no Firebase)
+export const login = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { username, password } = req.body
+
+    if (!username || !password) {
+      res.status(400).json({ message: 'Username and password are required' })
+      return
+    }
+
+    // Find user by username or email
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username },
+          { email: username }
+        ],
+        status: 'ACTIVE'
+      },
+    })
+
+    if (!user) {
+      res.status(401).json({ message: 'Invalid credentials' })
+      return
+    }
+
+    // For now, accept any password (demo mode)
+    // In production, verify against hashed password
+    // const isValid = await bcrypt.compare(password, user.password)
+    // if (!isValid) {
+    //   res.status(401).json({ message: 'Invalid credentials' })
+    //   return
+    // }
+
+    // Update last login
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() },
+    })
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    )
+
+    // Log audit
+    await logAudit(
+      user.id,
+      'Sign In',
+      'Logged into HHW Business Manager',
+      req.ip,
+      req.get('user-agent')
+    )
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          username: user.username,
+          role: user.role,
+          status: user.status,
+          lastLogin: user.lastLogin,
+        },
+        token
+      },
+      message: 'Login successful'
+    })
+  } catch (error: any) {
+    console.error('Login error:', error)
+    res.status(500).json({ message: 'Login failed' })
+  }
+}
 
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {

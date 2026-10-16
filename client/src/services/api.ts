@@ -13,9 +13,10 @@ const api = axios.create({
 // Request interceptor for auth token
 api.interceptors.request.use(
   (config) => {
-    // In development, we don't need token since backend uses dev auth
-    // In production, add: const token = localStorage.getItem('token')
-    // if (token) config.headers.Authorization = `Bearer ${token}`
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   (error) => {

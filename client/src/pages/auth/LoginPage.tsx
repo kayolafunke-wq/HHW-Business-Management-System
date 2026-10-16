@@ -18,14 +18,34 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    // Simulate login delay
-    setTimeout(() => {
-      // Demo login - just use Administrator role
-      demoLogin('Administrator')
-      toast.success('Welcome back, Chikondi!')
-      navigate('/dashboard')
+    try {
+      // Real API login
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        // Store token
+        localStorage.setItem('token', result.data.token)
+        
+        // Set user in auth store
+        useAuthStore.getState().setUser(result.data.user)
+        
+        toast.success(`Welcome back, ${result.data.user.name}!`)
+        navigate('/dashboard')
+      } else {
+        toast.error(result.message || 'Invalid credentials')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      toast.error('Login failed. Please try again.')
+    } finally {
       setLoading(false)
-    }, 500)
+    }
   }
 
   // Demo accounts matching the prototype
@@ -37,10 +57,48 @@ export default function LoginPage() {
     { name: 'Finance Manager', username: '@finance', role: 'Accountant' },
   ]
 
-  const handleDemoLogin = (role: string) => {
-    demoLogin(role)
-    toast.success(`Signed in as ${role}`)
-    navigate('/dashboard')
+  const handleDemoLogin = async (role: string) => {
+    try {
+      setLoading(true)
+      
+      // Map role to username
+      const usernameMap: Record<string, string> = {
+        'Administrator': 'admin',
+        'Sales User': 'grace.sales',
+        'Inventory User': 'steven.inv',
+        'HR User': 'faith.hr',
+        'Accountant': 'finance'
+      }
+
+      const loginUsername = usernameMap[role] || 'admin'
+      
+      // Real API login
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: loginUsername, password: 'password' })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        // Store token
+        localStorage.setItem('token', result.data.token)
+        
+        // Set user in auth store
+        useAuthStore.getState().setUser(result.data.user)
+        
+        toast.success(`Signed in as ${result.data.user.name}`)
+        navigate('/dashboard')
+      } else {
+        toast.error(result.message || 'Login failed')
+      }
+    } catch (error) {
+      console.error('Demo login error:', error)
+      toast.error('Login failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

@@ -1,24 +1,43 @@
+import { useEffect } from 'react'
+import { useAuthStore } from '@/store/authStore'
+import { useDataStore } from '@/store/dataStore'
+import AdminDashboard from './AdminDashboard'
+import SalesDashboard from './SalesDashboard'
+import InventoryDashboard from './InventoryDashboard'
+import HRDashboard from './HRDashboard'
+
 export default function Dashboard() {
-  return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-display font-semibold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-600 mt-1">Overview of your business today</p>
-      </div>
+  const { user } = useAuthStore()
+  const { initialized, initializeData } = useDataStore()
 
-      <div className="grid grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white p-5 rounded-xl border border-gray-200">
-            <div className="text-3xl font-display font-bold text-gray-900">{i * 25}</div>
-            <div className="text-sm text-gray-600 mt-1">KPI Metric {i}</div>
-          </div>
-        ))}
-      </div>
+  useEffect(() => {
+    if (!initialized) {
+      initializeData()
+    }
+  }, [initialized, initializeData])
 
-      <div className="mt-6 bg-white p-6 rounded-xl border border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
-        <p className="text-sm text-gray-600">Dashboard content coming soon...</p>
+  if (!initialized) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+          <div className="text-sm text-gray-500">Loading dashboard...</div>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  // Render role-specific dashboard
+  switch (user?.role) {
+    case 'Administrator':
+      return <AdminDashboard />
+    case 'Sales User':
+      return <SalesDashboard />
+    case 'Inventory User':
+      return <InventoryDashboard />
+    case 'HR User':
+      return <HRDashboard />
+    default:
+      return <AdminDashboard />
+  }
 }
