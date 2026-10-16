@@ -30,6 +30,7 @@ function getInitials(name: string): string {
 export default function InventoryTracking() {
   const [movements, setMovements] = useState<InventoryMovement[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [filterType, setFilterType] = useState<'All' | 'Stock In' | 'Stock Out'>('All')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -41,6 +42,7 @@ export default function InventoryTracking() {
   const fetchMovements = async () => {
     try {
       setLoading(true)
+      setError(null)
       const data = await inventoryApi.getAllMovements()
       
       // Transform API data to match component format
@@ -64,9 +66,12 @@ export default function InventoryTracking() {
       })
       
       setMovements(transformedMovements)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch movements:', error)
-      toast.error('Failed to load inventory movements')
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load inventory movements'
+      setError(errorMessage)
+      toast.error(errorMessage)
+      setMovements([]) // Set empty array on error
     } finally {
       setLoading(false)
     }
@@ -97,6 +102,32 @@ export default function InventoryTracking() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2f5df5] mx-auto mb-4"></div>
           <p className="text-gray-500">Loading inventory movements...</p>
         </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="fade-in">
+        <div className="page-head">
+          <div>
+            <h1 className="page-title">Inventory Tracking</h1>
+            <p className="page-sub">Complete history of all stock movements</p>
+          </div>
+        </div>
+        <Card className="p-8">
+          <div className="text-center text-gray-500">
+            <Package className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+            <div className="text-lg font-medium mb-2">Error loading movements</div>
+            <div className="text-sm mb-4">{error}</div>
+            <button
+              onClick={fetchMovements}
+              className="px-4 py-2 bg-[#2f5df5] text-white rounded-md hover:bg-[#2651d4] transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </Card>
       </div>
     )
   }
