@@ -158,31 +158,34 @@ Thank you for your business!
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: sale.items }, (_, i) => {
-                  const itemPrice = Math.floor(sale.subtotal / sale.items / ((i + 1) * 0.8))
-                  const qty = Math.floor(Math.random() * 3) + 1
-                  const products = ['Sugar 2kg', 'LED Bulb 9W (Pack of 4)', 'Salt 1kg (Pack of 10)', 'Rice 25kg Bag', 'Cooking Oil 5L']
-                  return (
+                {sale.items && sale.items.length > 0 ? (
+                  sale.items.map((item: any, i: number) => (
                     <tr key={i}>
                       <td>
                         <div className="text-sm font-medium text-gray-900">
-                          {products[i % products.length]}
+                          {item.product?.name || item.productName || 'Product'}
                         </div>
                       </td>
                       <td className="text-center">
-                        <div className="text-sm text-gray-700">{qty}</div>
+                        <div className="text-sm text-gray-700">{item.quantity}</div>
                       </td>
                       <td className="text-right">
-                        <div className="text-sm text-gray-700">{money(itemPrice)}</div>
+                        <div className="text-sm text-gray-700">{money(item.price)}</div>
                       </td>
                       <td className="text-right">
                         <div className="text-sm font-semibold text-gray-900">
-                          {money(itemPrice * qty)}
+                          {money(item.total)}
                         </div>
                       </td>
                     </tr>
-                  )
-                })}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="text-center text-gray-500 py-4">
+                      No items found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
