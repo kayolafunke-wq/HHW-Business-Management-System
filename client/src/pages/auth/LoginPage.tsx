@@ -36,7 +36,18 @@ export default function LoginPage() {
         useAuthStore.getState().setUser(result.data.user)
         
         toast.success(`Welcome back, ${result.data.user.name}!`)
-        navigate('/dashboard')
+        
+        // Redirect based on role
+        const role = result.data.user.role
+        if (role === 'Sales User') {
+          navigate('/sales')
+        } else if (role === 'Inventory User') {
+          navigate('/products')
+        } else if (role === 'HR User') {
+          navigate('/employees')
+        } else {
+          navigate('/dashboard')
+        }
       } else {
         toast.error(result.message || 'Invalid credentials')
       }
@@ -89,7 +100,18 @@ export default function LoginPage() {
         useAuthStore.getState().setUser(result.data.user)
         
         toast.success(`Signed in as ${result.data.user.name}`)
-        navigate('/dashboard')
+        
+        // Redirect based on role
+        const userRole = result.data.user.role
+        if (userRole === 'Sales User') {
+          navigate('/sales')
+        } else if (userRole === 'Inventory User') {
+          navigate('/products')
+        } else if (userRole === 'HR User') {
+          navigate('/employees')
+        } else {
+          navigate('/dashboard')
+        }
       } else {
         toast.error(result.message || 'Login failed')
       }
