@@ -6,16 +6,20 @@ import Dashboard from './pages/dashboard/Dashboard'
 import SalesList from './pages/sales/SalesList'
 import CreateSale from './pages/sales/CreateSale'
 import InvoicesList from './pages/sales/InvoicesList'
+import QuotationsPage from './pages/business/QuotationsPage'
+import DeliveryNotesPage from './pages/business/DeliveryNotesPage'
+import DebtorsPage from './pages/business/DebtorsPage'
+import CreditorsPage from './pages/business/CreditorsPage'
 import ProductsList from './pages/inventory/ProductsList'
 import InventoryPage from './pages/inventory/InventoryPage'
-import StockIn from './pages/inventory/StockIn'
-import StockOut from './pages/inventory/StockOut'
+import InventoryTracking from './pages/inventory/InventoryTracking'
 import FastSlowMovers from './pages/inventory/FastSlowMovers'
 import EmployeesList from './pages/hr/EmployeesList'
 import EmployeeRegistration from './pages/hr/EmployeeRegistration'
 import AttendancePage from './pages/hr/AttendancePage'
 import ReportsPage from './pages/reports/ReportsPage'
 import PerformancePage from './pages/reports/PerformancePage'
+import SalesPerformance from './pages/reports/SalesPerformance'
 import UsersPage from './pages/admin/UsersPage'
 import AuditLogPage from './pages/admin/AuditLogPage'
 import SettingsPage from './pages/admin/SettingsPage'
@@ -37,6 +41,8 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
 
 function App() {
   const { isAuthenticated } = useAuthStore()
+
+  console.log('App rendering, isAuthenticated:', isAuthenticated)
 
   return (
     <Routes>
@@ -63,11 +69,16 @@ function App() {
         <Route path="sales/create" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User']}><CreateSale /></ProtectedRoute>} />
         <Route path="invoices" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User']}><InvoicesList /></ProtectedRoute>} />
 
+        {/* Business */}
+        <Route path="quotations" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User']}><QuotationsPage /></ProtectedRoute>} />
+        <Route path="delivery-notes" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User', 'Inventory User']}><DeliveryNotesPage /></ProtectedRoute>} />
+        <Route path="debtors" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User']}><DebtorsPage /></ProtectedRoute>} />
+        <Route path="creditors" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User']}><CreditorsPage /></ProtectedRoute>} />
+
         {/* Inventory */}
         <Route path="products" element={<ProductsList />} />
         <Route path="inventory" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User']}><InventoryPage /></ProtectedRoute>} />
-        <Route path="inventory/stock-in" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User']}><StockIn /></ProtectedRoute>} />
-        <Route path="inventory/stock-out" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User']}><StockOut /></ProtectedRoute>} />
+        <Route path="inventory/tracking" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User']}><InventoryTracking /></ProtectedRoute>} />
         <Route path="inventory/fast-slow" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User']}><FastSlowMovers /></ProtectedRoute>} />
 
         {/* HR */}
@@ -78,6 +89,7 @@ function App() {
         {/* Reports */}
         <Route path="reports" element={<ReportsPage />} />
         <Route path="performance" element={<ProtectedRoute allowedRoles={['Administrator']}><PerformancePage /></ProtectedRoute>} />
+        <Route path="sales-performance" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales Manager']}><SalesPerformance /></ProtectedRoute>} />
 
         {/* Admin */}
         <Route path="users" element={<ProtectedRoute allowedRoles={['Administrator']}><UsersPage /></ProtectedRoute>} />

@@ -18,6 +18,7 @@ import {
   Shield,
   Clock,
   Settings,
+  Award,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -51,12 +52,20 @@ const NAV_CONFIG: NavSection[] = [
     ],
   },
   {
+    section: 'Business',
+    items: [
+      { key: 'quotations', label: 'Quotations', icon: FileText, path: '/quotations', roles: ['Administrator', 'Sales User'] },
+      { key: 'deliverynotes', label: 'Delivery Notes', icon: Package, path: '/delivery-notes', roles: ['Administrator', 'Sales User', 'Inventory User'] },
+      { key: 'debtors', label: 'Debtors', icon: ArrowDownCircle, path: '/debtors', roles: ['Administrator', 'Sales User'] },
+      { key: 'creditors', label: 'Creditors', icon: ArrowUpCircle, path: '/creditors', roles: ['Administrator', 'Inventory User'] },
+    ],
+  },
+  {
     section: 'Inventory',
     items: [
       { key: 'products', label: 'Products', icon: Package, path: '/products', roles: ['Administrator', 'Inventory User', 'Sales User'] },
       { key: 'inventory', label: 'Inventory', icon: Layers, path: '/inventory', roles: ['Administrator', 'Inventory User'] },
-      { key: 'stockin', label: 'Stock In', icon: ArrowDownCircle, path: '/inventory/stock-in', roles: ['Administrator', 'Inventory User'] },
-      { key: 'stockout', label: 'Stock Out', icon: ArrowUpCircle, path: '/inventory/stock-out', roles: ['Administrator', 'Inventory User'] },
+      { key: 'tracking', label: 'Inventory Tracking', icon: Clock, path: '/inventory/tracking', roles: ['Administrator', 'Inventory User'] },
       { key: 'fastslow', label: 'Fast / Slow Movers', icon: Zap, path: '/inventory/fast-slow', roles: ['Administrator', 'Inventory User'] },
     ],
   },
@@ -72,6 +81,7 @@ const NAV_CONFIG: NavSection[] = [
     section: 'Insights',
     items: [
       { key: 'performance', label: 'Business Performance', icon: TrendingUp, path: '/performance', roles: ['Administrator'] },
+      { key: 'sales-performance', label: 'Sales Performance', icon: Award, path: '/sales-performance', roles: ['Administrator', 'Sales User'] },
       { key: 'reports', label: 'Reports', icon: BarChart3, path: '/reports', roles: ['Administrator', 'Sales User', 'Inventory User', 'HR User'] },
     ],
   },
@@ -106,8 +116,8 @@ export default function Sidebar() {
           H
         </div>
         <div>
-          <div className="font-display font-semibold text-white text-sm">HHW</div>
-          <div className="text-[10px] text-gray-500 tracking-wide">Business Manager</div>
+          <div className="font-display font-semibold text-white text-sm leading-tight">HHW Business Manager</div>
+          <div className="text-[10px] text-gray-500 tracking-wide">Operations Suite</div>
         </div>
       </div>
 
