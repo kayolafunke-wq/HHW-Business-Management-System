@@ -132,9 +132,10 @@ export const useApiStore = create<ApiState>()((set, get) => ({
 
   // Fetch sales
   fetchSales: async () => {
-    set({ loadingSales: true, error: null })
+    set({ loadingSales: true, error: null, sales: [] }) // Clear old data first
     try {
       const sales = await salesApi.getAll()
+      console.log('Fetched sales:', sales.length, 'records')
       set({ sales, loadingSales: false })
     } catch (error: any) {
       console.error('Fetch sales error:', error)
