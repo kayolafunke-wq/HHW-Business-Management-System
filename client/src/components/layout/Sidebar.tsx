@@ -57,7 +57,7 @@ const NAV_CONFIG: NavSection[] = [
       { key: 'quotations', label: 'Quotations', icon: FileText, path: '/quotations', roles: ['Administrator', 'Sales User'] },
       { key: 'deliverynotes', label: 'Delivery Notes', icon: Package, path: '/delivery-notes', roles: ['Administrator', 'Sales User', 'Inventory User'] },
       { key: 'debtors', label: 'Debtors', icon: ArrowDownCircle, path: '/debtors', roles: ['Administrator'] },
-      { key: 'creditors', label: 'Creditors', icon: ArrowUpCircle, path: '/creditors', roles: ['Administrator', 'Inventory User'] },
+      { key: 'creditors', label: 'Creditors', icon: ArrowUpCircle, path: '/creditors', roles: ['Administrator'] },
     ],
   },
   {
