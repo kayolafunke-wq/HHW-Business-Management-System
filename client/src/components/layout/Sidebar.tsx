@@ -81,7 +81,7 @@ const NAV_CONFIG: NavSection[] = [
     section: 'Insights',
     items: [
       { key: 'performance', label: 'Business Performance', icon: TrendingUp, path: '/performance', roles: ['Administrator', 'Accountant'] },
-      { key: 'sales-performance', label: 'Sales Performance', icon: Award, path: '/sales-performance', roles: ['Administrator', 'Accountant'] },
+      { key: 'sales-performance', label: 'Sales Performance', icon: Award, path: '/sales-performance', roles: ['Administrator'] },
       { key: 'reports', label: 'Reports', icon: BarChart3, path: '/reports', roles: ['Administrator', 'Inventory User', 'HR User', 'Accountant'] },
     ],
   },
