@@ -34,6 +34,7 @@ enum Role {
   SALES_USER
   INVENTORY_USER
   HR_USER
+  ACCOUNTANT
 }
 
 enum UserStatus {

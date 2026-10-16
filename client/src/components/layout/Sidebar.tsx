@@ -40,15 +40,15 @@ const NAV_CONFIG: NavSection[] = [
   {
     section: 'Overview',
     items: [
-      { key: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard', roles: ['Administrator', 'Inventory User', 'HR User'] },
+      { key: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard', roles: ['Administrator', 'Inventory User', 'HR User', 'Accountant'] },
     ],
   },
   {
     section: 'Sales',
     items: [
-      { key: 'sales', label: 'Sales', icon: ShoppingCart, path: '/sales', roles: ['Administrator', 'Sales User'] },
+      { key: 'sales', label: 'Sales', icon: ShoppingCart, path: '/sales', roles: ['Administrator', 'Sales User', 'Accountant'] },
       { key: 'createsale', label: 'Create Sale', icon: Plus, path: '/sales/create', roles: ['Administrator', 'Sales User'] },
-      { key: 'invoices', label: 'Invoices', icon: FileText, path: '/invoices', roles: ['Administrator', 'Sales User'] },
+      { key: 'invoices', label: 'Invoices', icon: FileText, path: '/invoices', roles: ['Administrator', 'Sales User', 'Accountant'] },
     ],
   },
   {
@@ -56,8 +56,8 @@ const NAV_CONFIG: NavSection[] = [
     items: [
       { key: 'quotations', label: 'Quotations', icon: FileText, path: '/quotations', roles: ['Administrator', 'Sales User'] },
       { key: 'deliverynotes', label: 'Delivery Notes', icon: Package, path: '/delivery-notes', roles: ['Administrator', 'Sales User', 'Inventory User'] },
-      { key: 'debtors', label: 'Debtors', icon: ArrowDownCircle, path: '/debtors', roles: ['Administrator'] },
-      { key: 'creditors', label: 'Creditors', icon: ArrowUpCircle, path: '/creditors', roles: ['Administrator'] },
+      { key: 'debtors', label: 'Debtors', icon: ArrowDownCircle, path: '/debtors', roles: ['Administrator', 'Accountant'] },
+      { key: 'creditors', label: 'Creditors', icon: ArrowUpCircle, path: '/creditors', roles: ['Administrator', 'Accountant'] },
     ],
   },
   {
@@ -80,9 +80,9 @@ const NAV_CONFIG: NavSection[] = [
   {
     section: 'Insights',
     items: [
-      { key: 'performance', label: 'Business Performance', icon: TrendingUp, path: '/performance', roles: ['Administrator'] },
-      { key: 'sales-performance', label: 'Sales Performance', icon: Award, path: '/sales-performance', roles: ['Administrator'] },
-      { key: 'reports', label: 'Reports', icon: BarChart3, path: '/reports', roles: ['Administrator', 'Inventory User', 'HR User'] },
+      { key: 'performance', label: 'Business Performance', icon: TrendingUp, path: '/performance', roles: ['Administrator', 'Accountant'] },
+      { key: 'sales-performance', label: 'Sales Performance', icon: Award, path: '/sales-performance', roles: ['Administrator', 'Accountant'] },
+      { key: 'reports', label: 'Reports', icon: BarChart3, path: '/reports', roles: ['Administrator', 'Inventory User', 'HR User', 'Accountant'] },
     ],
   },
   {
