@@ -37,24 +37,6 @@ export const authenticate = async (
     const authHeader = req.headers.authorization
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      // DEVELOPMENT MODE: Try to use mock user
-      if (process.env.NODE_ENV === 'development' || !auth) {
-        const adminUser = await prisma.user.findFirst({
-          where: { role: 'ADMINISTRATOR' },
-        })
-
-        if (adminUser) {
-          req.user = {
-            id: adminUser.id,
-            firebaseUid: adminUser.firebaseUid,
-            email: adminUser.email,
-            role: adminUser.role,
-          }
-          next()
-          return
-        }
-      }
-      
       res.status(401).json({ message: 'No token provided' })
       return
     }
