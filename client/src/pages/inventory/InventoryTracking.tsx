@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Card } from '@/components/ui/Card'
-import Badge from '@/components/ui/Badge'
-import Input from '@/components/ui/Input'
-import { Pagination, usePagination } from '@/components/ui/Pagination'
-import { inventoryApi, StockMovement } from '@/services/api'
-import { Search, TrendingUp, TrendingDown, Package } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { Package, TrendingUp, TrendingDown, Search } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { Pagination } from '@/components/ui/pagination'
+import { usePagination } from '@/hooks/usePagination'
+import { inventoryApi, type StockMovement } from '@/services/api'
+import { toast } from 'sonner'
 
 interface InventoryMovement {
   id: string
@@ -22,203 +23,6 @@ interface InventoryMovement {
   user: string
   userName: string
 }
-
-function getInitials(name: string): string {
-  return name.split(' ').map(n => n[0]).join('').substring(0, 2)
-}
-
-export default function InventoryTracking() {
-  const [movements, setMovements] = useState<InventoryMovement[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filterType, setFilterType] = useState<'All' | 'Stock In' | 'Stock Out'>('All')
-  const [searchQuery, setSearchQuery] = useState('')
-
-  // Fetch movements from API
-  useEffect(() => {
-    fetchMovements()
-  }, [])
-
-  const fetchMovements = async () => {
-    try {
-      setLoading(true)
-      const data = await inventoryApi.getAllMovements()
-      
-      // Transform API data to match component format
-      const transformedMovements: InventoryMovement[] = data.map((movement: StockMovement) => {
-        const movementDate = new Date(movement.movementDate)
-        return {
-    afterAmount: 12,
-    reason: 'Sale',
-    reference: 'SALE-1234',
-    user: 'JB',
-    userName: 'John Banda',
-  },
-  {
-    id: '2',
-    date: '2026-10-10',
-    time: '08:30',
-    type: 'Stock In',
-    productName: 'Cooking Oil 5L',
-    productSKU: 'SKU-GRO-106',
-    quantity: 50,
-    beforeAmount: 18,
-    afterAmount: 68,
-    reason: 'Purchase from Supplier',
-    reference: 'PO-5678',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-  },
-  {
-    id: '3',
-    date: '2026-10-09',
-    time: '16:20',
-    type: 'Stock Out',
-    productName: 'Wireless Mouse Logitech',
-    productSKU: 'SKU-ELE-103',
-    quantity: 3,
-    beforeAmount: 42,
-    afterAmount: 39,
-    reason: 'Sale',
-    reference: 'SALE-1233',
-    user: 'GP',
-    userName: 'Grace Phiri',
-  },
-  {
-    id: '4',
-    date: '2026-10-09',
-    time: '14:10',
-    type: 'Stock Out',
-    productName: 'Bluetooth Speaker JBL Go',
-    productSKU: 'SKU-ELE-102',
-    quantity: 1,
-    beforeAmount: 3,
-    afterAmount: 2,
-    reason: 'Damaged/Defective',
-    reference: 'DMG-001',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-  },
-  {
-    id: '5',
-    date: '2026-10-09',
-    time: '11:00',
-    type: 'Stock In',
-    productName: 'A4 Paper Ream (80gsm)',
-    productSKU: 'SKU-STA-114',
-    quantity: 30,
-    beforeAmount: 55,
-    afterAmount: 85,
-    reason: 'Routine Restock',
-    reference: 'PO-5677',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-  },
-  {
-    id: '6',
-    date: '2026-10-08',
-    time: '15:45',
-    type: 'Stock Out',
-    productName: 'Coca-Cola 500ml (Crate of 24)',
-    productSKU: 'SKU-BEV-111',
-    quantity: 4,
-    beforeAmount: 26,
-    afterAmount: 22,
-    reason: 'Sale',
-    reference: 'SALE-1232',
-    user: 'JB',
-    userName: 'John Banda',
-  },
-  {
-    id: '7',
-    date: '2026-10-08',
-    time: '10:15',
-    type: 'Stock In',
-    productName: 'Rice 25kg Bag',
-    productSKU: 'SKU-GRO-106',
-    quantity: 20,
-    beforeAmount: 32,
-    afterAmount: 52,
-    reason: 'Purchase from Supplier',
-    reference: 'PO-5676',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-  },
-  {
-    id: '8',
-    date: '2026-10-07',
-    time: '13:30',
-    type: 'Stock Out',
-    productName: 'Laundry Detergent 2kg',
-    productSKU: 'SKU-HOU-118',
-    quantity: 5,
-    beforeAmount: 37,
-    afterAmount: 32,
-    reason: 'Sale',
-    reference: 'SALE-1231',
-    user: 'GP',
-    userName: 'Grace Phiri',
-  },
-  {
-    id: '9',
-    date: '2026-10-07',
-    time: '09:00',
-    type: 'Stock In',
-    productName: 'LED Bulb 9W (Pack of 4)',
-    productSKU: 'SKU-ELE-105',
-    quantity: 40,
-    beforeAmount: 120,
-    afterAmount: 160,
-    reason: 'Routine Restock',
-    reference: 'PO-5675',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-  },
-  {
-    id: '10',
-    date: '2026-10-06',
-    time: '16:50',
-    type: 'Stock Out',
-    productName: 'Sugar 2kg',
-    productSKU: 'SKU-GRO-108',
-    quantity: 8,
-    beforeAmount: 64,
-    afterAmount: 56,
-    reason: 'Sale',
-    reference: 'SALE-1230',
-    user: 'JB',
-    userName: 'John Banda',
-  },
-  {
-    id: '11',
-    date: '2026-10-06',
-    time: '11:20',
-    type: 'Stock Out',
-    productName: 'Office Stapler Heavy Duty',
-    productSKU: 'SKU-STA-117',
-    quantity: 2,
-    beforeAmount: 11,
-    afterAmount: 9,
-    reason: 'Internal Use',
-    reference: 'INT-045',
-    user: 'AM',
-    userName: 'Alinane Mvula',
-  },
-  {
-    id: '12',
-    date: '2026-10-05',
-    time: '14:00',
-    type: 'Stock In',
-    productName: 'Fanta Orange 2L',
-    productSKU: 'SKU-BEV-113',
-    quantity: 30,
-    beforeAmount: 48,
-    afterAmount: 78,
-    reason: 'Purchase from Supplier',
-    reference: 'PO-5674',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-  },
-]
 
 function getInitials(name: string): string {
   return name.split(' ').map(n => n[0]).join('').substring(0, 2)
@@ -286,6 +90,17 @@ export default function InventoryTracking() {
   const totalStockIn = movements.filter(m => m.type === 'Stock In').reduce((sum, m) => sum + m.quantity, 0)
   const totalStockOut = movements.filter(m => m.type === 'Stock Out').reduce((sum, m) => sum + m.quantity, 0)
   const totalMovements = movements.length
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2f5df5] mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading inventory movements...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="fade-in">
@@ -500,8 +315,8 @@ export default function InventoryTracking() {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
-          itemsPerPage={itemsPerPage}
           totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
         />
       </Card>
     </div>
