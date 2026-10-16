@@ -135,10 +135,10 @@ Thank you for your business!
               <Badge
                 variant={
                   sale.paymentStatus === 'PAID'
-                    ? 'success'
+                    ? 'green'
                     : sale.paymentStatus === 'PENDING'
-                    ? 'warning'
-                    : 'default'
+                    ? 'amber'
+                    : 'gray'
                 }
               >
                 {sale.paymentStatus}
@@ -386,10 +386,10 @@ export default function SalesList() {
                     <Badge
                       variant={
                         sale.paymentStatus === 'PAID'
-                          ? 'success'
+                          ? 'green'
                           : sale.paymentStatus === 'PENDING'
-                          ? 'warning'
-                          : 'default'
+                          ? 'amber'
+                          : 'gray'
                       }
                     >
                       {sale.paymentStatus}

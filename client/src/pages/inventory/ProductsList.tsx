@@ -258,10 +258,10 @@ export default function ProductsList() {
                     <Badge
                       variant={
                         product.status === 'IN_STOCK'
-                          ? 'success'
+                          ? 'green'
                           : product.status === 'LOW_STOCK'
-                          ? 'warning'
-                          : 'danger'
+                          ? 'amber'
+                          : 'red'
                       }
                     >
                       {product.status === 'IN_STOCK' ? 'In Stock' : product.status === 'LOW_STOCK' ? 'Low Stock' : 'Out of Stock'}

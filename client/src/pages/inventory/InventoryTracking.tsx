@@ -380,14 +380,14 @@ export default function InventoryTracking() {
                             <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#e3f8f2' }}>
                               <TrendingUp className="w-4 h-4 text-[#0ea885]" />
                             </div>
-                            <Badge variant="success">{movement.type}</Badge>
+                            <Badge variant="green">{movement.type}</Badge>
                           </>
                         ) : (
                           <>
                             <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#fbf0dd' }}>
                               <TrendingDown className="w-4 h-4 text-[#c97a1a]" />
                             </div>
-                            <Badge variant="warning">{movement.type}</Badge>
+                            <Badge variant="amber">{movement.type}</Badge>
                           </>
                         )}
                       </div>
