@@ -46,97 +46,114 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left side - Branding */}
-      <div className="flex-1 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0c1424] relative overflow-hidden text-white p-12 flex flex-col justify-between">
-        {/* Animated gradient orbs */}
-        <div className="absolute top-0 -left-20 w-96 h-96 bg-gradient-to-br from-[#2f5df5]/30 to-[#6a4fd6]/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 -right-20 w-96 h-96 bg-gradient-to-br from-[#6a4fd6]/30 to-[#2f5df5]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="flex-1 bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] relative overflow-hidden text-white p-12 flex flex-col justify-between">
+        {/* Animated gradient orbs - MORE VISIBLE */}
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#3b82f6]/40 to-[#8b5cf6]/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#8b5cf6]/40 to-[#3b82f6]/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] bg-gradient-to-br from-[#6366f1]/30 to-[#a855f7]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
         
-        {/* Grid background */}
+        {/* Enhanced grid background - MORE VISIBLE */}
         <div
-          className="absolute inset-0 opacity-[0.15]"
+          className="absolute inset-0 opacity-30"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
+              'linear-gradient(rgba(147,197,253,0.1) 2px, transparent 2px), linear-gradient(90deg, rgba(147,197,253,0.1) 2px, transparent 2px)',
+            backgroundSize: '50px 50px',
           }}
         />
 
-        {/* Floating particles */}
+        {/* Diagonal lines pattern */}
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(45deg, rgba(96,165,250,0.1) 0px, rgba(96,165,250,0.1) 2px, transparent 2px, transparent 40px)',
+          }}
+        />
+
+        {/* Floating particles - MORE VISIBLE AND MORE */}
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/40 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
-          <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-purple-400/40 rounded-full animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }} />
-          <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-blue-300/40 rounded-full animate-ping" style={{ animationDuration: '5s', animationDelay: '2s' }} />
+          <div className="absolute top-[20%] left-[15%] w-3 h-3 bg-blue-400/60 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
+          <div className="absolute top-[35%] right-[25%] w-2 h-2 bg-purple-400/60 rounded-full animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }} />
+          <div className="absolute bottom-[30%] left-[40%] w-3 h-3 bg-indigo-400/60 rounded-full animate-ping" style={{ animationDuration: '5s', animationDelay: '2s' }} />
+          <div className="absolute top-[60%] right-[15%] w-2 h-2 bg-blue-300/60 rounded-full animate-ping" style={{ animationDuration: '4s', animationDelay: '0.5s' }} />
+          <div className="absolute bottom-[15%] left-[25%] w-2.5 h-2.5 bg-purple-300/60 rounded-full animate-ping" style={{ animationDuration: '3.5s', animationDelay: '1.5s' }} />
+          <div className="absolute top-[45%] left-[60%] w-2 h-2 bg-indigo-300/60 rounded-full animate-ping" style={{ animationDuration: '4.5s', animationDelay: '2.5s' }} />
         </div>
+
+        {/* Glowing accent lines */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
 
         <div className="relative z-10">
           {/* Logo with glow effect */}
           <div className="flex items-center gap-3 mb-20 group">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
-              <div className="relative w-12 h-12 rounded-lg bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-xl shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] rounded-xl blur-xl opacity-60 group-hover:opacity-90 transition-opacity" />
+              <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] flex items-center justify-center font-display font-bold text-white text-xl shadow-2xl ring-2 ring-blue-400/30">
                 H
               </div>
             </div>
             <div>
-              <div className="font-display font-bold text-lg bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+              <div className="font-display font-bold text-lg bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
                 HHW Business Manager
               </div>
-              <div className="text-[11px] text-blue-300/80 tracking-wider font-medium">Enterprise Operations Suite</div>
+              <div className="text-[11px] text-blue-300/90 tracking-wider font-medium">Enterprise Operations Suite</div>
             </div>
           </div>
 
           <div className="max-w-lg">
             {/* Main headline with gradient */}
-            <h1 className="font-display font-bold text-[42px] leading-[1.1] mb-5 bg-gradient-to-br from-white via-blue-100 to-purple-200 bg-clip-text text-transparent">
+            <h1 className="font-display font-bold text-[42px] leading-[1.1] mb-5 bg-gradient-to-br from-white via-blue-100 to-purple-200 bg-clip-text text-transparent drop-shadow-2xl">
               Run your entire business from one dashboard.
             </h1>
             
-            <p className="text-[15px] text-blue-100/90 leading-relaxed mb-10 font-medium">
+            <p className="text-[15px] text-blue-100/95 leading-relaxed mb-10 font-medium">
               Inventory, sales, invoicing, employees and performance — unified, in real time, for
               teams that need clarity over chaos.
             </p>
 
             {/* Feature highlights with icons */}
             <div className="space-y-4 mb-12">
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center backdrop-blur-sm border border-blue-400/30">
-                  <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-3 text-sm group hover:translate-x-1 transition-transform">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/30 to-blue-600/20 flex items-center justify-center backdrop-blur-sm border border-blue-400/40 shadow-lg shadow-blue-500/20">
+                  <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <span className="text-blue-100/90 font-medium">Real-time inventory tracking & alerts</span>
+                <span className="text-blue-50/95 font-medium">Real-time inventory tracking & alerts</span>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center backdrop-blur-sm border border-purple-400/30">
-                  <svg className="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-3 text-sm group hover:translate-x-1 transition-transform">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500/30 to-purple-600/20 flex items-center justify-center backdrop-blur-sm border border-purple-400/40 shadow-lg shadow-purple-500/20">
+                  <svg className="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <span className="text-blue-100/90 font-medium">Lightning-fast sales processing</span>
+                <span className="text-blue-50/95 font-medium">Lightning-fast sales processing</span>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center backdrop-blur-sm border border-indigo-400/30">
-                  <svg className="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-3 text-sm group hover:translate-x-1 transition-transform">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 flex items-center justify-center backdrop-blur-sm border border-indigo-400/40 shadow-lg shadow-indigo-500/20">
+                  <svg className="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
-                <span className="text-blue-100/90 font-medium">Powerful analytics & insights</span>
+                <span className="text-blue-50/95 font-medium">Powerful analytics & insights</span>
               </div>
             </div>
 
             {/* Stats with glass effect */}
-            <div className="flex gap-6">
-              <div className="backdrop-blur-md bg-white/10 rounded-xl p-4 border border-white/20 flex-1">
-                <div className="font-display text-[28px] font-bold bg-gradient-to-br from-white to-blue-200 bg-clip-text text-transparent">25</div>
-                <div className="text-[11.5px] text-blue-200/80 font-medium tracking-wide">Products tracked</div>
+            <div className="flex gap-5">
+              <div className="backdrop-blur-xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-5 border border-white/30 flex-1 shadow-xl shadow-blue-900/20 hover:scale-105 transition-transform">
+                <div className="font-display text-[32px] font-bold bg-gradient-to-br from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">25</div>
+                <div className="text-[12px] text-blue-100/90 font-medium tracking-wide">Products tracked</div>
               </div>
-              <div className="backdrop-blur-md bg-white/10 rounded-xl p-4 border border-white/20 flex-1">
-                <div className="font-display text-[28px] font-bold bg-gradient-to-br from-white to-purple-200 bg-clip-text text-transparent">12</div>
-                <div className="text-[11.5px] text-blue-200/80 font-medium tracking-wide">Team members</div>
+              <div className="backdrop-blur-xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-5 border border-white/30 flex-1 shadow-xl shadow-purple-900/20 hover:scale-105 transition-transform">
+                <div className="font-display text-[32px] font-bold bg-gradient-to-br from-white via-purple-100 to-purple-200 bg-clip-text text-transparent">12</div>
+                <div className="text-[12px] text-blue-100/90 font-medium tracking-wide">Team members</div>
               </div>
-              <div className="backdrop-blur-md bg-white/10 rounded-xl p-4 border border-white/20 flex-1">
-                <div className="font-display text-[28px] font-bold bg-gradient-to-br from-white to-indigo-200 bg-clip-text text-transparent">21M</div>
-                <div className="text-[11.5px] text-blue-200/80 font-medium tracking-wide">MK in sales</div>
+              <div className="backdrop-blur-xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-5 border border-white/30 flex-1 shadow-xl shadow-indigo-900/20 hover:scale-105 transition-transform">
+                <div className="font-display text-[32px] font-bold bg-gradient-to-br from-white via-indigo-100 to-indigo-200 bg-clip-text text-transparent">21M</div>
+                <div className="text-[12px] text-blue-100/90 font-medium tracking-wide">MK in sales</div>
               </div>
             </div>
           </div>
@@ -144,12 +161,12 @@ export default function LoginPage() {
 
         {/* Footer with subtle animation */}
         <div className="relative z-10 flex items-center justify-between">
-          <div className="text-[11.5px] text-blue-300/60 font-medium">
+          <div className="text-[12px] text-blue-200/70 font-medium">
             © 2026 HHW Business Manager
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            <span className="text-[11px] text-blue-300/80 font-medium">All systems operational</span>
+          <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-400/30 backdrop-blur-sm">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50" />
+            <span className="text-[11px] text-emerald-300/90 font-medium">All systems operational</span>
           </div>
         </div>
       </div>
