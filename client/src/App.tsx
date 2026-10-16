@@ -48,16 +48,25 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
 }
 
 function App() {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, user } = useAuthStore()
 
   console.log('App rendering, isAuthenticated:', isAuthenticated)
+
+  // Get role-based default route
+  const getDefaultRoute = () => {
+    if (!user) return '/dashboard'
+    if (user.role === 'Sales User') return '/sales'
+    if (user.role === 'Inventory User') return '/products'
+    if (user.role === 'HR User') return '/employees'
+    return '/dashboard'
+  }
 
   return (
     <Routes>
       {/* Public routes */}
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+        element={isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <LoginPage />}
       />
 
       {/* Protected routes with layout */}
@@ -69,7 +78,7 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route index element={<Navigate to={getDefaultRoute()} replace />} />
         <Route path="dashboard" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User', 'HR User', 'Accountant']}><Dashboard /></ProtectedRoute>} />
 
         {/* Sales */}
