@@ -376,15 +376,20 @@ export default function InventoryTracking() {
                     <td>
                       <div className="flex items-center gap-2">
                         {movement.type === 'Stock In' ? (
-                          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#e3f8f2' }}>
-                            <TrendingUp className="w-4 h-4 text-[#0ea885]" />
-                          </div>
+                          <>
+                            <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#e3f8f2' }}>
+                              <TrendingUp className="w-4 h-4 text-[#0ea885]" />
+                            </div>
+                            <Badge variant="success">{movement.type}</Badge>
+                          </>
                         ) : (
-                          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#fbf0dd' }}>
-                            <TrendingDown className="w-4 h-4 text-[#c97a1a]" />
-                          </div>
+                          <>
+                            <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#fbf0dd' }}>
+                              <TrendingDown className="w-4 h-4 text-[#c97a1a]" />
+                            </div>
+                            <Badge variant="warning">{movement.type}</Badge>
+                          </>
                         )}
-                        <span className="text-sm font-medium text-gray-900">{movement.type}</span>
                       </div>
                     </td>
                     <td>
