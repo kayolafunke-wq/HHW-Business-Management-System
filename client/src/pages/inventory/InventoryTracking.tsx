@@ -44,7 +44,9 @@ export default function InventoryTracking() {
       const data = await inventoryApi.getAllMovements()
       
       // Transform API data to match component format
-    beforeAmount: 14,
+      const transformedMovements: InventoryMovement[] = data.map((movement: StockMovement) => {
+        const movementDate = new Date(movement.movementDate)
+        return {
     afterAmount: 12,
     reason: 'Sale',
     reference: 'SALE-1234',
