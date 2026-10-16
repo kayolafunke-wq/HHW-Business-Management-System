@@ -35,15 +35,18 @@ export default function LoginPage() {
         // Set user in auth store
         useAuthStore.getState().setUser(result.data.user)
         
+        // Debug log
+        console.log('Login successful:', result.data.user.name, 'Role:', result.data.user.role, 'ID:', result.data.user.id)
+        
         toast.success(`Welcome back, ${result.data.user.name}!`)
         
         // Redirect based on role
         const role = result.data.user.role
-        if (role === 'Sales User') {
+        if (role === 'Sales User' || role === 'SALES_USER' || role.includes('SALES')) {
           navigate('/sales')
-        } else if (role === 'Inventory User') {
+        } else if (role.includes('INVENTORY') || role.includes('Inventory')) {
           navigate('/products')
-        } else if (role === 'HR User') {
+        } else if (role.includes('HR') || role.includes('Hr')) {
           navigate('/employees')
         } else {
           navigate('/dashboard')
