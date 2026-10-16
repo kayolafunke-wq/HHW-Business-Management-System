@@ -74,7 +74,8 @@ export default function SalesPerformance() {
     const performanceMap = new Map<string, { totalSales: number; totalRevenue: number }>()
 
     filteredSales.forEach(sale => {
-      const cashierName = sale.cashier || sale.user?.name || 'Walk-in Customer'
+      // Use user.name instead of cashier field
+      const cashierName = sale.user?.name || sale.cashier || 'Unknown'
       
       if (!performanceMap.has(cashierName)) {
         performanceMap.set(cashierName, { totalSales: 0, totalRevenue: 0 })
