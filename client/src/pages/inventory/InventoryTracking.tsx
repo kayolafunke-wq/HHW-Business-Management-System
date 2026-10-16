@@ -29,12 +29,21 @@ function getInitials(name: string): string {
 
 export default function InventoryTracking() {
   const [movements, setMovements] = useState<InventoryMovement[]>([])
-    date: '2026-10-10',
-    time: '09:45',
-    type: 'Stock Out',
-    productName: 'Samsung 32" LED TV',
-    productSKU: 'SKU-ELE-100',
-    quantity: 2,
+  const [loading, setLoading] = useState(true)
+  const [filterType, setFilterType] = useState<'All' | 'Stock In' | 'Stock Out'>('All')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Fetch movements from API
+  useEffect(() => {
+    fetchMovements()
+  }, [])
+
+  const fetchMovements = async () => {
+    try {
+      setLoading(true)
+      const data = await inventoryApi.getAllMovements()
+      
+      // Transform API data to match component format
     beforeAmount: 14,
     afterAmount: 12,
     reason: 'Sale',
