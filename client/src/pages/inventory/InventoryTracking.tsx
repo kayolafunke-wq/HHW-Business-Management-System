@@ -3,8 +3,9 @@ import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import Input from '@/components/ui/Input'
 import { Pagination, usePagination } from '@/components/ui/Pagination'
-import { useDataStore } from '@/store/dataStore'
+import { inventoryApi, StockMovement } from '@/services/api'
 import { Search, TrendingUp, TrendingDown, Package } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 interface InventoryMovement {
   id: string
@@ -22,10 +23,12 @@ interface InventoryMovement {
   userName: string
 }
 
-// Sample inventory movements
-const SAMPLE_MOVEMENTS: InventoryMovement[] = [
-  {
-    id: '1',
+function getInitials(name: string): string {
+  return name.split(' ').map(n => n[0]).join('').substring(0, 2)
+}
+
+export default function InventoryTracking() {
+  const [movements, setMovements] = useState<InventoryMovement[]>([])
     date: '2026-10-10',
     time: '09:45',
     type: 'Stock Out',
@@ -211,22 +214,49 @@ function getInitials(name: string): string {
 }
 
 export default function InventoryTracking() {
-  const { inventoryMovements } = useDataStore()
-  const [movements, setMovements] = useState<InventoryMovement[]>(SAMPLE_MOVEMENTS)
+  const [movements, setMovements] = useState<InventoryMovement[]>([])
+  const [loading, setLoading] = useState(true)
   const [filterType, setFilterType] = useState<'All' | 'Stock In' | 'Stock Out'>('All')
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Combine sample movements with real movements from sales
+  // Fetch movements from API
   useEffect(() => {
-    const combinedMovements = [...SAMPLE_MOVEMENTS, ...inventoryMovements]
-    // Sort by date and time, newest first
-    combinedMovements.sort((a, b) => {
-      const dateA = new Date(`${a.date} ${a.time}`)
-      const dateB = new Date(`${b.date} ${b.time}`)
-      return dateB.getTime() - dateA.getTime()
-    })
-    setMovements(combinedMovements)
-  }, [inventoryMovements])
+    fetchMovements()
+  }, [])
+
+  const fetchMovements = async () => {
+    try {
+      setLoading(true)
+      const data = await inventoryApi.getAllMovements()
+      
+      // Transform API data to match component format
+      const transformedMovements: InventoryMovement[] = data.map((movement: StockMovement) => {
+        const movementDate = new Date(movement.movementDate)
+        return {
+          id: movement.id,
+          date: movementDate.toISOString().split('T')[0],
+          time: movementDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          type: movement.type === 'IN' ? 'Stock In' : 'Stock Out',
+          productName: movement.product?.name || 'Unknown Product',
+          productSKU: movement.product?.sku || 'N/A',
+          quantity: movement.quantity,
+          beforeAmount: 0, // API doesn't track before amount
+          afterAmount: 0, // API doesn't track after amount
+          reason: movement.reason || 'N/A',
+          reference: movement.reference || 'N/A',
+          user: movement.product?.name?.substring(0, 2).toUpperCase() || 'UN',
+          userName: 'System User', // API doesn't track user
+        }
+      })
+      
+      setMovements(transformedMovements)
+    } catch (error) {
+      console.error('Failed to fetch movements:', error)
+      toast.error('Failed to load inventory movements')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Filter movements
   const filteredMovements = movements.filter(movement => {
