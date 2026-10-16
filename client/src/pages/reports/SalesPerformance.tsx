@@ -42,16 +42,18 @@ const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 export default function SalesPerformance() {
   const { sales } = useApiStore()
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
+  const [selectedYear, setSelectedYear] = useState<string>('2026')
   const [employeePerformance, setEmployeePerformance] = useState<EmployeePerformance[]>([])
 
   useEffect(() => {
     calculatePerformance()
-  }, [sales, selectedMonth])
+  }, [sales, selectedMonth, selectedYear])
 
   const calculatePerformance = () => {
-    // Filter sales by selected month
+    // Filter sales by selected month and year
     let filteredSales = sales
     if (selectedMonth !== 'all') {
+      const targetYear = parseInt(selectedYear)
       const currentDate = new Date()
       const targetMonth = selectedMonth === 'current' 
         ? currentDate.getMonth() 
@@ -59,7 +61,7 @@ export default function SalesPerformance() {
       
       filteredSales = sales.filter(sale => {
         const saleDate = new Date(sale.saleDate)
-        return saleDate.getMonth() === targetMonth
+        return saleDate.getMonth() === targetMonth && saleDate.getFullYear() === targetYear
       })
     }
 
@@ -142,6 +144,16 @@ export default function SalesPerformance() {
             <option value="9">October</option>
             <option value="10">November</option>
             <option value="11">December</option>
+          </select>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm"
+          >
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
           </select>
         </div>
       </div>

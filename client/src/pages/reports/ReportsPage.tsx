@@ -117,6 +117,7 @@ export default function ReportsPage() {
   const [fromDate, setFromDate] = useState('2026-09-12')
   const [toDate, setToDate] = useState('2026-10-12')
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
+  const [selectedYear, setSelectedYear] = useState<string>('2026')
   const [category, setCategory] = useState('All')
 
   const handleGenerateReport = () => {
@@ -218,9 +219,10 @@ export default function ReportsPage() {
         // Get sales from API store
         const { sales } = useApiStore.getState()
         
-        // Filter by selected month
+        // Filter by selected month and year
         let filteredSales = sales
         if (selectedMonth !== 'all') {
+          const targetYear = parseInt(selectedYear)
           const currentDate = new Date()
           const targetMonth = selectedMonth === 'current' 
             ? currentDate.getMonth() 
@@ -228,7 +230,7 @@ export default function ReportsPage() {
           
           filteredSales = sales.filter(sale => {
             const saleDate = new Date(sale.saleDate)
-            return saleDate.getMonth() === targetMonth
+            return saleDate.getMonth() === targetMonth && saleDate.getFullYear() === targetYear
           })
         }
 
@@ -264,10 +266,10 @@ export default function ReportsPage() {
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
                            'July', 'August', 'September', 'October', 'November', 'December']
         const monthName = selectedMonth === 'all' 
-          ? 'All Time' 
+          ? `All Time` 
           : selectedMonth === 'current'
-          ? monthNames[new Date().getMonth()]
-          : monthNames[parseInt(selectedMonth)]
+          ? `${monthNames[new Date().getMonth()]} ${selectedYear}`
+          : `${monthNames[parseInt(selectedMonth)]} ${selectedYear}`
 
         return (
           <div className="space-y-4">
@@ -694,29 +696,44 @@ export default function ReportsPage() {
           <div className="flex flex-wrap items-end gap-3">
             {/* Show month filter only for Sales Performance */}
             {activeReport === 'sales-performance' ? (
-              <div className="field" style={{ minWidth: '180px' }}>
-                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Select Month</label>
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                >
-                  <option value="all">All Time</option>
-                  <option value="current">Current Month</option>
-                  <option value="0">January</option>
-                  <option value="1">February</option>
-                  <option value="2">March</option>
-                  <option value="3">April</option>
-                  <option value="4">May</option>
-                  <option value="5">June</option>
-                  <option value="6">July</option>
-                  <option value="7">August</option>
-                  <option value="8">September</option>
-                  <option value="9">October</option>
-                  <option value="10">November</option>
-                  <option value="11">December</option>
-                </select>
-              </div>
+              <>
+                <div className="field" style={{ minWidth: '180px' }}>
+                  <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Select Month</label>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  >
+                    <option value="all">All Time</option>
+                    <option value="current">Current Month</option>
+                    <option value="0">January</option>
+                    <option value="1">February</option>
+                    <option value="2">March</option>
+                    <option value="3">April</option>
+                    <option value="4">May</option>
+                    <option value="5">June</option>
+                    <option value="6">July</option>
+                    <option value="7">August</option>
+                    <option value="8">September</option>
+                    <option value="9">October</option>
+                    <option value="10">November</option>
+                    <option value="11">December</option>
+                  </select>
+                </div>
+                <div className="field" style={{ minWidth: '120px' }}>
+                  <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Select Year</label>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  >
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                  </select>
+                </div>
+              </>
             ) : (
               <>
                 <div className="field" style={{ minWidth: '140px' }}>
