@@ -62,18 +62,18 @@ function App() {
         }
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="dashboard" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User', 'HR User', 'Accountant']}><Dashboard /></ProtectedRoute>} />
 
         {/* Sales */}
-        <Route path="sales" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User']}><SalesList /></ProtectedRoute>} />
+        <Route path="sales" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User', 'Accountant']}><SalesList /></ProtectedRoute>} />
         <Route path="sales/create" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User']}><CreateSale /></ProtectedRoute>} />
-        <Route path="invoices" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User']}><InvoicesList /></ProtectedRoute>} />
+        <Route path="invoices" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User', 'Accountant']}><InvoicesList /></ProtectedRoute>} />
 
         {/* Business */}
         <Route path="quotations" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User']}><QuotationsPage /></ProtectedRoute>} />
         <Route path="delivery-notes" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User', 'Inventory User']}><DeliveryNotesPage /></ProtectedRoute>} />
-        <Route path="debtors" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales User']}><DebtorsPage /></ProtectedRoute>} />
-        <Route path="creditors" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User']}><CreditorsPage /></ProtectedRoute>} />
+        <Route path="debtors" element={<ProtectedRoute allowedRoles={['Administrator', 'Accountant']}><DebtorsPage /></ProtectedRoute>} />
+        <Route path="creditors" element={<ProtectedRoute allowedRoles={['Administrator', 'Accountant']}><CreditorsPage /></ProtectedRoute>} />
 
         {/* Inventory */}
         <Route path="products" element={<ProductsList />} />
@@ -87,9 +87,9 @@ function App() {
         <Route path="attendance" element={<ProtectedRoute allowedRoles={['Administrator', 'HR User']}><AttendancePage /></ProtectedRoute>} />
 
         {/* Reports */}
-        <Route path="reports" element={<ReportsPage />} />
-        <Route path="performance" element={<ProtectedRoute allowedRoles={['Administrator']}><PerformancePage /></ProtectedRoute>} />
-        <Route path="sales-performance" element={<ProtectedRoute allowedRoles={['Administrator', 'Sales Manager']}><SalesPerformance /></ProtectedRoute>} />
+        <Route path="reports" element={<ProtectedRoute allowedRoles={['Administrator', 'Inventory User', 'HR User', 'Accountant']}><ReportsPage /></ProtectedRoute>} />
+        <Route path="performance" element={<ProtectedRoute allowedRoles={['Administrator', 'Accountant']}><PerformancePage /></ProtectedRoute>} />
+        <Route path="sales-performance" element={<ProtectedRoute allowedRoles={['Administrator', 'Accountant']}><SalesPerformance /></ProtectedRoute>} />
 
         {/* Admin */}
         <Route path="users" element={<ProtectedRoute allowedRoles={['Administrator']}><UsersPage /></ProtectedRoute>} />
