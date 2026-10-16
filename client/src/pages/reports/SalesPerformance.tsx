@@ -421,7 +421,7 @@ function MonthlyComparisonTable({ sales }: { sales: any[] }) {
     sales.forEach(sale => {
       const saleDate = new Date(sale.saleDate)
       const monthKey = `${monthNames[saleDate.getMonth()]} ${saleDate.getFullYear()}`
-      const employeeName = sale.cashier || sale.user?.name || 'Walk-in Customer'
+      const employeeName = sale.user?.name || sale.cashier || 'Unknown'
 
       if (!employeeMonthlyMap.has(employeeName)) {
         employeeMonthlyMap.set(employeeName, new Map())
