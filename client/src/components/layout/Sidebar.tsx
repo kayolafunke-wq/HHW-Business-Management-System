@@ -40,7 +40,7 @@ const NAV_CONFIG: NavSection[] = [
   {
     section: 'Overview',
     items: [
-      { key: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard', roles: ['Administrator', 'Sales User', 'Inventory User', 'HR User'] },
+      { key: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard', roles: ['Administrator', 'Inventory User', 'HR User'] },
     ],
   },
   {
@@ -56,7 +56,7 @@ const NAV_CONFIG: NavSection[] = [
     items: [
       { key: 'quotations', label: 'Quotations', icon: FileText, path: '/quotations', roles: ['Administrator', 'Sales User'] },
       { key: 'deliverynotes', label: 'Delivery Notes', icon: Package, path: '/delivery-notes', roles: ['Administrator', 'Sales User', 'Inventory User'] },
-      { key: 'debtors', label: 'Debtors', icon: ArrowDownCircle, path: '/debtors', roles: ['Administrator', 'Sales User'] },
+      { key: 'debtors', label: 'Debtors', icon: ArrowDownCircle, path: '/debtors', roles: ['Administrator'] },
       { key: 'creditors', label: 'Creditors', icon: ArrowUpCircle, path: '/creditors', roles: ['Administrator', 'Inventory User'] },
     ],
   },
@@ -81,8 +81,8 @@ const NAV_CONFIG: NavSection[] = [
     section: 'Insights',
     items: [
       { key: 'performance', label: 'Business Performance', icon: TrendingUp, path: '/performance', roles: ['Administrator'] },
-      { key: 'sales-performance', label: 'Sales Performance', icon: Award, path: '/sales-performance', roles: ['Administrator', 'Sales User'] },
-      { key: 'reports', label: 'Reports', icon: BarChart3, path: '/reports', roles: ['Administrator', 'Sales User', 'Inventory User', 'HR User'] },
+      { key: 'sales-performance', label: 'Sales Performance', icon: Award, path: '/sales-performance', roles: ['Administrator'] },
+      { key: 'reports', label: 'Reports', icon: BarChart3, path: '/reports', roles: ['Administrator', 'Inventory User', 'HR User'] },
     ],
   },
   {
