@@ -3,7 +3,6 @@ import { AuthRequest } from '../middleware/auth.js'
 import prisma from '../config/database.js'
 import { auth as firebaseAuth } from '../config/firebase.js'
 import { logAudit } from '../utils/logger.js'
-import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'

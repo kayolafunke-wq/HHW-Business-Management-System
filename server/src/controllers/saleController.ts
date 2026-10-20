@@ -159,7 +159,7 @@ export const createSale = async (req: AuthRequest, res: Response): Promise<void>
           total,
           paymentMethod,
           paymentStatus,
-          cashier: cashier || req.user?.name || 'Unknown',
+          cashier: cashier || req.user?.email || 'Unknown',
           notes,
           userId: req.user!.id,
           items: {
