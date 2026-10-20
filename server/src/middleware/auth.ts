@@ -3,20 +3,6 @@ import { auth } from '../config/firebase.js'
 import prisma from '../config/database.js'
 import jwt from 'jsonwebtoken'
 
-export interface AuthRequest extends Request {
-  user?: {
-    id: string
-    firebaseUid: string
-    email: string
-    role: string
-  }
-}
-
-import { Request, Response, NextFunction } from 'express'
-import { auth } from '../config/firebase.js'
-import prisma from '../config/database.js'
-import jwt from 'jsonwebtoken'
-
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 
 export interface AuthRequest extends Request {
