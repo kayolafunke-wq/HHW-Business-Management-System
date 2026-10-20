@@ -5,8 +5,9 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { Pagination, usePagination } from '@/components/ui/Pagination'
+import { useApiStore } from '@/store/apiStore'
 import { useDataStore } from '@/store/dataStore'
-import type { Sale } from '@/services/dataGenerator'
+import type { Sale } from '@/services/api'
 import toast from 'react-hot-toast'
 
 function money(n: number): string {
@@ -34,7 +35,8 @@ interface InvoiceItem {
 
 interface CreatedInvoice {
   invoiceNo: string
-  customerName: string
+  customer?: string
+  customerName?: string
   phoneNumber: string
   date: string
   items: InvoiceItem[]
@@ -50,9 +52,10 @@ function ViewInvoiceModal({ invoice, onClose }: { invoice: Sale | CreatedInvoice
   const { inventoryMovements } = useDataStore()
   
   // Get invoice number from either Sale or CreatedInvoice
-  const isSale = 'customer' in invoice
-  const invoiceNo = isSale ? (invoice as Sale).invoiceNo : (invoice as CreatedInvoice).invoiceNo
-  const customerName = isSale ? (invoice as Sale).customer : (invoice as CreatedInvoice).customerName
+  const isSale = 'saleDate' in invoice // Sale has saleDate, CreatedInvoice has date
+  const invoiceNo = invoice.invoiceNo
+  const customerName = invoice.customer || (invoice as CreatedInvoice).customerName
+  const invoiceDate = isSale ? (invoice as Sale).saleDate.split('T')[0] : invoice.date
   
   // Find related inventory movements for this invoice
   const relatedMovements = inventoryMovements.filter(m => m.reference === invoiceNo)
@@ -75,27 +78,27 @@ INVOICE
 ========================
 
 Invoice No: ${invoiceNo}
-Date: ${fmtDateLong(invoice.date)}
+Date: ${fmtDateLong(invoiceDate)}
 Customer: ${customerName}
-Status: ${invoice.status || (invoice as any).payStatus || 'Pending'}
+Status: ${isSale ? (invoice as Sale).paymentStatus : (invoice as CreatedInvoice).status}
 
 ------------------------
 ITEMS
 ------------------------
-${!isSale && (invoice as CreatedInvoice).items ? 
-  (invoice as CreatedInvoice).items.map(item => 
-    `${item.name}\n  ${item.quantity} x ${money(item.price)} = ${money(item.total)}`
+${items && items.length > 0 ? 
+  items.map(item => 
+    `${isSale && item.product ? item.product.name : item.name}\n  ${item.quantity} x ${money(item.price)} = ${money(item.total)}`
   ).join('\n\n') : 
-  'See invoice for item details'}
+  'No items found'}
 
 ------------------------
 TOTALS
 ------------------------
-Subtotal:    ${money((invoice as any).subtotal)}
-Discount:   -${money((invoice as CreatedInvoice).discount || 0)}
-VAT (17.5%): ${money((invoice as any).vat)}
+Subtotal:    ${money(invoice.subtotal)}
+Discount:   -${money(invoice.discount || 0)}
+VAT (17.5%): ${money(invoice.vat)}
 ------------------------
-TOTAL:       ${money((invoice as any).total)}
+TOTAL:       ${money(invoice.total)}
 ========================
 
 Thank you for your business!
@@ -114,13 +117,13 @@ Thank you for your business!
   }
 
   // Variables are already declared at component level (lines 52-54)
-  const items = isSale ? [] : (invoice as CreatedInvoice).items
+  const items = isSale ? (invoice as Sale).items : (invoice as CreatedInvoice).items
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal modal-lg" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <div className="modal-title">{isSale ? (invoice as Sale).invoiceNo : (invoice as CreatedInvoice).invoiceNo}</div>
+          <div className="modal-title">{invoiceNo}</div>
           <button onClick={onClose} className="icon-btn">
             <X className="w-4 h-4" />
           </button>
@@ -145,9 +148,9 @@ Thank you for your business!
             <div className="text-right">
               <div className="font-display font-bold text-lg text-gray-900 mb-1">INVOICE</div>
               <div className="text-sm font-semibold text-gray-900">
-                {isSale ? (invoice as Sale).invoiceNo : (invoice as CreatedInvoice).invoiceNo}
+                {invoiceNo}
               </div>
-              <div className="text-xs text-gray-500">{fmtDateLong(invoice.date)}</div>
+              <div className="text-xs text-gray-500">{fmtDateLong(invoiceDate)}</div>
             </div>
           </div>
 
@@ -164,12 +167,13 @@ Thank you for your business!
               <div className="text-xs font-semibold text-gray-500 mb-2">PAYMENT STATUS</div>
               <Badge
                 variant={
-                  invoice.status === 'Paid' || (invoice as any).payStatus === 'Paid'
+                  (isSale ? (invoice as Sale).paymentStatus : (invoice as CreatedInvoice).status) === 'PAID' || 
+                  (isSale ? (invoice as Sale).paymentStatus : (invoice as CreatedInvoice).status) === 'Paid'
                     ? 'success'
                     : 'warning'
                 }
               >
-                {invoice.status || (invoice as any).payStatus || 'Pending'}
+                {isSale ? (invoice as Sale).paymentStatus : (invoice as CreatedInvoice).status}
               </Badge>
             </div>
           </div>
@@ -186,11 +190,13 @@ Thank you for your business!
                 </tr>
               </thead>
               <tbody>
-                {!isSale && items.length > 0 ? (
+                {items && items.length > 0 ? (
                   items.map((item, i) => (
                     <tr key={i}>
                       <td>
-                        <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {isSale && item.product ? item.product.name : item.name}
+                        </div>
                       </td>
                       <td className="text-center">
                         <div className="text-sm text-gray-700">{item.quantity}</div>
@@ -204,27 +210,11 @@ Thank you for your business!
                     </tr>
                   ))
                 ) : (
-                  // For sales without item details, show sample items
-                  Array.from({ length: (invoice as any).items || 3 }, (_, i) => {
-                    const products = ['Sugar 2kg', 'LED Bulb 9W (Pack of 4)', 'Salt 1kg (Pack of 10)']
-                    const price = Math.floor((invoice as any).subtotal / ((invoice as any).items || 3))
-                    return (
-                      <tr key={i}>
-                        <td>
-                          <div className="text-sm font-medium text-gray-900">{products[i]}</div>
-                        </td>
-                        <td className="text-center">
-                          <div className="text-sm text-gray-700">{Math.floor(Math.random() * 3) + 1}</div>
-                        </td>
-                        <td className="text-right">
-                          <div className="text-sm text-gray-700">{money(price)}</div>
-                        </td>
-                        <td className="text-right">
-                          <div className="text-sm font-semibold text-gray-900">{money(price)}</div>
-                        </td>
-                      </tr>
-                    )
-                  })
+                  <tr>
+                    <td colSpan={4}>
+                      <div className="text-center text-sm text-gray-500 py-4">No items found</div>
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -235,21 +225,21 @@ Thank you for your business!
             <div className="w-64 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold text-gray-900">{money((invoice as any).subtotal)}</span>
+                <span className="font-semibold text-gray-900">{money(invoice.subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Discount</span>
-                <span className="font-semibold text-gray-900">-{money((invoice as CreatedInvoice).discount || 0)}</span>
+                <span className="font-semibold text-gray-900">-{money(invoice.discount || 0)}</span>
               </div>
               <div className="divider"></div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">VAT (17.5%)</span>
-                <span className="font-semibold text-gray-900">{money((invoice as any).vat)}</span>
+                <span className="font-semibold text-gray-900">{money(invoice.vat)}</span>
               </div>
               <div className="divider"></div>
               <div className="flex justify-between">
                 <span className="font-bold text-gray-900">Total</span>
-                <span className="font-bold text-lg text-gray-900">{money((invoice as any).total)}</span>
+                <span className="font-bold text-lg text-gray-900">{money(invoice.total)}</span>
               </div>
             </div>
           </div>
@@ -275,7 +265,7 @@ Thank you for your business!
 
 // Create Invoice Modal
 function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCreated: (invoice: CreatedInvoice) => void }) {
-  const { products } = useDataStore()
+  const { products } = useApiStore()
   const [customerName, setCustomerName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
@@ -520,7 +510,8 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
 }
 
 export default function InvoicesList() {
-  const { sales } = useDataStore()
+  const { sales } = useApiStore()
+  const { inventoryMovements } = useDataStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('All')
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -531,15 +522,15 @@ export default function InvoicesList() {
 
   // Calculate KPIs
   const totalInvoices = invoices.length
-  const paidCount = invoices.filter(i => i.payStatus === 'Paid').length
-  const pendingCount = invoices.filter(i => i.payStatus === 'Pending').length  
+  const paidCount = invoices.filter(i => i.paymentStatus === 'PAID').length
+  const pendingCount = invoices.filter(i => i.paymentStatus === 'PENDING').length
   const totalRevenue = invoices.reduce((sum, i) => sum + i.total, 0)
 
   // Filter invoices
   const filteredInvoices = invoices.filter(i => {
     const matchesSearch = i.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          i.invoiceNo.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === 'All' || i.payStatus === statusFilter
+    const matchesStatus = statusFilter === 'All' || i.paymentStatus === statusFilter.toUpperCase()
     return matchesSearch && matchesStatus
   })
 
@@ -666,7 +657,10 @@ export default function InvoicesList() {
               </tr>
             </thead>
             <tbody>
-              {paginatedItems.map((invoice) => (
+              {paginatedItems.map((invoice: any) => {
+                const itemCount = Array.isArray(invoice.items) ? invoice.items.length : 0
+                
+                return (
                 <tr key={invoice.id}>
                   <td>
                     <div className="cell-strong">{invoice.invoiceNo}</div>
@@ -675,16 +669,16 @@ export default function InvoicesList() {
                     <div className="cell-strong">{invoice.customer}</div>
                   </td>
                   <td>
-                    <div className="cell-sub">{fmtDateLong(invoice.date)}</div>
+                    <div className="cell-sub">{fmtDateLong(invoice.saleDate.split('T')[0])}</div>
                   </td>
                   <td>
-                    <div className="text-gray-700">{invoice.items} item(s)</div>
+                    <div className="text-gray-700">{itemCount} item(s)</div>
                   </td>
                   <td>
-                    <div className="text-gray-700">{money(invoice.subtotal)}</div>
+                    <div className="text-gray-700">{money(invoice.subtotal || 0)}</div>
                   </td>
                   <td>
-                    <div className="text-gray-700">{money(invoice.vat)}</div>
+                    <div className="text-gray-700">{money(invoice.vat || 0)}</div>
                   </td>
                   <td>
                     <div className="cell-strong">{money(invoice.total)}</div>
@@ -692,14 +686,14 @@ export default function InvoicesList() {
                   <td>
                     <Badge
                       variant={
-                        invoice.payStatus === 'Paid'
+                        invoice.paymentStatus === 'PAID'
                           ? 'success'
-                          : invoice.payStatus === 'Pending'
+                          : invoice.paymentStatus === 'PENDING'
                           ? 'warning'
                           : 'default'
                       }
                     >
-                      {invoice.payStatus}
+                      {invoice.paymentStatus === 'PAID' ? 'Paid' : invoice.paymentStatus === 'PENDING' ? 'Pending' : 'Partially Paid'}
                     </Badge>
                   </td>
                   <td>
@@ -712,7 +706,8 @@ export default function InvoicesList() {
                     </button>
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>

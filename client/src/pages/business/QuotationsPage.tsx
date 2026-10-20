@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Search, Eye, X, Printer, Download } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
@@ -51,46 +51,6 @@ interface Quotation {
   status: 'Sent' | 'Accepted' | 'Declined'
   notes: string
 }
-
-// Sample quotations data
-const SAMPLE_QUOTATIONS: Quotation[] = [
-  {
-    id: '1',
-    quoteNo: 'QT-0002',
-    customer: 'Thoko Mwale',
-    phone: '+265 998 833 551',
-    date: '2026-10-01',
-    validUntil: '2026-10-15',
-    items: [
-      { productId: '1', name: 'Samsung 32" LED TV', price: 265000, quantity: 2, total: 530000 },
-      { productId: '2', name: 'LED Bulb 9W (Pack of 4)', price: 8900, quantity: 5, total: 44500 },
-    ],
-    subtotal: 574500,
-    discount: 12500,
-    vat: 98600,
-    total: 660600,
-    status: 'Accepted',
-    notes: 'Delivery included',
-  },
-  {
-    id: '2',
-    quoteNo: 'QT-0001',
-    customer: 'Chikondi Banda',
-    phone: '+265 991 234 567',
-    date: '2026-10-08',
-    validUntil: '2026-10-20',
-    items: [
-      { productId: '3', name: 'Rice 25kg Bag', price: 42000, quantity: 10, total: 420000 },
-      { productId: '4', name: 'Sugar 2kg', price: 4500, quantity: 20, total: 90000 },
-    ],
-    subtotal: 510000,
-    discount: 16625,
-    vat: 86542,
-    total: 579917,
-    status: 'Sent',
-    notes: 'Bulk order discount applied',
-  },
-]
 
 // View Quotation Modal
 function ViewQuotationModal({ quotation, onClose }: { quotation: Quotation; onClose: () => void }) {
@@ -619,10 +579,16 @@ function NewQuotationModal({ onClose, onCreated }: { onClose: () => void; onCrea
 }
 
 export default function QuotationsPage() {
-  const [quotations, setQuotations] = useState<Quotation[]>(SAMPLE_QUOTATIONS)
+  const [quotations, setQuotations] = useState<Quotation[]>([])
+  const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showNewModal, setShowNewModal] = useState(false)
   const [selectedQuotation, setSelectedQuotation] = useState<Quotation | null>(null)
+
+  useEffect(() => {
+    // Quotations would be fetched from API - for now show empty state
+    setLoading(false)
+  }, [])
 
   // Calculate KPIs
   const totalQuotations = quotations.length

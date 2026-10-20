@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import Input from '@/components/ui/Input'
@@ -28,174 +28,6 @@ interface AuditLog {
   ipAddress: string
   status: 'Success' | 'Failed' | 'Warning'
 }
-
-const SAMPLE_LOGS: AuditLog[] = [
-  {
-    id: '1',
-    timestamp: '2026-10-10 10:22:15',
-    user: 'CM',
-    userName: 'Chikondi Mvula',
-    action: 'User Login',
-    category: 'Users',
-    details: 'Logged in as Administrator',
-    ipAddress: '192.168.1.45',
-    status: 'Success',
-  },
-  {
-    id: '2',
-    timestamp: '2026-10-10 09:45:32',
-    user: 'JB',
-    userName: 'John Banda',
-    action: 'Created Sale',
-    category: 'Sales',
-    details: 'Sale #SALE-1234 for MK 425,500',
-    ipAddress: '192.168.1.23',
-    status: 'Success',
-  },
-  {
-    id: '3',
-    timestamp: '2026-10-10 09:30:18',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-    action: 'Stock Movement',
-    category: 'Inventory',
-    details: 'Added 50 units of Cooking Oil 5L (PO-5678)',
-    ipAddress: '192.168.1.67',
-    status: 'Success',
-  },
-  {
-    id: '4',
-    timestamp: '2026-10-10 08:15:45',
-    user: 'CM',
-    userName: 'Chikondi Mvula',
-    action: 'Created User',
-    category: 'Users',
-    details: 'Created new user account for Moses Kachale',
-    ipAddress: '192.168.1.45',
-    status: 'Success',
-  },
-  {
-    id: '5',
-    timestamp: '2026-10-09 16:50:22',
-    user: 'GP',
-    userName: 'Grace Phiri',
-    action: 'Created Invoice',
-    category: 'Sales',
-    details: 'Invoice #INV-1023 generated for MK 180,000',
-    ipAddress: '192.168.1.34',
-    status: 'Success',
-  },
-  {
-    id: '6',
-    timestamp: '2026-10-09 15:30:11',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-    action: 'Product Updated',
-    category: 'Products',
-    details: 'Updated price for Samsung 32" LED TV',
-    ipAddress: '192.168.1.67',
-    status: 'Success',
-  },
-  {
-    id: '7',
-    timestamp: '2026-10-09 14:20:08',
-    user: 'JB',
-    userName: 'John Banda',
-    action: 'Failed Login Attempt',
-    category: 'Users',
-    details: 'Invalid password entered',
-    ipAddress: '192.168.1.23',
-    status: 'Failed',
-  },
-  {
-    id: '8',
-    timestamp: '2026-10-09 11:45:33',
-    user: 'AM',
-    userName: 'Alinane Mvula',
-    action: 'Attendance Marked',
-    category: 'HR',
-    details: 'Marked attendance for 7 employees',
-    ipAddress: '192.168.1.89',
-    status: 'Success',
-  },
-  {
-    id: '9',
-    timestamp: '2026-10-09 10:10:19',
-    user: 'CM',
-    userName: 'Chikondi Mvula',
-    action: 'Settings Changed',
-    category: 'Settings',
-    details: 'Updated system currency settings',
-    ipAddress: '192.168.1.45',
-    status: 'Success',
-  },
-  {
-    id: '10',
-    timestamp: '2026-10-08 17:25:44',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-    action: 'Stock Movement',
-    category: 'Inventory',
-    details: 'Removed 1 unit of Bluetooth Speaker (Damaged)',
-    ipAddress: '192.168.1.67',
-    status: 'Warning',
-  },
-  {
-    id: '11',
-    timestamp: '2026-10-08 15:40:27',
-    user: 'JB',
-    userName: 'John Banda',
-    action: 'Created Quotation',
-    category: 'Sales',
-    details: 'Quotation #QUO-089 for Walk-in Customer',
-    ipAddress: '192.168.1.23',
-    status: 'Success',
-  },
-  {
-    id: '12',
-    timestamp: '2026-10-08 13:15:55',
-    user: 'CM',
-    userName: 'Chikondi Mvula',
-    action: 'User Deactivated',
-    category: 'Users',
-    details: 'Deactivated user account for Moses Kachale',
-    ipAddress: '192.168.1.45',
-    status: 'Success',
-  },
-  {
-    id: '13',
-    timestamp: '2026-10-08 10:05:12',
-    user: 'GP',
-    userName: 'Grace Phiri',
-    action: 'Created Sale',
-    category: 'Sales',
-    details: 'Sale #SALE-1233 for MK 156,800',
-    ipAddress: '192.168.1.34',
-    status: 'Success',
-  },
-  {
-    id: '14',
-    timestamp: '2026-10-07 16:30:48',
-    user: 'SM',
-    userName: 'Steven Mbewe',
-    action: 'Product Created',
-    category: 'Products',
-    details: 'Added new product: Wireless Keyboard',
-    ipAddress: '192.168.1.67',
-    status: 'Success',
-  },
-  {
-    id: '15',
-    timestamp: '2026-10-07 14:50:33',
-    user: 'AM',
-    userName: 'Alinane Mvula',
-    action: 'Employee Registered',
-    category: 'HR',
-    details: 'Registered new employee: Patricia Nkhoma',
-    ipAddress: '192.168.1.89',
-    status: 'Success',
-  },
-]
 
 function getInitials(name: string): string {
   return name.split(' ').map(n => n[0]).join('').substring(0, 2)
@@ -240,14 +72,20 @@ function getCategoryColor(category: string): string {
 }
 
 export default function AuditLogPage() {
-  const [logs] = useState<AuditLog[]>(SAMPLE_LOGS)
+  const [logs, setLogs] = useState<AuditLog[]>([])
+  const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('All')
   const [statusFilter, setStatusFilter] = useState<string>('All')
   const [dateFilter, setDateFilter] = useState('')
 
+  useEffect(() => {
+    // Audit logs would be fetched from API - for now show empty state
+    setLoading(false)
+  }, [])
+
   // Get unique categories
-  const categories = ['All', ...Array.from(new Set(logs.map(log => log.category)))]
+  const categories = ['All']
   const statuses = ['All', 'Success', 'Failed', 'Warning']
 
   // Filter logs

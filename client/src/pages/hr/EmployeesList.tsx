@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, X, UserPlus } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
@@ -45,117 +45,8 @@ interface Employee {
   emergencyContact: string
 }
 
-// Sample employees
-const SAMPLE_EMPLOYEES: Employee[] = [
-  {
-    id: '1',
-    empId: 'EMP-100',
-    name: 'John Banda',
-    position: 'Sales Associate',
-    department: 'Sales',
-    dateEmployed: '2026-03-23',
-    status: 'Active',
-    attendance: 100,
-    phone: '+265 888101424',
-    email: 'john.banda@fusionbiz.mw',
-    salary: 180000,
-    address: 'Area 20, Blantyre',
-    emergencyContact: '+265 994657023',
-  },
-  {
-    id: '2',
-    empId: 'EMP-101',
-    name: 'Grace Phiri',
-    position: 'Inventory Officer',
-    department: 'Inventory',
-    dateEmployed: '2026-02-21',
-    status: 'Active',
-    attendance: 88,
-    phone: '+265 991 222 333',
-    email: 'grace.phiri@fusionbiz.mw',
-    salary: 165000,
-    address: 'Limbe, Blantyre',
-    emergencyContact: '+265 999 111 222',
-  },
-  {
-    id: '3',
-    empId: 'EMP-102',
-    name: 'Bright Kamanga',
-    position: 'Accounts Clerk',
-    department: 'Finance',
-    dateEmployed: '2026-01-22',
-    status: 'Active',
-    attendance: 88,
-    phone: '+265 995 444 555',
-    email: 'bright.kamanga@fusionbiz.mw',
-    salary: 175000,
-    address: 'Area 15, Blantyre',
-    emergencyContact: '+265 998 777 888',
-  },
-  {
-    id: '4',
-    empId: 'EMP-103',
-    name: 'Alinane Mvula',
-    position: 'HR Officer',
-    department: 'HR',
-    dateEmployed: '2025-12-23',
-    status: 'Active',
-    attendance: 88,
-    phone: '+265 997 666 777',
-    email: 'alinane.mvula@fusionbiz.mw',
-    salary: 190000,
-    address: 'Ndirande, Blantyre',
-    emergencyContact: '+265 991 555 666',
-  },
-  {
-    id: '5',
-    empId: 'EMP-104',
-    name: 'Chisomo Zulu',
-    position: 'Operations Manager',
-    department: 'Operations',
-    dateEmployed: '2025-11-23',
-    status: 'Active',
-    attendance: 88,
-    phone: '+265 996 333 444',
-    email: 'chisomo.zulu@fusionbiz.mw',
-    salary: 250000,
-    address: 'Area 25, Blantyre',
-    emergencyContact: '+265 992 888 999',
-  },
-  {
-    id: '6',
-    empId: 'EMP-105',
-    name: 'Patricia Nkhoma',
-    position: 'Sales Supervisor',
-    department: 'Sales',
-    dateEmployed: '2025-10-24',
-    status: 'Active',
-    attendance: 88,
-    phone: '+265 993 222 111',
-    email: 'patricia.nkhoma@fusionbiz.mw',
-    salary: 210000,
-    address: 'Chirimba, Blantyre',
-    emergencyContact: '+265 990 444 555',
-  },
-  {
-    id: '7',
-    empId: 'EMP-106',
-    name: 'Dan Chirwa',
-    position: 'Store Keeper',
-    department: 'Inventory',
-    dateEmployed: '2025-09-24',
-    status: 'Active',
-    attendance: 88,
-    phone: '+265 994 111 222',
-    email: 'dan.chirwa@fusionbiz.mw',
-    salary: 155000,
-    address: 'Soche, Blantyre',
-    emergencyContact: '+265 997 333 444',
-  },
-]
-
 // Employee Registration Modal
-function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; onSave: (employee: Omit<Employee, 'id' | 'attendance'>) => void }) {
+function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; onSave: (employee: Omit<Employee, 'id' | 'attendance'>) => Promise<void> }) {
   const [formData, setFormData] = useState({
     empId: `EMP-${107 + Math.floor(Math.random() * 100)}`,
     name: '',
@@ -172,7 +63,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
 
   const departments = ['Sales', 'Inventory', 'Finance', 'HR', 'Operations']
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate required fields
     if (!formData.name.trim()) {
       alert('Please enter full name')
@@ -195,20 +86,24 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
       return
     }
 
-    onSave({
-      empId: formData.empId,
-      name: formData.name,
-      position: formData.position,
-      department: formData.department,
-      dateEmployed: formData.dateEmployed,
-      phone: formData.phone,
-      email: formData.email,
-      salary: Number(formData.salary),
-      address: formData.address,
-      emergencyContact: formData.emergencyContact,
-      status: formData.status,
-    })
-    onClose()
+    try {
+      await onSave({
+        empId: formData.empId,
+        name: formData.name,
+        position: formData.position,
+        department: formData.department,
+        dateEmployed: formData.dateEmployed,
+        phone: formData.phone,
+        email: formData.email,
+        salary: Number(formData.salary),
+        address: formData.address,
+        emergencyContact: formData.emergencyContact,
+        status: formData.status,
+      })
+      onClose()
+    } catch (error) {
+      console.error('Registration error:', error)
+    }
   }
 
   return (
@@ -464,21 +359,98 @@ function EmployeeProfileModal({ employee, onClose }: { employee: Employee; onClo
 }
 
 export default function EmployeesList() {
-  const [employees, setEmployees] = useState<Employee[]>(SAMPLE_EMPLOYEES)
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [departmentFilter, setDepartmentFilter] = useState('All')
+
+  useEffect(() => {
+    fetchEmployees()
+  }, [])
+
+  const fetchEmployees = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch('http://localhost:5000/api/employees', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const result = await response.json()
+      if (result.success) {
+        // Map backend data to frontend format
+        const mappedEmployees = result.data.map((emp: any) => ({
+          id: emp.id,
+          empId: emp.employeeId,
+          name: emp.name,
+          position: emp.position,
+          department: emp.department,
+          dateEmployed: emp.dateEmployed.split('T')[0], // Convert ISO to YYYY-MM-DD
+          status: emp.status === 'ACTIVE' ? 'Active' : emp.status === 'ON_LEAVE' ? 'On Leave' : 'Inactive',
+          attendance: 0, // No attendance tracking yet
+          phone: emp.phone,
+          email: emp.email,
+          salary: emp.salary,
+          address: emp.address || '',
+          emergencyContact: emp.emergencyContact || ''
+        }))
+        setEmployees(mappedEmployees)
+      }
+    } catch (error) {
+      console.error('Failed to fetch employees:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
   const [showRegisterModal, setShowRegisterModal] = useState(false)
 
   // Handle employee registration
-  const handleRegisterEmployee = (employeeData: Omit<Employee, 'id' | 'attendance'>) => {
-    const newEmployee: Employee = {
-      ...employeeData,
-      id: String(employees.length + 1),
-      attendance: 88, // Default attendance
+  const handleRegisterEmployee = async (employeeData: Omit<Employee, 'id' | 'attendance'>) => {
+    console.log('Registering employee:', employeeData)
+    try {
+      const token = localStorage.getItem('token')
+      
+      // Prepare data for backend (remove empId, convert status to uppercase)
+      const backendData = {
+        name: employeeData.name,
+        email: employeeData.email,
+        phone: employeeData.phone,
+        position: employeeData.position,
+        department: employeeData.department,
+        salary: employeeData.salary,
+        dateEmployed: employeeData.dateEmployed,
+        address: employeeData.address,
+        emergencyContact: employeeData.emergencyContact,
+        status: employeeData.status.toUpperCase().replace(' ', '_') // Convert 'Active' to 'ACTIVE', 'On Leave' to 'ON_LEAVE'
+      }
+      
+      console.log('Sending to backend:', backendData)
+      
+      const response = await fetch('http://localhost:5000/api/employees', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(backendData)
+      })
+      
+      console.log('Response status:', response.status)
+      const result = await response.json()
+      console.log('Response data:', result)
+      
+      if (response.ok && result.success) {
+        console.log('Employee created successfully, refreshing list...')
+        // Refresh the employees list
+        await fetchEmployees()
+        alert('Employee registered successfully!')
+      } else {
+        console.error('Registration failed:', result)
+        alert(`Failed to register employee: ${result.message || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Failed to register employee:', error)
+      alert('Failed to register employee. Please try again.')
     }
-    setEmployees([...employees, newEmployee])
-    alert('Employee registered successfully!')
   }
 
   // Get unique departments

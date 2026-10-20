@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useDataStore } from './dataStore'
+import { useApiStore } from './apiStore'
 
 // Simplified User type for demo
 interface User {
@@ -69,7 +71,12 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       setUser: (user) => set({ user, isAuthenticated: !!user }),
-      logout: () => set({ user: null, isAuthenticated: false }),
+      logout: () => {
+        // Reset both data stores when logging out
+        useDataStore.getState().resetData()
+        useApiStore.getState().resetData()
+        set({ user: null, isAuthenticated: false })
+      },
       demoLogin: (role: string) => {
         const user = DEMO_USERS[role]
         if (user) {

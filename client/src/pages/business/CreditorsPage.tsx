@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Search, X } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
@@ -40,49 +40,6 @@ interface Creditor {
   status: 'Overdue' | 'Outstanding' | 'Paid'
   payments: Payment[]
 }
-
-// Sample creditors
-const SAMPLE_CREDITORS: Creditor[] = [
-  {
-    id: '1',
-    name: 'Malawi Wholesalers Ltd',
-    phone: '+265 995 123 456',
-    reference: 'Supplier Invoice 4471',
-    date: '2026-10-19',
-    dueDate: '2026-10-19',
-    amount: 320000,
-    paid: 0,
-    balance: 320000,
-    status: 'Outstanding',
-    payments: [],
-  },
-  {
-    id: '2',
-    name: 'Prime Distributors',
-    phone: '+265 991 555 666',
-    reference: 'Supplier Invoice 982',
-    date: '2026-10-06',
-    dueDate: '2026-10-06',
-    amount: 180000,
-    paid: 60000,
-    balance: 120000,
-    status: 'Overdue',
-    payments: [{ date: '2026-10-10', amount: 60000 }],
-  },
-  {
-    id: '3',
-    name: 'Sunrise Imports',
-    phone: '+265 999 888 777',
-    reference: 'Stock on credit',
-    date: '2026-11-03',
-    dueDate: '2026-11-03',
-    amount: 95000,
-    paid: 0,
-    balance: 95000,
-    status: 'Outstanding',
-    payments: [],
-  },
-]
 
 // Add Creditor Modal
 function AddCreditorModal({ onClose, onCreated }: { onClose: () => void; onCreated: (creditor: Creditor) => void }) {
@@ -357,9 +314,15 @@ function MakePaymentModal({ creditor, onClose, onPaid }: { creditor: Creditor; o
 }
 
 export default function CreditorsPage() {
-  const [creditors, setCreditors] = useState<Creditor[]>(SAMPLE_CREDITORS)
+  const [creditors, setCreditors] = useState<Creditor[]>([])
+  const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+
+  useEffect(() => {
+    // Creditors would be fetched from API - for now show empty state
+    setLoading(false)
+  }, [])
   const [selectedCreditor, setSelectedCreditor] = useState<Creditor | null>(null)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showPayModal, setShowPayModal] = useState(false)

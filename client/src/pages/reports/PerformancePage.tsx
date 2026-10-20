@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/Card'
 import { TrendingUp, DollarSign, Sparkles, ShoppingCart } from 'lucide-react'
 import {
@@ -14,6 +15,7 @@ import {
   Area,
   AreaChart,
 } from 'recharts'
+import toast from 'react-hot-toast'
 
 function money(n: number): string {
   return (
@@ -25,86 +27,168 @@ function money(n: number): string {
   )
 }
 
-// Revenue vs Cost data (last 14 days)
-const revenueVsCostData = [
-  { date: 'Sep 26', revenue: 520000, cost: 385000 },
-  { date: 'Sep 27', revenue: 485000, cost: 362000 },
-  { date: 'Sep 28', revenue: 610000, cost: 445000 },
-  { date: 'Sep 29', revenue: 580000, cost: 428000 },
-  { date: 'Sep 30', revenue: 505000, cost: 375000 },
-  { date: 'Oct 1', revenue: 625000, cost: 465000 },
-  { date: 'Oct 2', revenue: 590000, cost: 438000 },
-  { date: 'Oct 3', revenue: 520000, cost: 390000 },
-  { date: 'Oct 4', revenue: 555000, cost: 412000 },
-  { date: 'Oct 5', revenue: 495000, cost: 368000 },
-  { date: 'Oct 6', revenue: 640000, cost: 475000 },
-  { date: 'Oct 7', revenue: 605000, cost: 450000 },
-  { date: 'Oct 8', revenue: 575000, cost: 428000 },
-  { date: 'Oct 9', revenue: 590000, cost: 440000 },
-]
-
-// Profit trend data
-const profitTrendData = [
-  { date: 'Sep 26', profit: 135000 },
-  { date: 'Sep 27', profit: 123000 },
-  { date: 'Sep 28', profit: 165000 },
-  { date: 'Sep 29', profit: 152000 },
-  { date: 'Sep 30', profit: 130000 },
-  { date: 'Oct 1', profit: 160000 },
-  { date: 'Oct 2', profit: 152000 },
-  { date: 'Oct 3', profit: 130000 },
-  { date: 'Oct 4', profit: 143000 },
-  { date: 'Oct 5', profit: 127000 },
-  { date: 'Oct 6', profit: 165000 },
-  { date: 'Oct 7', profit: 155000 },
-  { date: 'Oct 8', profit: 147000 },
-  { date: 'Oct 9', profit: 150000 },
-]
-
-// Weekly sales data
-const weeklySalesData = [
-  { week: 'W 1', sales: 340000 },
-  { week: 'W 2', sales: 420000 },
-  { week: 'W 3', sales: 380000 },
-  { week: 'W 4', sales: 450000 },
-  { week: 'W 5', sales: 410000 },
-]
-
-// Monthly sales growth data
-const monthlySalesData = [
-  { month: 'Apr', sales: 1850000 },
-  { month: 'May', sales: 2100000 },
-  { month: 'Jun', sales: 2350000 },
-  { month: 'Jul', sales: 2280000 },
-  { month: 'Aug', sales: 2520000 },
-  { month: 'Sep', sales: 2680000 },
-]
-
-// Best selling products
-const bestSellingProducts = [
-  { name: 'Cooking Oil 5L', revenue: 1897500 },
-  { name: 'Coca-Cola 500ml (Crate of 24)', revenue: 1054500 },
-  { name: 'Ballpoint Pens (Box of 50)', revenue: 572000 },
-  { name: 'Wireless Mouse Logitech', revenue: 759500 },
-  { name: 'Smartphone Charger Type-C', revenue: 367500 },
-]
-
-// Slow selling products
-const slowSellingProducts = [
-  { name: 'Maize Flour 25kg', units: 10 },
-  { name: 'Fanta Orange 2L', units: 18 },
-  { name: 'Bluetooth Speaker JBL Go', units: 22 },
-  { name: 'School Uniform Set', units: 24 },
-  { name: 'Office Stapler Heavy Duty', units: 24 },
-]
+interface PerformanceData {
+  totalRevenue: number
+  costOfGoods: number
+  grossProfit: number
+  transactions: number
+  profitMargin: number
+  avgTransaction: number
+  revenueVsCostData: Array<{ date: string; revenue: number; cost: number }>
+  profitTrendData: Array<{ date: string; profit: number }>
+  weeklySalesData: Array<{ week: string; sales: number }>
+  monthlySalesData: Array<{ month: string; sales: number }>
+  bestSellingProducts: Array<{ name: string; revenue: number }>
+  slowSellingProducts: Array<{ name: string; units: number }>
+}
 
 export default function PerformancePage() {
-  const totalRevenue = 7451005
-  const costOfGoods = 5596800
-  const grossProfit = totalRevenue - costOfGoods
-  const transactions = 43
-  const profitMargin = ((grossProfit / totalRevenue) * 100).toFixed(0)
-  const avgTransaction = totalRevenue / transactions
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<PerformanceData>({
+    totalRevenue: 0,
+    costOfGoods: 0,
+    grossProfit: 0,
+    transactions: 0,
+    profitMargin: 0,
+    avgTransaction: 0,
+    revenueVsCostData: [],
+    profitTrendData: [],
+    weeklySalesData: [],
+    monthlySalesData: [],
+    bestSellingProducts: [],
+    slowSellingProducts: [],
+  })
+
+  useEffect(() => {
+    fetchPerformanceData()
+  }, [])
+
+  const fetchPerformanceData = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const headers = { 'Authorization': `Bearer ${token}` }
+
+      // Fetch sales data
+      const salesRes = await fetch('http://localhost:5000/api/sales', { headers })
+      const salesData = await salesRes.json()
+      const sales = salesData.success ? salesData.data : []
+
+      // Fetch products for cost calculation
+      const productsRes = await fetch('http://localhost:5000/api/products', { headers })
+      const productsData = await productsRes.json()
+      const products = productsData.success ? productsData.data : []
+
+      // Calculate metrics from real data
+      const totalRevenue = sales.reduce((sum: number, sale: any) => sum + (sale.total || 0), 0)
+      const transactions = sales.length
+
+      // Calculate cost of goods from actual product costs
+      let totalCost = 0
+      sales.forEach((sale: any) => {
+        sale.items?.forEach((item: any) => {
+          const product = products.find((p: any) => p.id === item.productId)
+          if (product) {
+            totalCost += product.cost * item.quantity
+          }
+        })
+      })
+      const costOfGoods = totalCost
+
+      const grossProfit = totalRevenue - costOfGoods
+      const profitMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100) : 0
+      const avgTransaction = transactions > 0 ? (totalRevenue / transactions) : 0
+
+      // Generate daily data for last 14 days
+      const last14Days = Array.from({ length: 14 }, (_, i) => {
+        const date = new Date()
+        date.setDate(date.getDate() - (13 - i))
+        const dateStr = date.toISOString().split('T')[0]
+        
+        const daySales = sales.filter((s: any) => {
+          const saleDate = s.saleDate || s.date || ''
+          return saleDate.startsWith(dateStr)
+        })
+        const dayRevenue = daySales.reduce((sum: number, s: any) => sum + (s.total || 0), 0)
+        
+        // Calculate actual cost for this day
+        let dayCost = 0
+        daySales.forEach((sale: any) => {
+          sale.items?.forEach((item: any) => {
+            const product = products.find((p: any) => p.id === item.productId)
+            if (product) {
+              dayCost += product.cost * item.quantity
+            }
+          })
+        })
+        
+        return {
+          date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          revenue: dayRevenue,
+          cost: dayCost,
+          profit: dayRevenue - dayCost
+        }
+      })
+
+      // Calculate product performance
+      const productSales: Record<string, { revenue: number; units: number; name: string }> = {}
+      
+      sales.forEach((sale: any) => {
+        sale.items?.forEach((item: any) => {
+          const prodId = item.productId || item.product?.id
+          const prodName = item.product?.name || item.productName || 'Unknown Product'
+          
+          if (!productSales[prodId]) {
+            productSales[prodId] = { revenue: 0, units: 0, name: prodName }
+          }
+          
+          productSales[prodId].revenue += (item.price || 0) * (item.quantity || 0)
+          productSales[prodId].units += (item.quantity || 0)
+        })
+      })
+
+      const productList = Object.values(productSales)
+      const bestSelling = productList
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 5)
+        .map(p => ({ name: p.name, revenue: p.revenue }))
+      
+      const slowSelling = productList
+        .sort((a, b) => a.units - b.units)
+        .slice(0, 5)
+        .map(p => ({ name: p.name, units: p.units }))
+
+      setData({
+        totalRevenue,
+        costOfGoods,
+        grossProfit,
+        transactions,
+        profitMargin,
+        avgTransaction,
+        revenueVsCostData: last14Days.map(d => ({ date: d.date, revenue: d.revenue, cost: d.cost })),
+        profitTrendData: last14Days.map(d => ({ date: d.date, profit: d.profit })),
+        weeklySalesData: [], // Can be calculated if needed
+        monthlySalesData: [], // Can be calculated if needed
+        bestSellingProducts: bestSelling.length > 0 ? bestSelling : [],
+        slowSellingProducts: slowSelling.length > 0 ? slowSelling : [],
+      })
+    } catch (error) {
+      console.error('Failed to fetch performance data:', error)
+      toast.error('Failed to load performance data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+          <div className="text-sm text-gray-500">Loading performance data...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="fade-in">
@@ -126,15 +210,17 @@ export default function PerformancePage() {
             >
               <TrendingUp className="w-4 h-4" />
             </div>
-            <div className="text-xs font-semibold text-[#0ea885] flex items-center gap-1">
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 5v14M5 12l7-7 7 7" />
-              </svg>
-              +6.1%
-            </div>
+            {data.totalRevenue > 0 && (
+              <div className="text-xs font-semibold text-[#0ea885] flex items-center gap-1">
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 5v14M5 12l7-7 7 7" />
+                </svg>
+                +{data.profitMargin.toFixed(1)}%
+              </div>
+            )}
           </div>
           <div className="kpi-label">Total Revenue (MTD, excl. VAT)</div>
-          <div className="kpi-value">{money(totalRevenue)}</div>
+          <div className="kpi-value">{money(data.totalRevenue)}</div>
         </Card>
 
         {/* Cost of Goods Sold */}
@@ -148,7 +234,7 @@ export default function PerformancePage() {
             </div>
           </div>
           <div className="kpi-label">Cost of Goods Sold</div>
-          <div className="kpi-value">{money(costOfGoods)}</div>
+          <div className="kpi-value">{money(data.costOfGoods)}</div>
         </Card>
 
         {/* Gross Profit */}
@@ -156,16 +242,16 @@ export default function PerformancePage() {
           <div className="kpi-top">
             <div
               className="kpi-icon"
-              style={{ background: '#e3f8f2', color: '#0ea885' }}
+              style={{ background: '#e1f5eb', color: '#0ea885' }}
             >
               <Sparkles className="w-4 h-4" />
             </div>
-            <div className="text-xs font-semibold text-[#0ea885]">
-              {profitMargin}% margin
-            </div>
           </div>
           <div className="kpi-label">Gross Profit</div>
-          <div className="kpi-value">{money(grossProfit)}</div>
+          <div className="kpi-value">{money(data.grossProfit)}</div>
+          {data.totalRevenue > 0 && (
+            <div className="text-xs text-gray-500 mt-1">{data.profitMargin.toFixed(0)}% margin</div>
+          )}
         </Card>
 
         {/* Transactions */}
@@ -173,245 +259,162 @@ export default function PerformancePage() {
           <div className="kpi-top">
             <div
               className="kpi-icon"
-              style={{ background: '#efeafb', color: '#6a4fd6' }}
+              style={{ background: '#fff4e6', color: '#f59e0b' }}
             >
               <ShoppingCart className="w-4 h-4" />
             </div>
-            <div className="text-xs text-[#0ea885]">
-              Avg. {money(avgTransaction)}
-            </div>
           </div>
           <div className="kpi-label">Transactions</div>
-          <div className="kpi-value">{transactions}</div>
+          <div className="kpi-value">{data.transactions}</div>
+          {data.transactions > 0 && (
+            <div className="text-xs text-gray-500 mt-1">Avg. {money(data.avgTransaction)}</div>
+          )}
         </Card>
       </div>
 
-      {/* Charts Row 1 */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      {/* Charts Grid */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
         {/* Revenue vs Cost */}
         <Card>
-          <div className="flex items-center justify-between mb-4">
+          <div className="card-head">
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">Revenue vs Cost</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Last 14 days</p>
+              <div className="card-title">Revenue vs Cost</div>
+              <div className="card-sub">Last 14 days</div>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={revenueVsCostData}>
-              <defs>
-                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2f5df5" stopOpacity={0.15}/>
-                  <stop offset="95%" stopColor="#2f5df5" stopOpacity={0}/>
-                </linearGradient>
-                <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#c2372c" stopOpacity={0.15}/>
-                  <stop offset="95%" stopColor="#c2372c" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f1f4" vertical={false} />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 11, fill: '#9aa3b2' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: '#9aa3b2' }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(val) => `${val / 1000}k`}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: '#fff',
-                  border: '1px solid #e6e9ef',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                }}
-                formatter={(value: number) => money(value)}
-              />
-              <Legend
-                wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}
-                iconType="circle"
-              />
-              <Area
-                type="linear"
-                dataKey="revenue"
-                name="Revenue (excl. VAT)"
-                stroke="#2f5df5"
-                strokeWidth={2}
-                fill="url(#colorRevenue)"
-                dot={{ fill: '#2f5df5', r: 4, strokeWidth: 0 }}
-              />
-              <Area
-                type="linear"
-                dataKey="cost"
-                name="Cost"
-                stroke="#c2372c"
-                strokeWidth={2}
-                fill="url(#colorCost)"
-                dot={{ fill: '#c2372c', r: 4, strokeWidth: 0 }}
-              />
-            </AreaChart>
+          <ResponsiveContainer width="100%" height={280}>
+            {data.revenueVsCostData.length > 0 ? (
+              <AreaChart data={data.revenueVsCostData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="#999" />
+                <YAxis
+                  tick={{ fontSize: 11 }}
+                  stroke="#999"
+                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    fontSize: 12,
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                  }}
+                  formatter={(value: any) => money(value)}
+                />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#3b82f6"
+                  fill="#3b82f6"
+                  fillOpacity={0.2}
+                  strokeWidth={2}
+                  name="Revenue (excl. VAT)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="cost"
+                  stroke="#ef4444"
+                  fill="#ef4444"
+                  fillOpacity={0.2}
+                  strokeWidth={2}
+                  name="Cost"
+                />
+              </AreaChart>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                No sales data available
+              </div>
+            )}
           </ResponsiveContainer>
         </Card>
 
         {/* Profit Trend */}
         <Card>
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Profit Trend</h3>
+          <div className="card-head">
+            <div>
+              <div className="card-title">Profit Trend</div>
+              <div className="card-sub">Daily gross profit</div>
+            </div>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={profitTrendData}>
-              <defs>
-                <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0ea885" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#0ea885" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f1f4" vertical={false} />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 11, fill: '#9aa3b2' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: '#9aa3b2' }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(val) => `${val / 1000}k`}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: '#fff',
-                  border: '1px solid #e6e9ef',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                }}
-                formatter={(value: number) => money(value)}
-              />
-              <Area
-                type="linear"
-                dataKey="profit"
-                name="Profit"
-                stroke="#0ea885"
-                strokeWidth={2}
-                fill="url(#colorProfit)"
-                dot={{ fill: '#0ea885', r: 4, strokeWidth: 0 }}
-              />
-            </AreaChart>
+          <ResponsiveContainer width="100%" height={280}>
+            {data.profitTrendData.length > 0 ? (
+              <LineChart data={data.profitTrendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="#999" />
+                <YAxis
+                  tick={{ fontSize: 11 }}
+                  stroke="#999"
+                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    fontSize: 12,
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                  }}
+                  formatter={(value: any) => money(value)}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="profit"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: '#10b981' }}
+                />
+              </LineChart>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                No profit data available
+              </div>
+            )}
           </ResponsiveContainer>
         </Card>
       </div>
 
-      {/* Charts Row 2 */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        {/* Weekly Sales */}
-        <Card>
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Weekly Sales</h3>
-          </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={weeklySalesData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f1f4" vertical={false} />
-              <XAxis
-                dataKey="week"
-                tick={{ fontSize: 11, fill: '#9aa3b2' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: '#9aa3b2' }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(val) => `${val / 1000}k`}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: '#fff',
-                  border: '1px solid #e6e9ef',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                }}
-                formatter={(value: number) => money(value)}
-              />
-              <Bar dataKey="sales" fill="#2f5df5" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        {/* Monthly Sales Growth */}
-        <Card>
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Monthly Sales Growth</h3>
-          </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={monthlySalesData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f1f4" vertical={false} />
-              <XAxis
-                dataKey="month"
-                tick={{ fontSize: 11, fill: '#9aa3b2' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: '#9aa3b2' }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(val) => `${val / 1000000}M`}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: '#fff',
-                  border: '1px solid #e6e9ef',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                }}
-                formatter={(value: number) => money(value)}
-              />
-              <Bar dataKey="sales" fill="#6a4fd6" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-      </div>
-
-      {/* Product Lists */}
+      {/* Product Performance */}
       <div className="grid grid-cols-2 gap-4">
         {/* Best Selling Products */}
         <Card>
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Best Selling Products</h3>
+          <div className="card-head">
+            <div className="card-title">Best Selling Products</div>
+            <div className="card-sub">By revenue</div>
           </div>
-          <div className="space-y-3">
-            {bestSellingProducts.map((product, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
-              >
-                <div className="text-sm text-gray-900">{product.name}</div>
-                <div className="text-sm font-semibold text-gray-900">{money(product.revenue)}</div>
-              </div>
-            ))}
-          </div>
+          {data.bestSellingProducts.length > 0 ? (
+            <div className="space-y-3">
+              {data.bestSellingProducts.map((product, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="text-sm text-gray-700">{product.name}</div>
+                  <div className="text-sm font-semibold text-gray-900">{money(product.revenue)}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-400 text-sm">
+              No product sales data available
+            </div>
+          )}
         </Card>
 
         {/* Slow Selling Products */}
         <Card>
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Slow Selling Products</h3>
+          <div className="card-head">
+            <div className="card-title">Slow Selling Products</div>
+            <div className="card-sub">Lowest units sold</div>
           </div>
-          <div className="space-y-3">
-            {slowSellingProducts.map((product, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
-              >
-                <div className="text-sm text-gray-900">{product.name}</div>
-                <div className="text-sm text-gray-500">{product.units} units</div>
-              </div>
-            ))}
-          </div>
+          {data.slowSellingProducts.length > 0 ? (
+            <div className="space-y-3">
+              {data.slowSellingProducts.map((product, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="text-sm text-gray-700">{product.name}</div>
+                  <div className="text-sm font-semibold text-gray-900">{product.units} units</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-400 text-sm">
+              No product sales data available
+            </div>
+          )}
         </Card>
       </div>
     </div>

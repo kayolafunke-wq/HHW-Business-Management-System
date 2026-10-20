@@ -1,14 +1,57 @@
 import { create } from 'zustand'
-import {
-  Product,
-  Sale,
-  StockMovement,
-  Employee,
-  generateProducts,
-  generateSales,
-  generateStockMovements,
-  generateEmployees,
-} from '@/services/dataGenerator'
+
+// Types (keeping the interfaces we need)
+interface Product {
+  id: string
+  sku: string
+  name: string
+  category: string
+  cost: number
+  price: number
+  stock: number
+  minStock: number
+  status: string
+}
+
+interface Sale {
+  id: string
+  invoiceNo: string
+  customer: string
+  cashier: string
+  date: string
+  total: number
+  status: string
+  paymentMethod: string
+  items?: any[]
+  user?: {
+    name: string
+  }
+}
+
+interface StockMovement {
+  id: string
+  type: string
+  productId: string
+  quantity: number
+  reference: string
+  supplier?: string
+  reason?: string
+  movementDate: string
+  product?: {
+    name: string
+    sku: string
+  }
+}
+
+interface Employee {
+  id: string
+  name: string
+  position: string
+  department: string
+  email: string
+  phone: string
+  status: string
+}
 
 interface InventoryMovement {
   id: string
@@ -33,7 +76,9 @@ interface DataState {
   employees: Employee[]
   inventoryMovements: InventoryMovement[]
   initialized: boolean
-  initializeData: () => void
+  isInitializing: boolean
+  initializeData: () => Promise<void>
+  resetData: () => void
   addSale: (sale: Sale, items: Array<{ productId: string; quantity: number; productName: string; sku: string }>) => void
   updateProductStock: (productId: string, quantityChange: number, reason: string, reference: string) => void
 }
@@ -45,19 +90,108 @@ export const useDataStore = create<DataState>()((set, get) => ({
   employees: [],
   inventoryMovements: [],
   initialized: false,
+  isInitializing: false,
 
-  initializeData: () => {
-    const products = generateProducts()
-    const sales = generateSales(products)
-    const stockMovements = generateStockMovements(products)
-    const employees = generateEmployees()
+  initializeData: async () => {
+    const state = get()
+    
+    // Prevent multiple simultaneous initializations
+    if (state.isInitializing || state.initialized) {
+      return
+    }
 
+    set({ isInitializing: true })
+
+    try {
+      // Fetch real data from API
+      const token = localStorage.getItem('token')
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      }
+
+      // Fetch products
+      const productsRes = await fetch('http://localhost:5000/api/products', { headers })
+      const productsData = await productsRes.json()
+      const products = productsData.success ? productsData.data : []
+
+      // Fetch sales
+      const salesRes = await fetch('http://localhost:5000/api/sales', { headers })
+      const salesData = await salesRes.json()
+      const rawSales = salesData.success ? salesData.data : []
+      
+      // Map sales data to match dashboard expectations
+      const sales = rawSales.map((sale: any) => ({
+        id: sale.id,
+        invoiceNo: sale.invoiceNo,
+        customer: sale.customer,
+        cashier: sale.cashier,
+        date: sale.saleDate ? sale.saleDate.split('T')[0] : new Date().toISOString().split('T')[0], // Convert saleDate to date
+        total: sale.total,
+        status: sale.paymentStatus === 'PAID' ? 'Paid' : sale.paymentStatus === 'PENDING' ? 'Pending' : 'Partially Paid',
+        payStatus: sale.paymentStatus === 'PAID' ? 'Paid' : sale.paymentStatus === 'PENDING' ? 'Pending' : 'Partially Paid', // Add payStatus field
+        paymentMethod: sale.paymentMethod,
+        items: sale.items || [],
+        user: sale.user,
+        subtotal: sale.subtotal || 0,
+        vat: sale.vat || 0,
+        discount: sale.discount || 0
+      }))
+
+      // Fetch stock movements
+      const movementsRes = await fetch('http://localhost:5000/api/inventory/movements', { headers })
+      const movementsData = await movementsRes.json()
+      const rawMovements = movementsData.success ? movementsData.data : []
+      
+      // Map stock movements to match dashboard expectations
+      const stockMovements = rawMovements.map((movement: any) => ({
+        id: movement.id,
+        type: movement.type === 'IN' ? 'in' : 'out', // Convert IN/OUT to in/out
+        productId: movement.productId,
+        productName: movement.product?.name || '',
+        qty: movement.quantity, // Map quantity to qty
+        date: movement.movementDate ? movement.movementDate.split('T')[0] : new Date().toISOString().split('T')[0], // Convert movementDate to date
+        ref: movement.reference,
+        supplier: movement.supplier,
+        reason: movement.reason,
+        notes: movement.notes
+      }))
+
+      // Fetch employees
+      const employeesRes = await fetch('http://localhost:5000/api/employees', { headers })
+      const employeesData = await employeesRes.json()
+      const employees = employeesData.success ? employeesData.data : []
+
+      set({
+        products,
+        sales,
+        stockMovements,
+        employees,
+        initialized: true,
+        isInitializing: false,
+      })
+    } catch (error) {
+      console.error('Failed to initialize data:', error)
+      // Set empty arrays on error
+      set({
+        products: [],
+        sales: [],
+        stockMovements: [],
+        employees: [],
+        initialized: true,
+        isInitializing: false,
+      })
+    }
+  },
+
+  resetData: () => {
     set({
-      products,
-      sales,
-      stockMovements,
-      employees,
-      initialized: true,
+      products: [],
+      sales: [],
+      stockMovements: [],
+      employees: [],
+      inventoryMovements: [],
+      initialized: false,
+      isInitializing: false,
     })
   },
 

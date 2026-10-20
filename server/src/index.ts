@@ -12,6 +12,7 @@ import inventoryRoutes from './routes/inventoryRoutes.js'
 import employeeRoutes from './routes/employeeRoutes.js'
 import reportRoutes from './routes/reportRoutes.js'
 import auditRoutes from './routes/auditRoutes.js'
+import attendanceRoutes from './routes/attendanceRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 
 // Load environment variables
@@ -45,6 +46,7 @@ app.use('/api/employees', employeeRoutes)
 app.use('/api/reports', reportRoutes)
 app.use('/api/audit', auditRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/attendance', attendanceRoutes)
 
 // 404 handler
 app.use((req, res) => {

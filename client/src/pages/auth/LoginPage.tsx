@@ -4,12 +4,13 @@ import { useAuthStore } from '@/store/authStore'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import toast from 'react-hot-toast'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '@/config/firebase'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { demoLogin } = useAuthStore()
-  const [username, setUsername] = useState('admin')
-  const [password, setPassword] = useState('password')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
   console.log('LoginPage rendering')
@@ -19,29 +20,36 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Real API login
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      // Firebase authentication
+      const userCredential = await signInWithEmailAndPassword(auth, username, password)
+      const firebaseUser = userCredential.user
+      
+      // Get ID token
+      const idToken = await firebaseUser.getIdToken()
+      
+      // Verify with backend and get user data
+      const response = await fetch('http://localhost:5000/api/auth/verify-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ idToken })
       })
 
       const result = await response.json()
 
       if (response.ok && result.success) {
         // Store token
-        localStorage.setItem('token', result.data.token)
+        localStorage.setItem('token', idToken)
         
         // Set user in auth store
-        useAuthStore.getState().setUser(result.data.user)
+        useAuthStore.getState().setUser(result.data)
         
         // Debug log
-        console.log('Login successful:', result.data.user.name, 'Role:', result.data.user.role, 'ID:', result.data.user.id)
+        console.log('Login successful:', result.data.name, 'Role:', result.data.role, 'ID:', result.data.id)
         
-        toast.success(`Welcome back, ${result.data.user.name}!`)
+        toast.success(`Welcome back, ${result.data.name}!`)
         
         // Redirect based on role
-        const role = result.data.user.role
+        const role = result.data.role
         if (role === 'Sales User' || role === 'SALES_USER' || role.includes('SALES')) {
           navigate('/sales')
         } else if (role.includes('INVENTORY') || role.includes('Inventory')) {
@@ -52,75 +60,17 @@ export default function LoginPage() {
           navigate('/dashboard')
         }
       } else {
-        toast.error(result.message || 'Invalid credentials')
+        toast.error(result.message || 'Authentication failed')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error)
-      toast.error('Login failed. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Demo accounts matching the prototype
-  const demoAccounts = [
-    { name: 'Chikondi Mvula', username: '@admin', role: 'Administrator' },
-    { name: 'Grace Mwale', username: '@grace.sales', role: 'Sales User' },
-    { name: 'Steven Mbewe', username: '@steven.inv', role: 'Inventory User' },
-    { name: 'Faith Nyasulu', username: '@faith.hr', role: 'HR User' },
-    { name: 'Finance Manager', username: '@finance', role: 'Accountant' },
-  ]
-
-  const handleDemoLogin = async (role: string) => {
-    try {
-      setLoading(true)
-      
-      // Map role to username
-      const usernameMap: Record<string, string> = {
-        'Administrator': 'admin',
-        'Sales User': 'grace.sales',
-        'Inventory User': 'steven.inv',
-        'HR User': 'faith.hr',
-        'Accountant': 'finance'
-      }
-
-      const loginUsername = usernameMap[role] || 'admin'
-      
-      // Real API login
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: loginUsername, password: 'password' })
-      })
-
-      const result = await response.json()
-
-      if (response.ok && result.success) {
-        // Store token
-        localStorage.setItem('token', result.data.token)
-        
-        // Set user in auth store
-        useAuthStore.getState().setUser(result.data.user)
-        
-        toast.success(`Signed in as ${result.data.user.name}`)
-        
-        // Redirect based on role
-        const userRole = result.data.user.role
-        if (userRole === 'Sales User') {
-          navigate('/sales')
-        } else if (userRole === 'Inventory User') {
-          navigate('/products')
-        } else if (userRole === 'HR User') {
-          navigate('/employees')
-        } else {
-          navigate('/dashboard')
-        }
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
+        toast.error('Invalid email or password')
+      } else if (error.code === 'auth/too-many-requests') {
+        toast.error('Too many failed attempts. Please try again later.')
       } else {
-        toast.error(result.message || 'Login failed')
+        toast.error('Login failed. Please try again.')
       }
-    } catch (error) {
-      console.error('Demo login error:', error)
-      toast.error('Login failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -268,11 +218,12 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-3.5">
             <Input
-              label="Username"
-              type="text"
+              label="Email"
+              type="email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. admin"
+              placeholder="e.g. grace.sales@hhw.com"
+              required
             />
 
             <Input
@@ -281,6 +232,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              required
             />
 
             <div className="flex items-center justify-between text-[12px] mt-2.5 mb-4">
@@ -298,37 +250,11 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Divider */}
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
-            </div>
-            <div className="relative flex justify-center text-[11.5px]">
-              <span className="bg-white px-2 text-gray-500 font-semibold tracking-wide">QUICK DEMO ACCESS — pick a role</span>
-            </div>
-          </div>
-
-          {/* Demo accounts */}
-          <div className="space-y-2">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.role}
-                onClick={() => handleDemoLogin(account.role)}
-                className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-[#2f5df5] hover:bg-blue-50 transition-colors text-left"
-              >
-                <div>
-                  <div className="font-semibold text-sm text-gray-900">{account.name}</div>
-                  <div className="text-[11px] text-gray-500">
-                    {account.role} · {account.username}
-                  </div>
-                </div>
-                <div className="text-xs font-medium px-2 py-1 bg-blue-100 text-blue-700 rounded">
-                  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="m9 18 6-6-6-6"/>
-                  </svg>
-                </div>
-              </button>
-            ))}
+          <div className="mt-6 text-center text-sm text-gray-600">
+            Need access?{' '}
+            <span className="text-gray-700 font-semibold">
+              Contact your HR or Administrator
+            </span>
           </div>
         </div>
       </div>

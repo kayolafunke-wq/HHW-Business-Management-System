@@ -6,9 +6,9 @@ export default function Topbar() {
   const { user } = useAuthStore()
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-30">
-      {/* Search */}
-      <div className="flex items-center gap-3 flex-1 max-w-md">
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30">
+      {/* Search - Hidden on mobile, visible on tablet+ */}
+      <div className="hidden md:flex items-center gap-3 flex-1 max-w-md">
         <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 w-full">
           <Search className="w-4 h-4 text-gray-400" />
           <input
@@ -19,8 +19,16 @@ export default function Topbar() {
         </div>
       </div>
 
+      {/* Mobile spacer */}
+      <div className="md:hidden flex-1"></div>
+
       {/* Right section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Search button on mobile */}
+        <button className="md:hidden w-9 h-9 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
+          <Search className="w-4 h-4" />
+        </button>
+
         {/* Notifications */}
         <button className="relative w-9 h-9 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
           <Bell className="w-4 h-4" />
@@ -28,11 +36,11 @@ export default function Topbar() {
         </button>
 
         {/* Profile */}
-        <div className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-full border border-gray-200 bg-white">
+        <div className="flex items-center gap-2 sm:gap-2.5 px-2 sm:px-2.5 py-1.5 rounded-full border border-gray-200 bg-white">
           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center text-white text-xs font-bold font-display">
             {user && getInitials(user.name)}
           </div>
-          <div className="pr-1">
+          <div className="pr-1 hidden sm:block">
             <div className="text-xs font-semibold text-gray-900">{user?.name}</div>
             <div className="text-[10px] text-gray-500">{user?.role}</div>
           </div>

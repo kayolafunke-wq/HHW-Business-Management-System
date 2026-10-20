@@ -252,8 +252,8 @@ export default function SalesPerformance() {
               Percentage of total revenue
             </p>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
+          <ResponsiveContainer width="100%" height={350}>
+            <PieChart margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
               <Pie
                 data={pieData}
                 cx="50%"
@@ -289,12 +289,12 @@ export default function SalesPerformance() {
           <table className="data-table">
             <thead>
               <tr>
-                <th style={{ width: '60px' }}>Rank</th>
+                <th style={{ width: '60px', textAlign: 'center' }}>Rank</th>
                 <th>Employee</th>
-                <th className="text-right">Total Sales</th>
-                <th className="text-right">Total Revenue</th>
-                <th className="text-right">Avg Sale Value</th>
-                <th className="text-right">Performance</th>
+                <th style={{ textAlign: 'right' }}>Total Sales</th>
+                <th style={{ textAlign: 'right' }}>Total Revenue</th>
+                <th style={{ textAlign: 'right' }}>Avg Sale Value</th>
+                <th style={{ textAlign: 'right' }}>Performance</th>
               </tr>
             </thead>
             <tbody>
@@ -310,7 +310,7 @@ export default function SalesPerformance() {
                   
                   return (
                     <tr key={emp.name}>
-                      <td>
+                      <td style={{ textAlign: 'center' }}>
                         <div className="flex items-center justify-center">
                           {emp.rank === 1 && (
                             <Award className="w-5 h-5 text-yellow-500" />
@@ -341,15 +341,15 @@ export default function SalesPerformance() {
                           </div>
                         </div>
                       </td>
-                      <td className="text-right">
+                      <td style={{ textAlign: 'right' }}>
                         <div className="cell-strong">{emp.totalSales}</div>
                         <div className="text-xs text-gray-500">transactions</div>
                       </td>
-                      <td className="text-right">
+                      <td style={{ textAlign: 'right' }}>
                         <div className="cell-strong">{money(emp.totalRevenue)}</div>
                         <div className="text-xs text-gray-500">{revenuePercent.toFixed(1)}% of total</div>
                       </td>
-                      <td className="text-right">
+                      <td style={{ textAlign: 'right' }}>
                         <div className="text-sm font-medium text-gray-900">{money(emp.averageSale)}</div>
                         <div className="text-xs text-gray-500">per sale</div>
                       </td>
@@ -513,11 +513,11 @@ function MonthlyComparisonTable({ sales }: { sales: any[] }) {
                 Employee
               </th>
               {monthColumns.map(month => (
-                <th key={month} className="text-right" style={{ minWidth: '120px' }}>
+                <th key={month} style={{ textAlign: 'right', minWidth: '120px' }}>
                   {month}
                 </th>
               ))}
-              <th className="text-right" style={{ minWidth: '140px' }}>
+              <th style={{ textAlign: 'right', minWidth: '140px' }}>
                 Total (6 months)
               </th>
             </tr>
@@ -548,7 +548,7 @@ function MonthlyComparisonTable({ sales }: { sales: any[] }) {
                     const data = row[month]
                     const hasData = data && data.revenue > 0
                     return (
-                      <td key={month} className="text-right">
+                      <td key={month} style={{ textAlign: 'right' }}>
                         {hasData ? (
                           <>
                             <div className="text-sm font-medium text-gray-900">
@@ -564,7 +564,7 @@ function MonthlyComparisonTable({ sales }: { sales: any[] }) {
                       </td>
                     )
                   })}
-                  <td className="text-right">
+                  <td style={{ textAlign: 'right' }}>
                     <div className="cell-strong">{money(row.total)}</div>
                   </td>
                 </tr>

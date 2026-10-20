@@ -415,3 +415,190 @@ table.data-table tbody tr:last-child td {
   background: #fff;
   color: var(--ink-700);
 }
+
+
+/* ========================================
+   MOBILE RESPONSIVE STYLES
+   ======================================== */
+
+/* Mobile breakpoints */
+@media (max-width: 768px) {
+  /* Grid layouts - stack on mobile */
+  .grid-4,
+  .grid-3,
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* Page headers */
+  .page-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  /* Reduce padding on cards */
+  .kpi {
+    padding: 14px 16px;
+  }
+
+  .kpi-value {
+    font-size: 22px;
+  }
+
+  /* Tables - enable horizontal scroll */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table.data-table {
+    min-width: 600px;
+  }
+
+  /* Stat rows */
+  .stat-row {
+    padding: 10px 0;
+    gap: 8px;
+  }
+
+  /* Buttons in headers */
+  .page-head > div:last-child {
+    width: 100%;
+  }
+
+  .page-head > div:last-child > div {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+
+  .page-head > div:last-child button {
+    flex: 1;
+  }
+}
+
+/* Small mobile phones */
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 18px;
+  }
+
+  .kpi-value {
+    font-size: 20px;
+  }
+
+  .card-title {
+    font-size: 13px;
+  }
+
+  /* Reduce chart heights on mobile */
+  .recharts-responsive-container {
+    min-height: 200px !important;
+  }
+}
+
+/* Tablet breakpoint */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Large tablets and small laptops */
+@media (min-width: 1025px) and (max-width: 1200px) {
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+
+/* ========================================
+   ADDITIONAL RESPONSIVE UTILITIES
+   ======================================== */
+
+/* Responsive gradient headers */
+@media (max-width: 768px) {
+  /* Dashboard, Reports, Inventory gradient headers */
+  .gradient-header-card {
+    padding: 1.25rem !important;
+  }
+
+  .gradient-header-card h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .gradient-header-card p {
+    font-size: 0.75rem !important;
+  }
+
+  /* Button groups in headers */
+  .gradient-header-card .flex.gap-3 {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .gradient-header-card button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Responsive report selector buttons */
+@media (max-width: 768px) {
+  /* Stack report type buttons vertically on mobile */
+  .report-selector-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .report-selector-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Make tables horizontally scrollable on mobile */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .data-table {
+    min-width: 600px;
+  }
+}
+
+/* Responsive text sizes */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem !important;
+  }
+  
+  h2 {
+    font-size: 1.25rem !important;
+  }
+  
+  h3 {
+    font-size: 1.125rem !important;
+  }
+}
+
+/* Hide complex elements on very small screens */
+@media (max-width: 480px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}

@@ -24,6 +24,8 @@ interface ApiState {
   loadingSales: boolean
   loadingStockMovements: boolean
   loadingEmployees: boolean
+  isInitializing: boolean
+  hasInitialized: boolean
 
   // Errors
   error: string | null
@@ -64,6 +66,9 @@ interface ApiState {
 
   // Initialize all data
   initializeData: () => Promise<void>
+  
+  // Reset data (for logout)
+  resetData: () => void
 }
 
 export const useApiStore = create<ApiState>()((set, get) => ({
@@ -77,6 +82,8 @@ export const useApiStore = create<ApiState>()((set, get) => ({
   loadingSales: false,
   loadingStockMovements: false,
   loadingEmployees: false,
+  isInitializing: false,
+  hasInitialized: false,
   error: null,
 
   // Fetch products
@@ -135,10 +142,14 @@ export const useApiStore = create<ApiState>()((set, get) => ({
     set({ loadingSales: true, error: null, sales: [] }) // Clear old data first
     try {
       const sales = await salesApi.getAll()
-      console.log('Fetched sales:', sales.length, 'records')
+      console.log('✅ Fetched sales from API:', sales.length, 'records')
+      if (sales.length > 0) {
+        console.log('First sale:', sales[0])
+        console.log('First sale items:', sales[0].items)
+      }
       set({ sales, loadingSales: false })
     } catch (error: any) {
-      console.error('Fetch sales error:', error)
+      console.error('❌ Fetch sales error:', error)
       set({ error: error.message, loadingSales: false })
     }
   },
@@ -227,6 +238,15 @@ export const useApiStore = create<ApiState>()((set, get) => ({
 
   // Initialize all data
   initializeData: async () => {
+    const state = get()
+    
+    // Prevent multiple simultaneous initializations
+    if (state.isInitializing || state.hasInitialized) {
+      return
+    }
+
+    set({ isInitializing: true })
+
     try {
       await Promise.all([
         get().fetchProducts(),
@@ -235,9 +255,24 @@ export const useApiStore = create<ApiState>()((set, get) => ({
         get().fetchEmployees(),
         get().fetchInventorySummary(),
       ])
+      set({ hasInitialized: true, isInitializing: false })
     } catch (error: any) {
       console.error('Initialize data error:', error)
-      set({ error: error.message })
+      set({ error: error.message, isInitializing: false })
     }
+  },
+
+  // Reset data (called on logout)
+  resetData: () => {
+    set({
+      products: [],
+      sales: [],
+      stockMovements: [],
+      employees: [],
+      inventorySummary: null,
+      hasInitialized: false,
+      isInitializing: false,
+      error: null,
+    })
   },
 }))

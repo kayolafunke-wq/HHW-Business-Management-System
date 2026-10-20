@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import {
   LayoutGrid,
@@ -20,6 +21,8 @@ import {
   Settings,
   Award,
   LogOut,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -95,9 +98,37 @@ const NAV_CONFIG: NavSection[] = [
   },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ onLinkClick }: { onLinkClick?: () => void }) {
   const location = useLocation()
   const { user, logout } = useAuthStore()
+  
+  // State to track which sections are expanded
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    'Overview': true,
+    'Sales': false,
+    'Business': false,
+    'Inventory': false,
+    'Human Resources': false,
+    'Insights': false,
+    'Administration': false,
+  })
+
+  // Auto-expand section containing active page
+  useEffect(() => {
+    NAV_CONFIG.forEach(section => {
+      const hasActivePage = section.items.some(item => isActive(item.path))
+      if (hasActivePage) {
+        setExpandedSections(prev => ({ ...prev, [section.section]: true }))
+      }
+    })
+  }, [location.pathname])
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
 
   const handleLogout = () => {
     logout()
@@ -130,34 +161,58 @@ export default function Sidebar() {
 
           if (visibleItems.length === 0) return null
 
-          return (
-            <div key={section.section} className="mb-6">
-              <div className="text-[10px] font-semibold text-gray-500 tracking-wider px-3 mb-2">
-                {section.section}
-              </div>
-              {visibleItems.map((item) => {
-                const Icon = item.icon
-                const active = isActive(item.path)
+          const isExpanded = expandedSections[section.section]
+          const hasActiveItem = visibleItems.some(item => isActive(item.path))
 
-                return (
-                  <Link
-                    key={item.key}
-                    to={item.path}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium mb-0.5 transition-colors relative',
-                      active
-                        ? 'bg-[#2f5df5]/20 text-white'
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                    )}
-                  >
-                    {active && (
-                      <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-[#2f5df5] rounded-r" />
-                    )}
-                    <Icon className={cn('w-4 h-4', active && 'text-[#6f8dff]')} />
-                    <span>{item.label}</span>
-                  </Link>
-                )
-              })}
+          return (
+            <div key={section.section} className="mb-2">
+              {/* Section Header - Clickable to expand/collapse */}
+              <button
+                onClick={() => toggleSection(section.section)}
+                className={cn(
+                  'flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors',
+                  hasActiveItem || isExpanded
+                    ? 'text-white bg-white/5'
+                    : 'text-gray-500 hover:text-gray-400 hover:bg-white/5'
+                )}
+              >
+                <span>{section.section}</span>
+                {isExpanded ? (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronRight className="w-3.5 h-3.5" />
+                )}
+              </button>
+
+              {/* Section Items - Show/hide based on expanded state */}
+              {isExpanded && (
+                <div className="mt-1 space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const Icon = item.icon
+                    const active = isActive(item.path)
+
+                    return (
+                      <Link
+                        key={item.key}
+                        to={item.path}
+                        onClick={onLinkClick}
+                        className={cn(
+                          'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors relative ml-2',
+                          active
+                            ? 'bg-[#2f5df5]/20 text-white'
+                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                        )}
+                      >
+                        {active && (
+                          <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-[#2f5df5] rounded-r" />
+                        )}
+                        <Icon className={cn('w-4 h-4', active && 'text-[#6f8dff]')} />
+                        <span>{item.label}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )
         })}

@@ -42,11 +42,59 @@ export default function InventoryTracking() {
     try {
       setLoading(true)
       setError(null)
-      const data = await inventoryApi.getAllMovements()
+      const [movementsData, productsData] = await Promise.all([
+        inventoryApi.getAllMovements(),
+        fetch('http://localhost:5000/api/products', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }).then(r => r.json())
+      ])
       
-      // Transform API data to match component format
-      const transformedMovements: InventoryMovement[] = data.map((movement: StockMovement) => {
+      const products = productsData.success ? productsData.data : []
+      
+      // Sort movements by date (oldest first) to calculate before/after
+      const sortedMovements = [...movementsData].sort((a, b) => 
+        new Date(a.movementDate).getTime() - new Date(b.movementDate).getTime()
+      )
+      
+      // Calculate before/after for each product
+      const productStockHistory: Record<string, number> = {}
+      
+      // Initialize with current stock levels
+      products.forEach((p: any) => {
+        productStockHistory[p.id] = p.stock
+      })
+      
+      // Work backwards from current stock to calculate before/after
+      for (let i = sortedMovements.length - 1; i >= 0; i--) {
+        const movement = sortedMovements[i]
+        const currentStock = productStockHistory[movement.productId] || 0
+        
+        if (movement.type === 'IN') {
+          // If it was IN, before the movement stock was lower
+          productStockHistory[movement.productId] = currentStock - movement.quantity
+        } else {
+          // If it was OUT, before the movement stock was higher
+          productStockHistory[movement.productId] = currentStock + movement.quantity
+        }
+      }
+      
+      // Now go forward and assign before/after
+      const stockLevels: Record<string, number> = {}
+      products.forEach((p: any) => {
+        stockLevels[p.id] = productStockHistory[p.id] || 0
+      })
+      
+      // Transform API data to match component format with calculated before/after
+      const transformedMovements: InventoryMovement[] = sortedMovements.map((movement: StockMovement) => {
         const movementDate = new Date(movement.movementDate)
+        const before = stockLevels[movement.productId] || 0
+        const after = movement.type === 'IN' 
+          ? before + movement.quantity 
+          : before - movement.quantity
+        
+        // Update stock level for next iteration
+        stockLevels[movement.productId] = after
+        
         return {
           id: movement.id,
           date: movementDate.toISOString().split('T')[0],
@@ -55,14 +103,19 @@ export default function InventoryTracking() {
           productName: movement.product?.name || 'Unknown Product',
           productSKU: movement.product?.sku || 'N/A',
           quantity: movement.quantity,
-          beforeAmount: 0,
-          afterAmount: 0,
+          beforeAmount: before,
+          afterAmount: after,
           reason: movement.reason || 'N/A',
           reference: movement.reference || 'N/A',
           user: movement.product?.name?.substring(0, 2).toUpperCase() || 'UN',
           userName: 'System User',
         }
       })
+      
+      // Sort by date descending (newest first) for display
+      transformedMovements.sort((a, b) => 
+        new Date(b.date + ' ' + b.time).getTime() - new Date(a.date + ' ' + a.time).getTime()
+      )
       
       setMovements(transformedMovements)
     } catch (error: any) {

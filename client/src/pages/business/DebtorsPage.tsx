@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Search, X } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
@@ -40,49 +40,6 @@ interface Debtor {
   status: 'Overdue' | 'Part Paid' | 'Paid'
   payments: Payment[]
 }
-
-// Sample debtors
-const SAMPLE_DEBTORS: Debtor[] = [
-  {
-    id: '1',
-    name: 'Grace Phiri',
-    phone: '+265 991 222 333',
-    reference: 'INV-0012',
-    date: '2026-09-19',
-    dueDate: '2026-09-19',
-    amount: 150000,
-    paid: 40000,
-    balance: 110000,
-    status: 'Overdue',
-    payments: [{ date: '2026-10-02', amount: 40000 }],
-  },
-  {
-    id: '2',
-    name: 'Peter Nkhoma',
-    phone: '+265 888 111 222',
-    reference: 'INV-0020',
-    date: '2026-10-04',
-    dueDate: '2026-10-04',
-    amount: 85000,
-    paid: 0,
-    balance: 85000,
-    status: 'Overdue',
-    payments: [],
-  },
-  {
-    id: '3',
-    name: 'Mercy Kachale',
-    phone: '+265 999 444 555',
-    reference: 'Credit sale',
-    date: '2026-10-21',
-    dueDate: '2026-10-21',
-    amount: 240000,
-    paid: 100000,
-    balance: 140000,
-    status: 'Part Paid',
-    payments: [{ date: '2026-10-25', amount: 100000 }],
-  },
-]
 
 // Add Debtor Modal
 function AddDebtorModal({ onClose, onCreated }: { onClose: () => void; onCreated: (debtor: Debtor) => void }) {
@@ -357,9 +314,15 @@ function ReceivePaymentModal({ debtor, onClose, onReceived }: { debtor: Debtor; 
 }
 
 export default function DebtorsPage() {
-  const [debtors, setDebtors] = useState<Debtor[]>(SAMPLE_DEBTORS)
+  const [debtors, setDebtors] = useState<Debtor[]>([])
+  const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+
+  useEffect(() => {
+    // Debtors would be fetched from API - for now show empty state
+    setLoading(false)
+  }, [])
   const [selectedDebtor, setSelectedDebtor] = useState<Debtor | null>(null)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showReceiveModal, setShowReceiveModal] = useState(false)

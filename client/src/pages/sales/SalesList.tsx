@@ -243,7 +243,8 @@ export default function SalesList() {
   // Calculate KPIs
   const todaySalesData = sales.filter(s => {
     const today = new Date().toISOString().split('T')[0]
-    return s.saleDate === today
+    const saleDay = s.saleDate ? s.saleDate.split('T')[0] : ''
+    return saleDay === today
   })
   const todayRevenue = todaySalesData.reduce((sum, s) => sum + s.total, 0)
   const totalTransactions = sales.length

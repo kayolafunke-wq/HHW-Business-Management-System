@@ -23,6 +23,8 @@ export default function ProductsList() {
   const [categoryFilter, setCategoryFilter] = useState<string>('All')
   const [statusFilter, setStatusFilter] = useState<string>('All')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<any>(null)
   const [newProduct, setNewProduct] = useState({
     name: '',
     sku: '',
@@ -268,7 +270,13 @@ export default function ProductsList() {
                     </Badge>
                   </td>
                   <td>
-                    <button className="btn btn-ghost btn-sm">
+                    <button 
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => {
+                        setEditingProduct(product)
+                        setShowEditModal(true)
+                      }}
+                    >
                       <Edit className="w-3 h-3" />
                       Edit
                     </button>
@@ -402,6 +410,156 @@ export default function ProductsList() {
               <Button onClick={handleAddProduct}>
                 <Plus className="w-4 h-4" />
                 Add Product
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {showEditModal && editingProduct && (
+        <div className="modal-backdrop" onClick={() => setShowEditModal(false)}>
+          <div className="modal modal-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <h2 className="modal-title">Edit Product</h2>
+              <button onClick={() => setShowEditModal(false)} className="icon-btn">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
+                    Product Name *
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Samsung TV"
+                    value={editingProduct.name}
+                    onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
+                    SKU *
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. ELEC-001"
+                    value={editingProduct.sku}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
+                    Category *
+                  </label>
+                  <select
+                    className="input w-full"
+                    value={editingProduct.category}
+                    onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})}
+                  >
+                    <option value="ELECTRONICS">Electronics</option>
+                    <option value="GROCERIES">Groceries</option>
+                    <option value="BEVERAGES">Beverages</option>
+                    <option value="STATIONERY">Stationery</option>
+                    <option value="HOUSEHOLD">Household</option>
+                    <option value="CLOTHING">Clothing</option>
+                    <option value="HARDWARE">Hardware</option>
+                    <option value="BUILDING_MATERIALS">Building Materials</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
+                    Cost Price (MK) *
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={editingProduct.cost}
+                    onChange={(e) => setEditingProduct({...editingProduct, cost: parseFloat(e.target.value)})}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
+                    Selling Price (MK) *
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={editingProduct.price}
+                    onChange={(e) => setEditingProduct({...editingProduct, price: parseFloat(e.target.value)})}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
+                    Current Stock *
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={editingProduct.stock}
+                    onChange={(e) => setEditingProduct({...editingProduct, stock: parseInt(e.target.value)})}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
+                    Minimum Stock Alert *
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={editingProduct.minStock}
+                    onChange={(e) => setEditingProduct({...editingProduct, minStock: parseInt(e.target.value)})}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-foot">
+              <Button variant="ghost" onClick={() => setShowEditModal(false)}>
+                Cancel
+              </Button>
+              <Button onClick={async () => {
+                try {
+                  const token = localStorage.getItem('token')
+                  const response = await fetch(`http://localhost:5000/api/products/${editingProduct.id}`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                      name: editingProduct.name,
+                      category: editingProduct.category,
+                      cost: editingProduct.cost,
+                      price: editingProduct.price,
+                      stock: editingProduct.stock,
+                      minStock: editingProduct.minStock
+                    })
+                  })
+                  const result = await response.json()
+                  if (result.success) {
+                    toast.success('Product updated successfully')
+                    setShowEditModal(false)
+                    window.location.reload()
+                  } else {
+                    toast.error(result.message || 'Failed to update product')
+                  }
+                } catch (error) {
+                  toast.error('Failed to update product')
+                }
+              }}>
+                <Edit className="w-4 h-4" />
+                Update Product
               </Button>
             </div>
           </div>

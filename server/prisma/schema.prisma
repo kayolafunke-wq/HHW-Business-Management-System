@@ -53,6 +53,7 @@ model Product {
   price       Float
   stock       Int      @default(0)
   minStock    Int      @default(0)
+  barcode     String?  @unique
   status      ProductStatus @default(IN_STOCK)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -71,6 +72,8 @@ enum Category {
   STATIONERY
   HOUSEHOLD
   CLOTHING
+  HARDWARE
+  BUILDING_MATERIALS
   OTHER
 }
 
@@ -196,6 +199,7 @@ model Attendance {
   checkIn     DateTime?
   checkOut    DateTime?
   notes       String?
+  markedBy    String?  // User ID who marked attendance
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
