@@ -8,8 +8,9 @@ export interface Product {
   cost: number
   price: number
   stock: number
-  min: number
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock'
+  min?: number
+  minStock?: number
+  status: any
   createdAt: string
 }
 
@@ -381,16 +382,16 @@ export function generateEmployees(): Employee[] {
 }
 
 // Helper functions for calculations
-export function lowStockItems(products: Product[]): Product[] {
-  return products.filter((p) => p.status === 'Low Stock')
+export function lowStockItems(products: any[]): any[] {
+  return products.filter((p) => p.status === 'Low Stock' || p.status === 'LOW_STOCK' || (p.minStock && p.stock <= p.minStock && p.stock > 0))
 }
 
-export function outOfStockItems(products: Product[]): Product[] {
-  return products.filter((p) => p.status === 'Out of Stock')
+export function outOfStockItems(products: any[]): any[] {
+  return products.filter((p) => p.status === 'Out of Stock' || p.status === 'OUT_OF_STOCK' || p.stock === 0)
 }
 
-export function totalStockValue(products: Product[]): number {
-  return products.reduce((sum, p) => sum + p.cost * p.stock, 0)
+export function totalStockValue(products: any[]): number {
+  return products.reduce((sum, p) => sum + (p.cost || 0) * (p.stock || 0), 0)
 }
 
 export function todaySales(sales: Sale[]): Sale[] {

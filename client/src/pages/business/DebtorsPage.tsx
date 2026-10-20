@@ -314,15 +314,25 @@ function ReceivePaymentModal({ debtor, onClose, onReceived }: { debtor: Debtor; 
 }
 
 export default function DebtorsPage() {
-  const [debtors, setDebtors] = useState<Debtor[]>([])
+  const [debtors, setDebtors] = useState<Debtor[]>(() => {
+    try {
+      const saved = localStorage.getItem('hhw_debtors')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
 
   useEffect(() => {
-    // Debtors would be fetched from API - for now show empty state
-    setLoading(false)
-  }, [])
+    try {
+      localStorage.setItem('hhw_debtors', JSON.stringify(debtors))
+    } catch (e) {
+      console.error('Failed to save debtors to storage', e)
+    }
+  }, [debtors])
   const [selectedDebtor, setSelectedDebtor] = useState<Debtor | null>(null)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showReceiveModal, setShowReceiveModal] = useState(false)

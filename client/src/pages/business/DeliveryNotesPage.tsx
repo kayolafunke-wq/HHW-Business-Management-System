@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Search, X, Printer, Download } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
@@ -532,9 +532,24 @@ function NewDeliveryNoteModal({ onClose, onCreated }: { onClose: () => void; onC
 }
 
 export default function DeliveryNotesPage() {
-  const [notes, setNotes] = useState<DeliveryNote[]>(SAMPLE_NOTES)
+  const [notes, setNotes] = useState<DeliveryNote[]>(() => {
+    try {
+      const saved = localStorage.getItem('hhw_delivery_notes')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
   const [showNewModal, setShowNewModal] = useState(false)
   const [selectedNote, setSelectedNote] = useState<DeliveryNote | null>(null)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('hhw_delivery_notes', JSON.stringify(notes))
+    } catch (e) {
+      console.error('Failed to save delivery notes to storage', e)
+    }
+  }, [notes])
 
   // Calculate KPIs
   const totalNotes = notes.length

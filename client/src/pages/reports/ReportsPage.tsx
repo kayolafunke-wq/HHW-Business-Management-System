@@ -17,6 +17,7 @@ import {
   Clock
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { API_BASE_URL } from '@/services/api'
 import {
   AreaChart,
   Area,
@@ -96,10 +97,10 @@ export default function ReportsPage() {
       const headers = { 'Authorization': `Bearer ${token}` }
 
       const [salesRes, productsRes, employeesRes, movementsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/sales', { headers }),
-        fetch('http://localhost:5000/api/products', { headers }),
-        fetch('http://localhost:5000/api/employees', { headers }),
-        fetch('http://localhost:5000/api/inventory/movements', { headers })
+        fetch(`${API_BASE_URL}/sales`, { headers }),
+        fetch(`${API_BASE_URL}/products`, { headers }),
+        fetch(`${API_BASE_URL}/employees`, { headers }),
+        fetch(`${API_BASE_URL}/inventory/movements`, { headers })
       ])
 
       const [salesData, productsData, employeesData, movementsData] = await Promise.all([
@@ -987,7 +988,7 @@ function EmployeeAttendanceReport({ employees }: { employees: any[] }) {
       const month = today.getMonth() + 1
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/attendance/monthly/${year}/${month}`, {
+      const response = await fetch(`${API_BASE_URL}/attendance/monthly/${year}/${month}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await response.json()

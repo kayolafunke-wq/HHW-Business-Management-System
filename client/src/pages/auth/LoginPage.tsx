@@ -6,6 +6,7 @@ import Input from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '@/config/firebase'
+import { API_BASE_URL } from '@/services/api'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -28,7 +29,7 @@ export default function LoginPage() {
       const idToken = await firebaseUser.getIdToken()
       
       // Verify with backend and get user data
-      const response = await fetch('http://localhost:5000/api/auth/verify-token', {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken })

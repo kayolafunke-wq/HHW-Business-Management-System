@@ -4,6 +4,7 @@ import Badge from '@/components/ui/Badge'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { Pagination, usePagination } from '@/components/ui/Pagination'
+import { API_BASE_URL } from '@/services/api'
 import { 
   Search, 
   FileText, 
@@ -80,12 +81,29 @@ export default function AuditLogPage() {
   const [dateFilter, setDateFilter] = useState('')
 
   useEffect(() => {
-    // Audit logs would be fetched from API - for now show empty state
-    setLoading(false)
+    fetchLogs()
   }, [])
 
+  const fetchLogs = async () => {
+    setLoading(true)
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${API_BASE_URL}/audit`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const result = await response.json()
+      if (result.success && Array.isArray(result.data)) {
+        setLogs(result.data)
+      }
+    } catch (err) {
+      console.error('Failed to load audit logs:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Get unique categories
-  const categories = ['All']
+  const categories = ['All', 'Sales', 'Inventory', 'Users', 'Settings', 'Products', 'HR']
   const statuses = ['All', 'Success', 'Failed', 'Warning']
 
   // Filter logs

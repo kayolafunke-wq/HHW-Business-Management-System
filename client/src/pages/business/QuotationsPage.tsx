@@ -579,16 +579,26 @@ function NewQuotationModal({ onClose, onCreated }: { onClose: () => void; onCrea
 }
 
 export default function QuotationsPage() {
-  const [quotations, setQuotations] = useState<Quotation[]>([])
+  const [quotations, setQuotations] = useState<Quotation[]>(() => {
+    try {
+      const saved = localStorage.getItem('hhw_quotations')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showNewModal, setShowNewModal] = useState(false)
   const [selectedQuotation, setSelectedQuotation] = useState<Quotation | null>(null)
 
   useEffect(() => {
-    // Quotations would be fetched from API - for now show empty state
-    setLoading(false)
-  }, [])
+    try {
+      localStorage.setItem('hhw_quotations', JSON.stringify(quotations))
+    } catch (e) {
+      console.error('Failed to save quotations to storage', e)
+    }
+  }, [quotations])
 
   // Calculate KPIs
   const totalQuotations = quotations.length

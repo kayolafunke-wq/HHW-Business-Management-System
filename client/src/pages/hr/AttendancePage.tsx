@@ -4,6 +4,7 @@ import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import { Printer, Calendar as CalendarIcon, Users, CheckCircle, XCircle, Clock, Coffee } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { API_BASE_URL } from '@/services/api'
 
 interface Employee {
   id: string
@@ -73,7 +74,7 @@ export default function AttendancePage() {
     setLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/employees', {
+      const response = await fetch(`${API_BASE_URL}/employees`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await response.json()
@@ -99,7 +100,7 @@ export default function AttendancePage() {
   const loadAttendance = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/attendance/daily/${selectedDate}`, {
+      const response = await fetch(`${API_BASE_URL}/attendance/daily/${selectedDate}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await response.json()
@@ -138,7 +139,7 @@ export default function AttendancePage() {
       }))
 
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/attendance/daily', {
+      const response = await fetch(`${API_BASE_URL}/attendance/daily`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -430,7 +431,7 @@ function MonthlyReportTable({ employees }: { employees: any[] }) {
       const month = today.getMonth() + 1
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/attendance/monthly/${year}/${month}`, {
+      const response = await fetch(`${API_BASE_URL}/attendance/monthly/${year}/${month}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await response.json()

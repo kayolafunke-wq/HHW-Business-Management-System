@@ -599,13 +599,13 @@ export default function AdminDashboard() {
                     <div 
                       className="w-1.5 h-1.5 rounded-full" 
                       style={{ 
-                        background: e.status === 'Active' ? '#0ea885' : e.status === 'On Leave' ? '#c97a1a' : '#c2372c'
+                        background: (e.status === 'ACTIVE' || (e.status as string) === 'Active') ? '#0ea885' : (e.status === 'ON_LEAVE' || (e.status as string) === 'On Leave') ? '#c97a1a' : '#c2372c'
                       }}
                     ></div>
                     <span 
                       className="text-[10px] font-semibold"
                       style={{ 
-                        color: e.status === 'Active' ? '#0ea885' : e.status === 'On Leave' ? '#c97a1a' : '#c2372c'
+                        color: (e.status === 'ACTIVE' || (e.status as string) === 'Active') ? '#0ea885' : (e.status === 'ON_LEAVE' || (e.status as string) === 'On Leave') ? '#c97a1a' : '#c2372c'
                       }}
                     >
                       {e.status}

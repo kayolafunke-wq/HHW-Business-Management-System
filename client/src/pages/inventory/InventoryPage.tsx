@@ -5,6 +5,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import { useNavigate } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { API_BASE_URL } from '@/services/api'
 
 function money(n: number): string {
   return (
@@ -43,8 +44,8 @@ export default function InventoryPage() {
       const headers = { 'Authorization': `Bearer ${token}` }
 
       const [productsRes, movementsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/products', { headers }),
-        fetch('http://localhost:5000/api/inventory/movements', { headers })
+        fetch(`${API_BASE_URL}/products`, { headers }),
+        fetch(`${API_BASE_URL}/inventory/movements`, { headers })
       ])
 
       const productsData = await productsRes.json()
@@ -66,7 +67,7 @@ export default function InventoryPage() {
   const inStockProducts = products.filter(p => p.stock > p.minStock)
 
   // Stock by category
-  const stockByCategory = products.reduce((acc: Record<string, { count: number, value: number, stock: number }>, p) => {
+  const stockByCategory = products.reduce<Record<string, { count: number; value: number; stock: number }>>((acc, p) => {
     const cat = p.category || 'OTHER'
     if (!acc[cat]) {
       acc[cat] = { count: 0, value: 0, stock: 0 }

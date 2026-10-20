@@ -5,6 +5,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { Pagination, usePagination } from '@/components/ui/Pagination'
+import { API_BASE_URL } from '@/services/api'
 
 function money(n: number): string {
   return (
@@ -371,7 +372,7 @@ export default function EmployeesList() {
   const fetchEmployees = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/employees', {
+      const response = await fetch(`${API_BASE_URL}/employees`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const result = await response.json()
@@ -425,7 +426,7 @@ export default function EmployeesList() {
       
       console.log('Sending to backend:', backendData)
       
-      const response = await fetch('http://localhost:5000/api/employees', {
+      const response = await fetch(`${API_BASE_URL}/employees`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

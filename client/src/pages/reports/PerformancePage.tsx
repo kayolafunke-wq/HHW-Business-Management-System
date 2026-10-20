@@ -16,6 +16,7 @@ import {
   AreaChart,
 } from 'recharts'
 import toast from 'react-hot-toast'
+import { API_BASE_URL } from '@/services/api'
 
 function money(n: number): string {
   return (
@@ -69,12 +70,12 @@ export default function PerformancePage() {
       const headers = { 'Authorization': `Bearer ${token}` }
 
       // Fetch sales data
-      const salesRes = await fetch('http://localhost:5000/api/sales', { headers })
+      const salesRes = await fetch(`${API_BASE_URL}/sales`, { headers })
       const salesData = await salesRes.json()
       const sales = salesData.success ? salesData.data : []
 
       // Fetch products for cost calculation
-      const productsRes = await fetch('http://localhost:5000/api/products', { headers })
+      const productsRes = await fetch(`${API_BASE_URL}/products`, { headers })
       const productsData = await productsRes.json()
       const products = productsData.success ? productsData.data : []
 

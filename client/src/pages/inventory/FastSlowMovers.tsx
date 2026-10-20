@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import toast from 'react-hot-toast'
+import { API_BASE_URL } from '@/services/api'
 
 function money(n: number): string {
   return (
@@ -57,8 +58,8 @@ export default function FastSlowMovers() {
 
       // Fetch sales and products
       const [salesRes, productsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/sales', { headers }),
-        fetch('http://localhost:5000/api/products', { headers })
+        fetch(`${API_BASE_URL}/sales`, { headers }),
+        fetch(`${API_BASE_URL}/products`, { headers })
       ])
 
       const salesData = await salesRes.json()

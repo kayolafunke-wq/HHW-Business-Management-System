@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { API_BASE_URL } from '@/services/api'
 
 // Types (keeping the interfaces we need)
 interface Product {
@@ -110,12 +111,12 @@ export const useDataStore = create<DataState>()((set, get) => ({
       }
 
       // Fetch products
-      const productsRes = await fetch('http://localhost:5000/api/products', { headers })
+      const productsRes = await fetch(`${API_BASE_URL}/products`, { headers })
       const productsData = await productsRes.json()
       const products = productsData.success ? productsData.data : []
 
       // Fetch sales
-      const salesRes = await fetch('http://localhost:5000/api/sales', { headers })
+      const salesRes = await fetch(`${API_BASE_URL}/sales`, { headers })
       const salesData = await salesRes.json()
       const rawSales = salesData.success ? salesData.data : []
       
@@ -138,7 +139,7 @@ export const useDataStore = create<DataState>()((set, get) => ({
       }))
 
       // Fetch stock movements
-      const movementsRes = await fetch('http://localhost:5000/api/inventory/movements', { headers })
+      const movementsRes = await fetch(`${API_BASE_URL}/inventory/movements`, { headers })
       const movementsData = await movementsRes.json()
       const rawMovements = movementsData.success ? movementsData.data : []
       
@@ -157,7 +158,7 @@ export const useDataStore = create<DataState>()((set, get) => ({
       }))
 
       // Fetch employees
-      const employeesRes = await fetch('http://localhost:5000/api/employees', { headers })
+      const employeesRes = await fetch(`${API_BASE_URL}/employees`, { headers })
       const employeesData = await employeesRes.json()
       const employees = employeesData.success ? employeesData.data : []
 
@@ -212,7 +213,7 @@ export const useDataStore = create<DataState>()((set, get) => ({
         product.stock = afterAmount
         if (afterAmount === 0) {
           product.status = 'Out of Stock'
-        } else if (afterAmount <= product.min) {
+        } else if (afterAmount <= product.minStock) {
           product.status = 'Low Stock'
         }
 
@@ -259,7 +260,7 @@ export const useDataStore = create<DataState>()((set, get) => ({
       product.stock = afterAmount
       if (afterAmount === 0) {
         product.status = 'Out of Stock'
-      } else if (afterAmount <= product.min) {
+      } else if (afterAmount <= product.minStock) {
         product.status = 'Low Stock'
       } else {
         product.status = 'In Stock'

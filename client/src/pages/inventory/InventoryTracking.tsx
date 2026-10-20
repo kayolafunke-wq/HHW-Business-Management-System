@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Badge from '@/components/ui/Badge'
 import { Pagination, usePagination } from '@/components/ui/Pagination'
-import { inventoryApi, type StockMovement } from '@/services/api'
+import { inventoryApi, productsApi, type StockMovement } from '@/services/api'
 import toast from 'react-hot-toast'
 
 interface InventoryMovement {
@@ -42,14 +42,10 @@ export default function InventoryTracking() {
     try {
       setLoading(true)
       setError(null)
-      const [movementsData, productsData] = await Promise.all([
+      const [movementsData, products] = await Promise.all([
         inventoryApi.getAllMovements(),
-        fetch('http://localhost:5000/api/products', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(r => r.json())
+        productsApi.getAll()
       ])
-      
-      const products = productsData.success ? productsData.data : []
       
       // Sort movements by date (oldest first) to calculate before/after
       const sortedMovements = [...movementsData].sort((a, b) => 

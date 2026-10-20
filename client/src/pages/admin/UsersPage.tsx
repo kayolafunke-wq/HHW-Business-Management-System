@@ -8,6 +8,7 @@ import { UserPlus, X } from 'lucide-react'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '@/config/firebase'
 import toast from 'react-hot-toast'
+import { API_BASE_URL } from '@/services/api'
 
 interface User {
   id: string
@@ -275,7 +276,7 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/users', {
+      const response = await fetch(`${API_BASE_URL}/auth/users`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -330,7 +331,7 @@ export default function UsersPage() {
       const idToken = await firebaseUser.getIdToken()
 
       // 3. Register in backend
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -401,7 +402,7 @@ export default function UsersPage() {
         : `${selectedUser.username.replace('@', '')}@hhw.com`
       
       // Update password in Firebase using Admin SDK through backend
-      const resetResponse = await fetch('http://localhost:5000/api/auth/reset-password', {
+      const resetResponse = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

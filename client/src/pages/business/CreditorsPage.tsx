@@ -314,15 +314,25 @@ function MakePaymentModal({ creditor, onClose, onPaid }: { creditor: Creditor; o
 }
 
 export default function CreditorsPage() {
-  const [creditors, setCreditors] = useState<Creditor[]>([])
+  const [creditors, setCreditors] = useState<Creditor[]>(() => {
+    try {
+      const saved = localStorage.getItem('hhw_creditors')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
 
   useEffect(() => {
-    // Creditors would be fetched from API - for now show empty state
-    setLoading(false)
-  }, [])
+    try {
+      localStorage.setItem('hhw_creditors', JSON.stringify(creditors))
+    } catch (e) {
+      console.error('Failed to save creditors to storage', e)
+    }
+  }, [creditors])
   const [selectedCreditor, setSelectedCreditor] = useState<Creditor | null>(null)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showPayModal, setShowPayModal] = useState(false)

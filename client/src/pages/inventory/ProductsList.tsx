@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { useApiStore } from '@/store/apiStore'
 import toast from 'react-hot-toast'
+import { API_BASE_URL } from '@/services/api'
 
 function money(n: number): string {
   return (
@@ -531,7 +532,7 @@ export default function ProductsList() {
               <Button onClick={async () => {
                 try {
                   const token = localStorage.getItem('token')
-                  const response = await fetch(`http://localhost:5000/api/products/${editingProduct.id}`, {
+                  const response = await fetch(`${API_BASE_URL}/products/${editingProduct.id}`, {
                     method: 'PUT',
                     headers: {
                       'Content-Type': 'application/json',
