@@ -63,7 +63,20 @@ app.use((req, res) => {
 app.use(errorHandler)
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  // Auto-create database tables if they don't exist
+  try {
+    const { execSync } = await import('child_process')
+    console.log('🔄 Checking database schema...')
+    execSync('npx prisma db push --accept-data-loss --skip-generate', { 
+      stdio: 'inherit',
+      cwd: process.cwd()
+    })
+    console.log('✅ Database schema is ready')
+  } catch (error) {
+    console.error('⚠️  Database schema check failed:', error)
+  }
+  
   console.log(`🚀 HHW Business Management API running on http://localhost:${PORT}`)
   console.log(`📊 Environment: ${process.env.NODE_ENV}`)
 })
