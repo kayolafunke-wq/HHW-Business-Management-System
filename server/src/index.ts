@@ -14,6 +14,7 @@ import reportRoutes from './routes/reportRoutes.js'
 import auditRoutes from './routes/auditRoutes.js'
 import attendanceRoutes from './routes/attendanceRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import setupRoutes from './routes/setupRoutes.js'
 
 // Load environment variables
 dotenv.config()
@@ -42,6 +43,7 @@ app.get('/health', (req, res) => {
 })
 
 // API Routes
+app.use('/api/setup', setupRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/sales', saleRoutes)
