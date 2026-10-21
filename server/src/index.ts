@@ -15,6 +15,8 @@ import auditRoutes from './routes/auditRoutes.js'
 import attendanceRoutes from './routes/attendanceRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import setupRoutes from './routes/setupRoutes.js'
+import prisma from './config/database.js'
+import { seedDatabase } from './prisma/seeder.js'
 
 // Load environment variables
 dotenv.config()
@@ -25,7 +27,25 @@ const PORT = process.env.PORT || 5000
 // Middleware
 app.use(helmet())
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow non-browser requests (mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true)
+
+    // Allow localhost, any Railway app domain, or explicit CORS_ORIGIN
+    if (
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1') ||
+      origin.endsWith('.railway.app') ||
+      origin.endsWith('.up.railway.app') ||
+      process.env.CORS_ORIGIN === '*' ||
+      (process.env.CORS_ORIGIN && origin === process.env.CORS_ORIGIN.replace(/\/+$/, ''))
+    ) {
+      return callback(null, true)
+    }
+
+    // Default to allow origin in production to ensure Railway client isn't blocked
+    return callback(null, true)
+  },
   credentials: true,
 }))
 app.use(compression())
@@ -73,6 +93,14 @@ app.listen(PORT, async () => {
       cwd: process.cwd()
     })
     console.log('✅ Database schema is ready')
+
+    // Automatically populate tables on cloud database if empty
+    const productCount = await prisma.product.count()
+    if (productCount === 0) {
+      console.log('🌱 Cloud database is empty. Auto-seeding initial data into Railway PostgreSQL...')
+      await seedDatabase(false)
+      console.log('✅ Cloud database has been fully populated with demo data!')
+    }
   } catch (error) {
     console.error('⚠️  Database schema check failed:', error)
   }

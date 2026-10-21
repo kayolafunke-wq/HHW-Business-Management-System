@@ -58,4 +58,17 @@ router.post('/init-admin', async (req: Request, res: Response): Promise<void> =>
   }
 })
 
+// Seed or re-seed database with default data
+router.all('/seed', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { seedDatabase } = await import('../prisma/seeder.js')
+    const clearExisting = req.query.clear === 'true' || req.body?.clear === true
+    const result = await seedDatabase(clearExisting)
+    res.json(result)
+  } catch (error: any) {
+    console.error('Manual seed error:', error)
+    res.status(500).json({ success: false, message: error.message || 'Seed failed' })
+  }
+})
+
 export default router

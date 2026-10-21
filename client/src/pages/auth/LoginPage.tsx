@@ -65,12 +65,14 @@ export default function LoginPage() {
       }
     } catch (error: any) {
       console.error('Login error:', error)
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         toast.error('Invalid email or password')
       } else if (error.code === 'auth/too-many-requests') {
         toast.error('Too many failed attempts. Please try again later.')
+      } else if (error.message && error.message.includes('Failed to fetch')) {
+        toast.error(`Cannot connect to backend at ${API_BASE_URL}. Verify Railway VITE_API_URL variable.`)
       } else {
-        toast.error('Login failed. Please try again.')
+        toast.error(error.message || 'Login failed. Please try again.')
       }
     } finally {
       setLoading(false)
