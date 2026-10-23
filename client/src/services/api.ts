@@ -14,10 +14,26 @@ const api = axios.create({
   },
 })
 
-// Request interceptor for auth token
+import { auth } from '@/config/firebase'
+
+// Request interceptor for auth token with silent auto-refresh
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token')
+  async (config) => {
+    let token = localStorage.getItem('token')
+    
+    // If Firebase auth has a current user, get a fresh valid token silently
+    if (auth.currentUser) {
+      try {
+        const freshToken = await auth.currentUser.getIdToken(false)
+        if (freshToken) {
+          token = freshToken
+          localStorage.setItem('token', freshToken)
+        }
+      } catch (err) {
+        // Fall back to cached token if offline
+      }
+    }
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }

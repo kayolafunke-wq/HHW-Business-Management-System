@@ -1,4 +1,7 @@
+import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { onIdTokenChanged } from 'firebase/auth'
+import { auth } from './config/firebase'
 import { useAuthStore } from './store/authStore'
 import MainLayout from './components/layout/MainLayout'
 import LoginPage from './pages/auth/LoginPage'
@@ -71,9 +74,27 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
 }
 
 function App() {
-  const { isAuthenticated, user } = useAuthStore()
+  const { isAuthenticated, user, logout } = useAuthStore()
   const token = localStorage.getItem('token')
   const isValidSession = isAuthenticated && !!token
+
+  // Automatically sync and refresh token when Firebase renews it
+  useEffect(() => {
+    const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          const freshToken = await firebaseUser.getIdToken()
+          localStorage.setItem('token', freshToken)
+        } catch (e) {
+          console.error('Error refreshing token:', e)
+        }
+      } else if (isAuthenticated) {
+        // User logged out from Firebase or deleted
+        logout()
+      }
+    })
+    return () => unsubscribe()
+  }, [isAuthenticated, logout])
 
   // Get role-based default route
   const getDefaultRoute = () => {
