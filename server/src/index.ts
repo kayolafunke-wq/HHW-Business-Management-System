@@ -82,31 +82,43 @@ app.use((req, res) => {
 // Error handler (must be last)
 app.use(errorHandler)
 
-// Start server
-app.listen(PORT, async () => {
-  // Auto-create database tables if they don't exist
-  try {
-    const { execSync } = await import('child_process')
-    console.log('🔄 Checking database schema...')
-    execSync('npx prisma db push --accept-data-loss --skip-generate', { 
-      stdio: 'inherit',
-      cwd: process.cwd()
-    })
-    console.log('✅ Database schema is ready')
-
-    // Automatically populate tables on cloud database if empty
-    const productCount = await prisma.product.count()
-    if (productCount === 0) {
-      console.log('🌱 Cloud database is empty. Auto-seeding initial data into Railway PostgreSQL...')
-      await seedDatabase(false)
-      console.log('✅ Cloud database has been fully populated with demo data!')
+// Initialize database then start server
+async function startServer() {
+  // Only run db push in production (Railway). In local dev, the DB is already set up.
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      const { execSync } = await import('child_process')
+      console.log('🔄 Checking database schema...')
+      execSync('npx prisma db push --accept-data-loss --skip-generate', { 
+        stdio: 'inherit',
+        cwd: process.cwd()
+      })
+      console.log('✅ Database schema is ready')
+    } catch (error) {
+      console.error('⚠️  Database schema check failed:', error)
     }
-  } catch (error) {
-    console.error('⚠️  Database schema check failed:', error)
   }
-  
-  console.log(`🚀 HHW Business Management API running on http://localhost:${PORT}`)
-  console.log(`📊 Environment: ${process.env.NODE_ENV}`)
-})
+
+  app.listen(PORT, async () => {
+    console.log(`🚀 HHW Business Management API running on http://localhost:${PORT}`)
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
+
+    // Seed if DB is empty (cloud only)
+    if (process.env.NODE_ENV === 'production') {
+      try {
+        const productCount = await prisma.product.count()
+        if (productCount === 0) {
+          console.log('🌱 Cloud database is empty. Auto-seeding...')
+          await seedDatabase(false)
+          console.log('✅ Seed complete!')
+        }
+      } catch (error) {
+        console.error('⚠️  Auto-seed failed:', error)
+      }
+    }
+  })
+}
+
+startServer()
 
 export default app
