@@ -1,14 +1,22 @@
 import { useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import { useApiStore } from '@/store/apiStore'
 
 export default function MainLayout() {
+  const location = useLocation()
   const initializeData = useApiStore((state) => state.initializeData)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [initialized, setInitialized] = useState(false)
+
+  // Scroll to top on every route transition
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [location.pathname])
 
   // Initialize data from API when layout mounts - ONLY ONCE
   useEffect(() => {

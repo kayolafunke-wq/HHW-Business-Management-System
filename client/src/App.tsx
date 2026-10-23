@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { onIdTokenChanged } from 'firebase/auth'
 import { auth } from './config/firebase'
 import { useAuthStore } from './store/authStore'
+import ScrollToTop from './components/common/ScrollToTop'
 import MainLayout from './components/layout/MainLayout'
 import LoginPage from './pages/auth/LoginPage'
 import Dashboard from './pages/dashboard/Dashboard'
@@ -107,8 +108,10 @@ function App() {
   }
 
   return (
-    <Routes>
-      {/* Public routes */}
+    <>
+      <ScrollToTop />
+      <Routes>
+        {/* Public routes */}
       <Route
         path="/login"
         element={isValidSession ? <Navigate to={getDefaultRoute()} replace /> : <LoginPage />}
@@ -162,6 +165,7 @@ function App() {
       {/* 404 */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
+    </>
   )
 }
 
