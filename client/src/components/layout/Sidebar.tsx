@@ -41,12 +41,6 @@ interface NavSection {
 
 const NAV_CONFIG: NavSection[] = [
   {
-    section: 'Overview',
-    items: [
-      { key: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard', roles: ['Administrator', 'ADMINISTRATOR', 'Inventory User', 'INVENTORY_USER', 'HR User', 'HR_USER', 'Accountant', 'ACCOUNTANT'] },
-    ],
-  },
-  {
     section: 'Sales',
     items: [
       { key: 'sales', label: 'Sales', icon: ShoppingCart, path: '/sales', roles: ['Administrator', 'ADMINISTRATOR', 'Sales User', 'SALES_USER', 'Accountant', 'ACCOUNTANT'] },
@@ -104,7 +98,6 @@ export default function Sidebar({ onLinkClick }: { onLinkClick?: () => void }) {
   
   // State to track which sections are expanded
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    'Overview': true,
     'Sales': false,
     'Business': false,
     'Inventory': false,
@@ -154,6 +147,25 @@ export default function Sidebar({ onLinkClick }: { onLinkClick?: () => void }) {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3.5 px-2.5">
+        {/* Direct Standalone Dashboard Link */}
+        {user?.role && ['Administrator', 'ADMINISTRATOR', 'Inventory User', 'INVENTORY_USER', 'HR User', 'HR_USER', 'Accountant', 'ACCOUNTANT'].includes(user.role) && (
+          <div className="mb-3">
+            <Link
+              to="/dashboard"
+              onClick={onLinkClick}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors relative',
+                isActive('/dashboard')
+                  ? 'bg-[#2f5df5] text-white shadow-sm'
+                  : 'text-gray-300 hover:bg-white/5 hover:text-white'
+              )}
+            >
+              <LayoutGrid className={cn('w-4 h-4', isActive('/dashboard') ? 'text-white' : 'text-gray-400')} />
+              <span>Dashboard</span>
+            </Link>
+          </div>
+        )}
+
         {NAV_CONFIG.map((section) => {
           const visibleItems = section.items.filter((item) =>
             user?.role && item.roles.includes(user.role)

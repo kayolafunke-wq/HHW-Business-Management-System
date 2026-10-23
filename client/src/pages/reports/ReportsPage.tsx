@@ -973,22 +973,33 @@ export default function ReportsPage() {
 
 // Employee Attendance Report Component
 function EmployeeAttendanceReport({ employees }: { employees: any[] }) {
+  const currentDate = new Date()
+  const [selectedMonth, setSelectedMonth] = useState<number>(currentDate.getMonth() + 1)
+  const [selectedYear, setSelectedYear] = useState<number>(currentDate.getFullYear())
   const [attendanceData, setAttendanceData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
+  const MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+
+  const YEARS = [
+    currentDate.getFullYear() - 2,
+    currentDate.getFullYear() - 1,
+    currentDate.getFullYear(),
+    currentDate.getFullYear() + 1,
+  ]
+
   useEffect(() => {
     fetchAttendanceData()
-  }, [employees])
+  }, [employees, selectedMonth, selectedYear])
 
   const fetchAttendanceData = async () => {
     setLoading(true)
     try {
-      const today = new Date()
-      const year = today.getFullYear()
-      const month = today.getMonth() + 1
-
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/attendance/monthly/${year}/${month}`, {
+      const response = await fetch(`${API_BASE_URL}/attendance/monthly/${selectedYear}/${selectedMonth}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await response.json()
@@ -1033,58 +1044,91 @@ function EmployeeAttendanceReport({ employees }: { employees: any[] }) {
     ? attendanceData[0].workingDays
     : 0
 
-  if (loading) {
-    return <div className="text-center py-12 text-gray-400">Loading attendance data...</div>
-  }
-
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <div 
-          className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
-          style={{ background: 'linear-gradient(135deg, #2f5df5 0%, #1e40af 100%)' }}
-        >
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-white/90">Total Employees</div>
-              <Users className="w-5 h-5 text-white/80" />
-            </div>
-            <div className="text-2xl font-bold">{employees.length}</div>
-          </div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+      {/* Month & Year Filter Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <Calendar className="w-4 h-4 text-blue-600" />
+          <span>Select Reporting Period:</span>
         </div>
-        
-        <div 
-          className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
-          style={{ background: 'linear-gradient(135deg, #c97a1a 0%, #b5690f 100%)' }}
-        >
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-white/90">Working Days (This Month)</div>
-              <Calendar className="w-5 h-5 text-white/80" />
-            </div>
-            <div className="text-2xl font-bold">{totalWorkingDays}</div>
-          </div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-        </div>
-        
-        <div 
-          className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
-          style={{ background: 'linear-gradient(135deg, #0ea885 0%, #0c8a6b 100%)' }}
-        >
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-white/90">Avg Attendance</div>
-              <TrendingUp className="w-5 h-5 text-white/80" />
-            </div>
-            <div className="text-2xl font-bold">{avgAttendance}%</div>
-          </div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+        <div className="flex items-center gap-3">
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+            className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+          >
+            {MONTHS.map((name, index) => (
+              <option key={name} value={index + 1}>
+                {name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+          >
+            {YEARS.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Chart */}
+      {loading ? (
+        <div className="text-center py-12 text-gray-400">Loading attendance data...</div>
+      ) : (
+        <>
+          {/* Summary Cards */}
+          <div className="grid grid-cols-3 gap-4">
+            <div 
+              className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
+              style={{ background: 'linear-gradient(135deg, #2f5df5 0%, #1e40af 100%)' }}
+            >
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-medium text-white/90">Total Employees</div>
+                  <Users className="w-5 h-5 text-white/80" />
+                </div>
+                <div className="text-2xl font-bold">{employees.length}</div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+            </div>
+            
+            <div 
+              className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
+              style={{ background: 'linear-gradient(135deg, #c97a1a 0%, #b5690f 100%)' }}
+            >
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-medium text-white/90">Working Days ({MONTHS[selectedMonth - 1]})</div>
+                  <Calendar className="w-5 h-5 text-white/80" />
+                </div>
+                <div className="text-2xl font-bold">{totalWorkingDays}</div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+            </div>
+            
+            <div 
+              className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
+              style={{ background: 'linear-gradient(135deg, #0ea885 0%, #0c8a6b 100%)' }}
+            >
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-medium text-white/90">Avg Attendance</div>
+                  <TrendingUp className="w-5 h-5 text-white/80" />
+                </div>
+                <div className="text-2xl font-bold">{avgAttendance}%</div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+            </div>
+          </div>
+
+          {/* Chart */}
       {attendanceData.some(emp => emp.workingDays > 0) ? (
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={attendanceData.filter(emp => emp.workingDays > 0)}>
@@ -1149,6 +1193,8 @@ function EmployeeAttendanceReport({ employees }: { employees: any[] }) {
           ))}
         </tbody>
       </table>
+        </>
+      )}
     </div>
   )
 }

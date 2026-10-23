@@ -160,8 +160,10 @@ export const useApiStore = create<ApiState>()((set, get) => ({
       const newSale = await salesApi.create(data)
       set((state) => ({ sales: [newSale, ...state.sales] }))
       
-      // Refresh products to get updated stock
+      // Refresh products, stock movements, and summary to get updated stock & movements
       get().fetchProducts()
+      get().fetchStockMovements()
+      get().fetchInventorySummary()
       
       return newSale
     } catch (error: any) {

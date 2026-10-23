@@ -18,8 +18,10 @@ function money(n: number): string {
   )
 }
 
-function fmtDateLong(dstr: string): string {
-  const d = new Date(dstr + 'T00:00:00')
+function fmtDateLong(dstr?: string): string {
+  if (!dstr) return 'N/A'
+  const d = new Date(dstr)
+  if (isNaN(d.getTime())) return dstr
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
