@@ -770,51 +770,7 @@ export default function ReportsPage() {
         )
 
       case 'business-performance':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-3 gap-4">
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <div className="text-sm text-gray-600 mb-1">Total Revenue</div>
-                <div className="text-2xl font-bold text-gray-900">{money(sales.reduce((sum, s) => sum + s.total, 0))}</div>
-              </div>
-              <div className="p-4 bg-green-50 rounded-lg">
-                <div className="text-sm text-gray-600 mb-1">Total Sales</div>
-                <div className="text-2xl font-bold text-gray-900">{sales.length}</div>
-              </div>
-              <div className="p-4 bg-purple-50 rounded-lg">
-                <div className="text-sm text-gray-600 mb-1">Products</div>
-                <div className="text-2xl font-bold text-gray-900">{products.length}</div>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={220}>
-              {salesChartData.length > 0 ? (
-                <AreaChart data={salesChartData}>
-                  <defs>
-                    <linearGradient id="colorBusiness" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2f5df5" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#2f5df5" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f1f4" vertical={false} />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip formatter={(value: number) => money(value)} />
-                  <Area 
-                    type="linear" 
-                    dataKey="sales" 
-                    stroke="#2f5df5" 
-                    strokeWidth={2}
-                    fill="url(#colorBusiness)"
-                  />
-                </AreaChart>
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-                  No business data available
-                </div>
-              )}
-            </ResponsiveContainer>
-          </div>
-        )
+        return <BusinessPerformanceReport sales={sales} products={products} />
 
       case 'sales-performance':
         return (
@@ -949,7 +905,10 @@ export default function ReportsPage() {
                   const Icon = reportOptions.find(r => r.id === activeReport)?.icon || FileText
                   return <Icon className="w-5 h-5 text-blue-600" />
                 })()}
-                {reportOptions.find(r => r.id === activeReport)?.label} Report
+                {(() => {
+                  const label = reportOptions.find(r => r.id === activeReport)?.label || 'Report'
+                  return label.endsWith('Report') ? label : `${label} Report`
+                })()}
               </div>
               <div className="text-xs text-gray-500 mt-1">
                 Generated on {new Date().toLocaleDateString('en-US', { 
@@ -1198,3 +1157,309 @@ function EmployeeAttendanceReport({ employees }: { employees: any[] }) {
     </div>
   )
 }
+
+// Business Performance Report Component with Month/Year Selection
+function BusinessPerformanceReport({ sales, products }: { sales: any[]; products: any[] }) {
+  const currentDate = new Date()
+  const [selectedMonth, setSelectedMonth] = useState<number>(currentDate.getMonth() + 1)
+  const [selectedYear, setSelectedYear] = useState<number>(currentDate.getFullYear())
+  const [isAllTime, setIsAllTime] = useState<boolean>(false)
+
+  const MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+
+  const YEARS = [
+    currentDate.getFullYear() - 2,
+    currentDate.getFullYear() - 1,
+    currentDate.getFullYear(),
+    currentDate.getFullYear() + 1,
+  ]
+
+  // Filter sales by selected month and year (or all time)
+  const filteredSales = sales.filter((s: any) => {
+    if (isAllTime) return true
+    if (!s.saleDate) return false
+    const d = new Date(s.saleDate)
+    return d.getFullYear() === selectedYear && d.getMonth() + 1 === selectedMonth
+  })
+
+  // Summary Metrics
+  const totalRevenue = filteredSales.reduce((sum, s) => sum + (s.total || 0), 0)
+  const totalSalesCount = filteredSales.length
+  const avgSaleValue = totalSalesCount > 0 ? totalRevenue / totalSalesCount : 0
+
+  // Total quantity sold across all items
+  const totalUnitsSold = filteredSales.reduce((sum, s) => {
+    const itemsCount = s.items?.reduce((itemSum: number, item: any) => itemSum + (item.quantity || 0), 0) || 0
+    return sum + itemsCount
+  }, 0)
+
+  // Daily Chart Data for the chosen month (or 14 days if all time)
+  const chartData = (() => {
+    if (isAllTime) {
+      const datesMap: Record<string, number> = {}
+      filteredSales.forEach((s: any) => {
+        const dStr = s.saleDate ? new Date(s.saleDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Unknown'
+        datesMap[dStr] = (datesMap[dStr] || 0) + (s.total || 0)
+      })
+      return Object.entries(datesMap).map(([date, revenue]) => ({ date, revenue }))
+    }
+
+    // Days in selected month
+    const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate()
+    return Array.from({ length: daysInMonth }, (_, i) => {
+      const dayNum = i + 1
+      const dayStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`
+      const daySales = filteredSales.filter((s: any) => s.saleDate?.startsWith(dayStr))
+      const dayRevenue = daySales.reduce((sum, s) => sum + (s.total || 0), 0)
+      return {
+        date: `${dayNum} ${MONTHS[selectedMonth - 1].slice(0, 3)}`,
+        revenue: dayRevenue
+      }
+    })
+  })()
+
+  // Top products in this period
+  const productSalesMap: Record<string, { name: string; sku: string; units: number; revenue: number }> = {}
+  filteredSales.forEach((s: any) => {
+    s.items?.forEach((item: any) => {
+      const pId = item.productId || item.product?.id || 'unknown'
+      const pName = item.product?.name || products.find(p => p.id === pId)?.name || 'Product'
+      const pSku = item.product?.sku || products.find(p => p.id === pId)?.sku || ''
+      if (!productSalesMap[pId]) {
+        productSalesMap[pId] = { name: pName, sku: pSku, units: 0, revenue: 0 }
+      }
+      productSalesMap[pId].units += item.quantity || 0
+      productSalesMap[pId].revenue += item.total || 0
+    })
+  })
+  const topProductsList = Object.values(productSalesMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5)
+
+  return (
+    <div className="space-y-6">
+      {/* Month & Year Filter Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <Calendar className="w-4 h-4 text-blue-600" />
+          <span>Reporting Period:</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsAllTime(!isAllTime)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              isAllTime
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            All Time
+          </button>
+
+          {!isAllTime && (
+            <>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+              >
+                {MONTHS.map((name, index) => (
+                  <option key={name} value={index + 1}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+              >
+                {YEARS.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-4 gap-4">
+        <div 
+          className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
+          style={{ background: 'linear-gradient(135deg, #2f5df5 0%, #1e40af 100%)' }}
+        >
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs font-medium text-white/90">
+                {isAllTime ? 'Total Revenue' : `Revenue (${MONTHS[selectedMonth - 1].slice(0, 3)} ${selectedYear})`}
+              </div>
+              <DollarSign className="w-5 h-5 text-white/80" />
+            </div>
+            <div className="text-xl font-bold">{money(totalRevenue)}</div>
+          </div>
+          <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full -mr-14 -mt-14"></div>
+        </div>
+
+        <div 
+          className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
+          style={{ background: 'linear-gradient(135deg, #0ea885 0%, #0c8a6b 100%)' }}
+        >
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs font-medium text-white/90">Invoices Processed</div>
+              <ShoppingCart className="w-5 h-5 text-white/80" />
+            </div>
+            <div className="text-xl font-bold">{totalSalesCount}</div>
+          </div>
+          <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full -mr-14 -mt-14"></div>
+        </div>
+
+        <div 
+          className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
+          style={{ background: 'linear-gradient(135deg, #c97a1a 0%, #b5690f 100%)' }}
+        >
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs font-medium text-white/90">Avg Invoice Value</div>
+              <TrendingUp className="w-5 h-5 text-white/80" />
+            </div>
+            <div className="text-xl font-bold">{money(avgSaleValue)}</div>
+          </div>
+          <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full -mr-14 -mt-14"></div>
+        </div>
+
+        <div 
+          className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
+          style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)' }}
+        >
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs font-medium text-white/90">Total Units Sold</div>
+              <Package className="w-5 h-5 text-white/80" />
+            </div>
+            <div className="text-xl font-bold">{totalUnitsSold}</div>
+          </div>
+          <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full -mr-14 -mt-14"></div>
+        </div>
+      </div>
+
+      {/* Revenue Trend Area Chart */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+        <div className="mb-4">
+          <div className="text-sm font-semibold text-gray-900">
+            {isAllTime ? 'All-Time Revenue Trend' : `Daily Revenue (${MONTHS[selectedMonth - 1]} ${selectedYear})`}
+          </div>
+          <div className="text-xs text-gray-500">Track revenue generated per day in the selected reporting period</div>
+        </div>
+
+        <ResponsiveContainer width="100%" height={260}>
+          {chartData.length > 0 ? (
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="colorPerf" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#2f5df5" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#2f5df5" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f1f4" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} tickFormatter={(val) => money(val)} />
+              <Tooltip formatter={(value: number) => [money(value), 'Revenue']} />
+              <Area 
+                type="monotone" 
+                dataKey="revenue" 
+                stroke="#2f5df5" 
+                strokeWidth={2.5}
+                fill="url(#colorPerf)" 
+              />
+            </AreaChart>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+              No sales data for this period
+            </div>
+          )}
+        </ResponsiveContainer>
+      </div>
+
+      {/* Top Products in this period */}
+      {topProductsList.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+          <div className="text-sm font-semibold text-gray-900 mb-3">Top Products in Period</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {topProductsList.map((p, i) => (
+              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div>
+                  <div className="text-xs font-semibold text-gray-900">{p.name}</div>
+                  <div className="text-[11px] text-gray-500">{p.units} units sold</div>
+                </div>
+                <div className="text-xs font-bold text-blue-600">{money(p.revenue)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Invoices List in this Period */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-sm font-semibold text-gray-900">
+            Invoices Breakdown ({filteredSales.length})
+          </div>
+        </div>
+
+        {filteredSales.length > 0 ? (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Invoice</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th style={{ textAlign: 'right' }}>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSales.map((s: any) => (
+                <tr key={s.id}>
+                  <td><div className="text-sm font-semibold text-blue-600">{s.invoiceNo}</div></td>
+                  <td><div className="text-sm text-gray-900">{s.customer || 'Walk-in'}</div></td>
+                  <td>
+                    <div className="text-xs text-gray-500">
+                      {s.saleDate ? new Date(s.saleDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                    </div>
+                  </td>
+                  <td><div className="text-xs font-medium text-gray-700">{s.paymentMethod}</div></td>
+                  <td>
+                    <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
+                      s.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {s.paymentStatus}
+                    </span>
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    <div className="text-sm font-bold text-gray-900">{money(s.total)}</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="text-center py-12 text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
+            <p className="font-semibold text-gray-700 mb-1">No Transactions Found</p>
+            <p className="text-xs text-gray-500">
+              There were no sales recorded for {isAllTime ? 'the selected period' : `${MONTHS[selectedMonth - 1]} ${selectedYear}`}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
