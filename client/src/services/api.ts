@@ -33,11 +33,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired - clear storage and redirect to login
-      console.error('Token expired - logging out')
+      console.warn('⚠️ Authentication session expired - clearing storage')
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      window.location.href = '/login'
+      localStorage.removeItem('auth-storage')
+      // Only redirect if not already on the login page
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }

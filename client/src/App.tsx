@@ -26,15 +26,20 @@ import SettingsPage from './pages/admin/SettingsPage'
 
 // Protected Route wrapper
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
-  const { user, isAuthenticated } = useAuthStore()
+  const { user, isAuthenticated, logout } = useAuthStore()
+  const token = localStorage.getItem('token')
 
-  if (!isAuthenticated) {
+  // If not authenticated or token missing, clean up and redirect to login
+  if (!isAuthenticated || !token) {
+    if (isAuthenticated && !token) {
+      logout()
+    }
     return <Navigate to="/login" replace />
   }
 
   if (allowedRoles && user) {
     // Normalize role formats: convert 'SALES_USER' to 'Sales User' and vice versa
-    const userRole = user.role
+    const userRole = user.role || ''
     const normalizedUserRole = userRole.replace(/_/g, ' ')
     const upperUserRole = userRole.replace(/ /g, '_').toUpperCase()
     
@@ -45,7 +50,8 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
       
       return userRole === allowedRole || 
              normalizedUserRole.toLowerCase() === normalizedAllowed.toLowerCase() ||
-             upperUserRole === upperAllowed
+             upperUserRole === upperAllowed ||
+             userRole.toUpperCase().includes('ADMIN')
     })
     
     if (!hasAccess) {
@@ -57,7 +63,7 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
       } else if (userRole.includes('HR') || userRole.includes('Hr')) {
         return <Navigate to="/employees" replace />
       }
-      return <Navigate to="/dashboard" replace />
+      return <Navigate to="/sales" replace />
     }
   }
 
@@ -66,13 +72,13 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
 
 function App() {
   const { isAuthenticated, user } = useAuthStore()
-
-  console.log('App rendering, isAuthenticated:', isAuthenticated)
+  const token = localStorage.getItem('token')
+  const isValidSession = isAuthenticated && !!token
 
   // Get role-based default route
   const getDefaultRoute = () => {
     if (!user) return '/dashboard'
-    const role = user.role
+    const role = user.role || ''
     if (role.includes('SALES') || role.includes('Sales')) return '/sales'
     if (role.includes('INVENTORY') || role.includes('Inventory')) return '/products'
     if (role.includes('HR') || role.includes('Hr')) return '/employees'
@@ -84,7 +90,7 @@ function App() {
       {/* Public routes */}
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <LoginPage />}
+        element={isValidSession ? <Navigate to={getDefaultRoute()} replace /> : <LoginPage />}
       />
 
       {/* Protected routes with layout */}

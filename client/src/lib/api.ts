@@ -34,9 +34,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      auth.signOut()
-      window.location.href = '/login'
+      console.warn('⚠️ Session expired in lib/api')
+      auth.signOut().catch(() => {})
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      localStorage.removeItem('auth-storage')
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }
