@@ -99,23 +99,9 @@ async function startServer() {
     }
   }
 
-  app.listen(PORT, async () => {
+  app.listen(PORT, () => {
     console.log(`🚀 HHW Business Management API running on http://localhost:${PORT}`)
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
-
-    // Seed if DB is empty (cloud only)
-    if (process.env.NODE_ENV === 'production') {
-      try {
-        const productCount = await prisma.product.count()
-        if (productCount === 0) {
-          console.log('🌱 Cloud database is empty. Auto-seeding...')
-          await seedDatabase(false)
-          console.log('✅ Seed complete!')
-        }
-      } catch (error) {
-        console.error('⚠️  Auto-seed failed:', error)
-      }
-    }
   })
 }
 
