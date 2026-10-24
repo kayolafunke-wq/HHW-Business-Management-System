@@ -291,7 +291,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Top KPIs */}
-      <div className="grid grid-4" style={{ marginBottom: '20px' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
         <KPICard
           icon={Package}
           iconColor="text-[#1f43c9]"
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Second row KPIs */}
-      <div className="grid grid-4" style={{ marginBottom: '20px' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
         <KPICard
           icon={Users}
           iconColor="text-[#374151]"
@@ -371,8 +371,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid" style={{ gridTemplateColumns: '2fr 1fr', marginBottom: '20px', gap: '18px' }}>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="text-base font-semibold text-gray-900">Sales Performance</div>
@@ -442,7 +442,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts Row 2 */}
-      <div className="grid" style={{ gridTemplateColumns: '1.3fr 1fr', marginBottom: '20px', gap: '18px' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -498,7 +498,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Activity in 3 columns */}
-      <div className="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', marginBottom: '20px', gap: '18px' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-transparent">
             <div className="text-base font-semibold text-gray-900">Recent Sales</div>
@@ -621,7 +621,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Outstanding Invoices and Low Stock Alerts */}
-      <div className="grid grid-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-gradient-to-r from-orange-50/50 to-transparent">
             <div className="text-base font-semibold text-gray-900">Outstanding Invoices</div>

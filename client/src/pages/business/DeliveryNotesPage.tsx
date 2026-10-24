@@ -161,7 +161,7 @@ Goods received in good condition.
           </div>
 
           {/* Items Table */}
-          <div className="mb-6">
+          <div className="mb-6 overflow-x-auto">
             <table className="data-table">
               <thead>
                 <tr>
@@ -435,7 +435,7 @@ function NewDeliveryNoteModal({ onClose, onCreated }: { onClose: () => void; onC
           </div>
 
           {/* Items Table */}
-          <div className="mb-4">
+          <div className="mb-4 overflow-x-auto">
             <table className="data-table">
               <thead>
                 <tr>

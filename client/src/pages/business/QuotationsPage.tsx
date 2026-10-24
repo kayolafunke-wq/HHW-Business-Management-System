@@ -169,7 +169,7 @@ This quotation is valid until ${fmtDateLong(quotation.validUntil)}
           </div>
 
           {/* Items Table */}
-          <div className="mb-6">
+          <div className="mb-6 overflow-x-auto">
             <table className="data-table">
               <thead>
                 <tr>
@@ -460,7 +460,7 @@ function NewQuotationModal({ onClose, onCreated }: { onClose: () => void; onCrea
           </div>
 
           {/* Items Table */}
-          <div className="mb-4">
+          <div className="mb-4 overflow-x-auto">
             <table className="data-table">
               <thead>
                 <tr>

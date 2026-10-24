@@ -39,41 +39,47 @@ export default function MainLayout() {
   }, [])
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden w-full max-w-[100vw]">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <Sidebar />
       </div>
 
-      {/* Mobile Menu Button */}
+      {/* Mobile Menu Button - Styled neatly on the top left */}
       <button
+        type="button"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md border border-gray-200 hover:bg-gray-50 transition-colors"
+        aria-label="Toggle navigation menu"
+        className="lg:hidden fixed top-3.5 left-3.5 z-50 p-2 bg-white/90 backdrop-blur-md rounded-xl shadow-md border border-gray-200/80 hover:bg-white text-gray-700 transition-all active:scale-95"
       >
-        {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        {mobileMenuOpen ? <X className="w-5 h-5 text-gray-900" /> : <Menu className="w-5 h-5 text-gray-900" />}
       </button>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile Sidebar Overlay with smooth fade */}
       {mobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar Drawer - Full Dark & seamless */}
       <div
-        className={`lg:hidden fixed inset-y-0 left-0 z-40 w-64 bg-white transform transition-transform duration-300 ${
+        className={`lg:hidden fixed inset-y-0 left-0 z-40 w-64 bg-[#0c1424] shadow-2xl transform transition-transform duration-300 ease-in-out ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <Sidebar onLinkClick={() => setMobileMenuOpen(false)} />
+        <Sidebar 
+          onLinkClick={() => setMobileMenuOpen(false)} 
+          onClose={() => setMobileMenuOpen(false)}
+          className="w-full h-full static shadow-none"
+        />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen lg:ml-60 w-full">
+      {/* Main Content Area - Completely stable, no horizontal shake/overflow */}
+      <div className="flex-1 flex flex-col min-h-screen lg:ml-60 w-full max-w-full overflow-x-hidden">
         <Topbar />
-        <main className="flex-1 p-4 sm:p-6 pt-20 lg:pt-6">
+        <main className="flex-1 p-3.5 sm:p-5 lg:p-6 w-full max-w-full overflow-x-hidden">
           <Outlet />
         </main>
       </div>

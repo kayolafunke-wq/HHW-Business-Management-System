@@ -80,9 +80,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex overflow-hidden">
-      {/* Left side - Branding - FIXED NO SCROLL */}
-      <div className="w-1/2 bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] overflow-y-hidden text-white p-8 flex flex-col justify-between fixed left-0 top-0 h-screen z-10">
+    <div className="min-h-screen flex flex-col lg:flex-row overflow-x-hidden">
+      {/* Left side - Branding - Visible on desktop/tablet large */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] overflow-y-hidden text-white p-8 flex-col justify-between fixed left-0 top-0 h-screen z-10">
         {/* Background container - relative positioning */}
         <div className="absolute inset-0 overflow-hidden">
         {/* Animated gradient orbs - MORE VISIBLE */}
@@ -210,10 +210,22 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right side - Login form - SCROLLABLE */}
-      <div className="w-1/2 ml-auto overflow-y-auto">
-        <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-[380px]">
+      {/* Right side - Login form - Full width on mobile, half on desktop */}
+      <div className="w-full lg:w-1/2 lg:ml-auto min-h-screen flex items-center justify-center p-5 sm:p-8 bg-white overflow-y-auto">
+        <div className="w-full max-w-[380px] py-8">
+          {/* Mobile Logo Header */}
+          <div className="lg:hidden flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-lg shadow-md">
+              H
+            </div>
+            <div>
+              <div className="font-display font-bold text-base text-gray-900 leading-tight">
+                HHW Business Manager
+              </div>
+              <div className="text-[11px] text-gray-500 font-medium">Enterprise Operations Suite</div>
+            </div>
+          </div>
+
           <div className="mb-6">
             <h2 className="font-display font-semibold text-[22px] mb-1">Welcome back</h2>
             <p className="text-[13px] text-gray-600">Sign in to access your workspace</p>
@@ -260,7 +272,6 @@ export default function LoginPage() {
             </span>
           </div>
         </div>
-      </div>
       </div>
     </div>
   )

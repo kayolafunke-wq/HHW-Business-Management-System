@@ -179,7 +179,7 @@ Thank you for your business!
           </div>
 
           {/* Items Table */}
-          <div className="mb-6">
+          <div className="mb-6 overflow-x-auto">
             <table className="data-table">
               <thead>
                 <tr>

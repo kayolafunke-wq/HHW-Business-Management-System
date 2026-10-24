@@ -207,6 +207,7 @@ function PaymentHistoryModal({ debtor, onClose }: { debtor: Debtor; onClose: () 
               <div className="text-sm text-gray-500">No payments yet</div>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="data-table">
               <thead>
                 <tr>
@@ -227,6 +228,7 @@ function PaymentHistoryModal({ debtor, onClose }: { debtor: Debtor; onClose: () 
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 

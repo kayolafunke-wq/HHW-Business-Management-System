@@ -92,7 +92,13 @@ const NAV_CONFIG: NavSection[] = [
   },
 ]
 
-export default function Sidebar({ onLinkClick }: { onLinkClick?: () => void }) {
+interface SidebarProps {
+  onLinkClick?: () => void
+  onClose?: () => void
+  className?: string
+}
+
+export default function Sidebar({ onLinkClick, onClose, className }: SidebarProps) {
   const location = useLocation()
   const { user, logout } = useAuthStore()
   
@@ -133,16 +139,27 @@ export default function Sidebar({ onLinkClick }: { onLinkClick?: () => void }) {
   }
 
   return (
-    <aside className="w-60 bg-[#0c1424] text-gray-300 flex flex-col fixed top-0 left-0 bottom-0 z-40">
+    <aside className={cn('w-60 bg-[#0c1424] text-gray-300 flex flex-col', className || 'fixed top-0 left-0 bottom-0 z-40')}>
       {/* Brand */}
-      <div className="flex items-center gap-3 p-5 border-b border-white/10">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-sm">
-          H
+      <div className="flex items-center justify-between p-5 border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-sm">
+            H
+          </div>
+          <div>
+            <div className="font-display font-semibold text-white text-sm leading-tight">HHW Business Manager</div>
+            <div className="text-[10px] text-gray-500 tracking-wide">Operations Suite</div>
+          </div>
         </div>
-        <div>
-          <div className="font-display font-semibold text-white text-sm leading-tight">HHW Business Manager</div>
-          <div className="text-[10px] text-gray-500 tracking-wide">Operations Suite</div>
-        </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <span className="sr-only">Close menu</span>
+            ✕
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
