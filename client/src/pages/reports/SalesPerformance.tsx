@@ -391,10 +391,10 @@ export default function SalesPerformance() {
       <Card className="mt-5">
         <div className="mb-4">
           <h2 className="font-display font-semibold text-base text-gray-900 mb-1">
-            Monthly Performance Trend
+            Employee Performance by Date Range
           </h2>
           <p className="text-xs text-gray-500">
-            Compare employee performance across the last 6 months
+            Filter by custom date range to compare employee sales performance
           </p>
         </div>
 
@@ -404,184 +404,129 @@ export default function SalesPerformance() {
   )
 }
 
-// Monthly Comparison Component
+// Date Range Performance Component
 function MonthlyComparisonTable({ sales }: { sales: any[] }) {
-  const [monthlyData, setMonthlyData] = useState<any[]>([])
-  const [chartData, setChartData] = useState<any[]>([])
+  const today = new Date().toISOString().split('T')[0]
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  
+  const [startDate, setStartDate] = useState<string>(thirtyDaysAgo)
+  const [endDate, setEndDate] = useState<string>(today)
 
-  useEffect(() => {
-    calculateMonthlyPerformance()
-  }, [sales])
+  const filteredSales = sales.filter(sale => {
+    if (!sale.saleDate) return false
+    const d = sale.saleDate.split('T')[0]
+    return d >= startDate && d <= endDate
+  })
 
-  const calculateMonthlyPerformance = () => {
-    // Get last 6 months
-    const months: string[] = []
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const currentDate = new Date()
-    
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1)
-      months.push(`${monthNames[date.getMonth()]} ${date.getFullYear()}`)
-    }
+  // Group by employee
+  const empMap = new Map<string, { revenue: number; count: number }>()
+  filteredSales.forEach(sale => {
+    const name = sale.user?.name || sale.cashier || 'Unknown'
+    const cur = empMap.get(name) || { revenue: 0, count: 0 }
+    cur.revenue += sale.total
+    cur.count += 1
+    empMap.set(name, cur)
+  })
 
-    // Group sales by employee and month
-    const employeeMonthlyMap = new Map<string, Map<string, { revenue: number; count: number }>>()
+  const rows = Array.from(empMap.entries())
+    .map(([name, data]) => ({ name, ...data, avg: data.count > 0 ? data.revenue / data.count : 0 }))
+    .sort((a, b) => b.revenue - a.revenue)
 
-    sales.forEach(sale => {
-      const saleDate = new Date(sale.saleDate)
-      const monthKey = `${monthNames[saleDate.getMonth()]} ${saleDate.getFullYear()}`
-      const employeeName = sale.user?.name || sale.cashier || 'Unknown'
+  const totalRevenue = rows.reduce((s, r) => s + r.revenue, 0)
 
-      if (!employeeMonthlyMap.has(employeeName)) {
-        employeeMonthlyMap.set(employeeName, new Map())
-      }
-
-      const employeeData = employeeMonthlyMap.get(employeeName)!
-      if (!employeeData.has(monthKey)) {
-        employeeData.set(monthKey, { revenue: 0, count: 0 })
-      }
-
-      const monthData = employeeData.get(monthKey)!
-      monthData.revenue += sale.total
-      monthData.count += 1
-    })
-
-    // Convert to table format
-    const tableData: any[] = []
-    employeeMonthlyMap.forEach((monthsMap, employee) => {
-      const row: any = { employee }
-      months.forEach(month => {
-        const data = monthsMap.get(month) || { revenue: 0, count: 0 }
-        row[month] = data
-      })
-      // Calculate total
-      row.total = Array.from(monthsMap.values()).reduce((sum, data) => sum + data.revenue, 0)
-      tableData.push(row)
-    })
-
-    // Sort by total revenue
-    tableData.sort((a, b) => b.total - a.total)
-    setMonthlyData(tableData)
-
-    // Prepare chart data (revenue trend for top 3 employees)
-    const top3 = tableData.slice(0, 3)
-    const chartDataArray = months.map(month => {
-      const dataPoint: any = { month: month.split(' ')[0] } // Just month name
-      top3.forEach(emp => {
-        dataPoint[emp.employee] = emp[month]?.revenue || 0
-      })
-      return dataPoint
-    })
-    setChartData(chartDataArray)
-  }
-
-  const getMonthColumns = () => {
-    if (monthlyData.length === 0) return []
-    const firstRow = monthlyData[0]
-    return Object.keys(firstRow).filter(key => key !== 'employee' && key !== 'total')
-  }
-
-  const monthColumns = getMonthColumns()
+  const days = Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1)
 
   return (
     <>
-      {/* Trend Chart */}
-      {chartData.length > 0 && monthlyData.length > 0 && (
-        <div className="mb-6">
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                formatter={(value: number) => money(value)}
-                contentStyle={{ fontSize: 12 }}
-              />
-              <Legend />
-              {monthlyData.slice(0, 3).map((emp, index) => (
-                <Line
-                  key={emp.employee}
-                  type="monotone"
-                  dataKey={emp.employee}
-                  stroke={COLORS[index]}
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
+      {/* Date Range Filter */}
+      <div className="flex flex-wrap items-center gap-3 mb-5 p-4 bg-gray-50 rounded-xl border border-gray-200">
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <Calendar className="w-4 h-4 text-blue-600" />
+          <span>Date Range:</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500 font-medium">From</span>
+            <input
+              type="date"
+              value={startDate}
+              max={endDate}
+              onChange={e => setStartDate(e.target.value)}
+              className="px-2.5 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500 font-medium">To</span>
+            <input
+              type="date"
+              value={endDate}
+              min={startDate}
+              max={today}
+              onChange={e => setEndDate(e.target.value)}
+              className="px-2.5 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
+            />
+          </div>
+          <span className="text-xs text-gray-400">({days} days)</span>
+        </div>
+      </div>
+
+      {/* Summary for period */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+        <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl">
+          <div className="text-xs text-blue-600 font-semibold mb-1">Total Revenue</div>
+          <div className="text-lg font-bold text-blue-900">{money(totalRevenue)}</div>
+        </div>
+        <div className="p-3 bg-green-50 border border-green-100 rounded-xl">
+          <div className="text-xs text-green-600 font-semibold mb-1">Total Sales</div>
+          <div className="text-lg font-bold text-green-900">{filteredSales.length}</div>
+        </div>
+        <div className="p-3 bg-purple-50 border border-purple-100 rounded-xl col-span-2 sm:col-span-1">
+          <div className="text-xs text-purple-600 font-semibold mb-1">Active Salespeople</div>
+          <div className="text-lg font-bold text-purple-900">{rows.length}</div>
+        </div>
+      </div>
+
+      {/* Employee Performance Cards */}
+      {rows.length === 0 ? (
+        <div className="text-center py-10 text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
+          <div className="text-sm font-semibold text-gray-500 mb-1">No sales data</div>
+          <div className="text-xs">No transactions found for the selected date range</div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {rows.map((row, i) => {
+            const pct = totalRevenue > 0 ? (row.revenue / totalRevenue) * 100 : 0
+            return (
+              <div key={row.name} className="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-sm transition-shadow">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${
+                      i === 0 ? 'bg-yellow-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-orange-500' : 'bg-blue-500'
+                    }`}>
+                      {i < 3 ? ['🏆','🥈','🥉'][i] : `#${i + 1}`}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">{row.name}</div>
+                      <div className="text-xs text-gray-500">{row.count} {row.count === 1 ? 'sale' : 'sales'} · avg {money(row.avg)}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-bold text-gray-900">{money(row.revenue)}</div>
+                    <div className="text-xs text-gray-400">{pct.toFixed(1)}% of total</div>
+                  </div>
+                </div>
+                {/* Progress bar */}
+                <div className="w-full bg-gray-100 rounded-full h-1.5">
+                  <div
+                    className="h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-400"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
-
-      {/* Monthly Table */}
-      <div className="data-table-wrapper" style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th style={{ position: 'sticky', left: 0, background: 'white', zIndex: 1 }}>
-                Employee
-              </th>
-              {monthColumns.map(month => (
-                <th key={month} style={{ textAlign: 'right', minWidth: '120px' }}>
-                  {month}
-                </th>
-              ))}
-              <th style={{ textAlign: 'right', minWidth: '140px' }}>
-                Total (6 months)
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {monthlyData.length === 0 ? (
-              <tr>
-                <td colSpan={monthColumns.length + 2} className="text-center text-gray-500 py-8">
-                  No sales data available
-                </td>
-              </tr>
-            ) : (
-              monthlyData.map((row, index) => (
-                <tr key={row.employee}>
-                  <td style={{ position: 'sticky', left: 0, background: 'white', zIndex: 1 }}>
-                    <div className="flex items-center gap-2">
-                      {index < 3 && (
-                        <div className="flex-shrink-0">
-                          {index === 0 && <Award className="w-4 h-4 text-yellow-500" />}
-                          {index === 1 && <Award className="w-4 h-4 text-gray-400" />}
-                          {index === 2 && <Award className="w-4 h-4 text-orange-600" />}
-                        </div>
-                      )}
-                      <div className="cell-strong">{row.employee}</div>
-                    </div>
-                  </td>
-                  {monthColumns.map(month => {
-                    const data = row[month]
-                    const hasData = data && data.revenue > 0
-                    return (
-                      <td key={month} style={{ textAlign: 'right' }}>
-                        {hasData ? (
-                          <>
-                            <div className="text-sm font-medium text-gray-900">
-                              {money(data.revenue)}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {data.count} {data.count === 1 ? 'sale' : 'sales'}
-                            </div>
-                          </>
-                        ) : (
-                          <div className="text-sm text-gray-400">-</div>
-                        )}
-                      </td>
-                    )
-                  })}
-                  <td style={{ textAlign: 'right' }}>
-                    <div className="cell-strong">{money(row.total)}</div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
     </>
   )
 }

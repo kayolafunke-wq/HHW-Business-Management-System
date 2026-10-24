@@ -213,16 +213,41 @@ export default function LoginPage() {
       {/* Right side - Login form - Full width on mobile, half on desktop */}
       <div className="w-full lg:w-1/2 lg:ml-auto min-h-screen flex items-center justify-center p-5 sm:p-8 bg-white overflow-y-auto">
         <div className="w-full max-w-[380px] py-8">
-          {/* Mobile Logo Header */}
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-lg shadow-md">
-              H
-            </div>
-            <div>
-              <div className="font-display font-bold text-base text-gray-900 leading-tight">
-                HHW Business Manager
+          {/* Mobile Hero Banner - visible only on mobile */}
+          <div className="lg:hidden -mx-5 -mt-8 mb-8 sm:-mx-8 sm:-mt-8 rounded-b-3xl overflow-hidden">
+            <div className="relative bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] px-6 pt-10 pb-8">
+              {/* Background glow orbs */}
+              <div className="absolute top-0 left-0 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute bottom-0 right-0 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl translate-x-1/4 translate-y-1/4" />
+              {/* Grid pattern */}
+              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(147,197,253,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(147,197,253,0.1) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-bold text-white text-lg shadow-lg">
+                    H
+                  </div>
+                  <div>
+                    <div className="font-bold text-white text-base leading-tight">HHW Business Manager</div>
+                    <div className="text-blue-300 text-xs">Enterprise Operations Suite</div>
+                  </div>
+                </div>
+                <div className="text-white/90 text-sm font-medium">Your all-in-one business management platform</div>
+                <div className="flex items-center gap-4 mt-3">
+                  <div className="flex items-center gap-1.5 text-xs text-blue-200/80">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    Sales & Invoicing
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-blue-200/80">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                    Inventory
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-blue-200/80">
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                    HR & Reports
+                  </div>
+                </div>
               </div>
-              <div className="text-[11px] text-gray-500 font-medium">Enterprise Operations Suite</div>
             </div>
           </div>
 

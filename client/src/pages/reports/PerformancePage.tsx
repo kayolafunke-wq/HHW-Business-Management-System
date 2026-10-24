@@ -201,7 +201,7 @@ export default function PerformancePage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {/* Total Revenue */}
         <Card className="kpi">
           <div className="kpi-top">
@@ -274,7 +274,7 @@ export default function PerformancePage() {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Revenue vs Cost */}
         <Card>
           <div className="card-head">
@@ -373,7 +373,7 @@ export default function PerformancePage() {
       </div>
 
       {/* Product Performance */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Best Selling Products */}
         <Card>
           <div className="card-head">

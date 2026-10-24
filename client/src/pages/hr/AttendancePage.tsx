@@ -215,13 +215,12 @@ export default function AttendancePage() {
           <div className="p-6">
             {/* Date and Summary Section */}
             <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                 <div className="flex items-center gap-3">
                   <CalendarIcon className="w-5 h-5 text-[#2f5df5]" />
                   <input
                     type="date"
                     className="input text-base font-semibold"
-                    style={{ width: '200px' }}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                   />
@@ -237,7 +236,7 @@ export default function AttendancePage() {
               </div>
 
               {/* Summary Cards */}
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
                   <div className="flex items-center justify-between">
                     <div>
@@ -297,18 +296,18 @@ export default function AttendancePage() {
                       key={employee.id}
                       className="p-4 bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all"
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         {/* Employee Info */}
-                        <div className="flex items-center gap-4 flex-1">
+                        <div className="flex items-center gap-3 flex-1">
                           <div 
-                            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0"
+                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base flex-shrink-0"
                             style={{ background: '#2f5df5' }}
                           >
                             {getInitials(employee.name)}
                           </div>
-                          <div className="flex-1">
-                            <div className="text-base font-semibold text-gray-900">{employee.name}</div>
-                            <div className="text-sm text-gray-500 flex items-center gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm sm:text-base font-semibold text-gray-900 truncate">{employee.name}</div>
+                            <div className="text-xs sm:text-sm text-gray-500 flex items-center gap-1.5 flex-wrap">
                               <span>{employee.empId}</span>
                               <span className="text-gray-300">•</span>
                               <span>{employee.department}</span>
@@ -317,55 +316,55 @@ export default function AttendancePage() {
                         </div>
 
                         {/* Status Badge and Actions */}
-                        <div className="flex items-center gap-4">
-                          <Badge variant={getStatusColor(employee.status)} className="px-3 py-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant={getStatusColor(employee.status)} className="px-2 py-0.5 text-xs">
                             {employee.status}
                           </Badge>
                           
                           {/* Quick Action Buttons */}
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <button
-                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                 employee.status === 'Present'
                                   ? 'bg-green-600 text-white shadow-sm'
-                                  : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 hover:border-green-200 border border-transparent'
+                                  : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 border border-transparent'
                               }`}
                               onClick={() => handleStatusChange(employee.empId, 'Present')}
                             >
-                              <CheckCircle className="w-3.5 h-3.5 inline mr-1" />
+                              <CheckCircle className="w-3 h-3 inline mr-0.5" />
                               Present
                             </button>
                             <button
-                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                 employee.status === 'Late'
                                   ? 'bg-amber-600 text-white shadow-sm'
-                                  : 'bg-gray-100 text-gray-600 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200 border border-transparent'
+                                  : 'bg-gray-100 text-gray-600 hover:bg-amber-50 hover:text-amber-600 border border-transparent'
                               }`}
                               onClick={() => handleStatusChange(employee.empId, 'Late')}
                             >
-                              <Clock className="w-3.5 h-3.5 inline mr-1" />
+                              <Clock className="w-3 h-3 inline mr-0.5" />
                               Late
                             </button>
                             <button
-                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                 employee.status === 'Absent'
                                   ? 'bg-red-600 text-white shadow-sm'
-                                  : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 border border-transparent'
+                                  : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 border border-transparent'
                               }`}
                               onClick={() => handleStatusChange(employee.empId, 'Absent')}
                             >
-                              <XCircle className="w-3.5 h-3.5 inline mr-1" />
+                              <XCircle className="w-3 h-3 inline mr-0.5" />
                               Absent
                             </button>
                             <button
-                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                 employee.status === 'Leave'
                                   ? 'bg-gray-600 text-white shadow-sm'
                                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
                               }`}
                               onClick={() => handleStatusChange(employee.empId, 'Leave')}
                             >
-                              <Coffee className="w-3.5 h-3.5 inline mr-1" />
+                              <Coffee className="w-3 h-3 inline mr-0.5" />
                               Leave
                             </button>
                           </div>
