@@ -457,7 +457,85 @@ export default function UsersPage() {
       </div>
 
       <Card>
-        <div className="overflow-x-auto">
+        {/* Mobile Connected Box Cards View - No Horizontal Scroll Needed */}
+        <div className="md:hidden space-y-3 p-4">
+          {paginatedItems.map((user) => (
+            <div 
+              key={user.id}
+              className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-blue-200 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div 
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+                    style={{ background: '#2f5df5' }}
+                  >
+                    {getInitials(user.name)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-gray-900 truncate">{user.name}</div>
+                    <div className="text-[11px] text-gray-500 truncate">{user.username}</div>
+                  </div>
+                </div>
+                <Badge variant={user.status === 'Active' ? 'success' : 'default'}>
+                  {user.status}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs py-2.5 border-y border-gray-100 my-1">
+                <div>
+                  <span className="text-gray-400 block text-[10px]">System Role</span>
+                  <div className="mt-0.5">
+                    <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-400 block text-[10px]">Last Login</span>
+                  <span className="text-gray-600 mt-0.5 block">{user.lastLogin}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                {user.status === 'Active' ? (
+                  <button
+                    className="px-2.5 py-1.5 bg-gray-50 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors border border-gray-200"
+                    onClick={() => handleDeactivate(user.id)}
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M4.93 4.93l14.14 14.14"/>
+                    </svg>
+                    Deactivate
+                  </button>
+                ) : (
+                  <button
+                    className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors border border-emerald-200"
+                    onClick={() => handleActivate(user.id)}
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                      <path d="m22 4-10 10-3-3"/>
+                    </svg>
+                    Activate
+                  </button>
+                )}
+                <button
+                  className="px-2.5 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
+                  onClick={() => handleResetPassword(user.id)}
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 12a9 9 0 1 1-3-6.7"/>
+                    <path d="M21 3v6h-6"/>
+                  </svg>
+                  Reset Password
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="data-table">
             <thead>
               <tr>

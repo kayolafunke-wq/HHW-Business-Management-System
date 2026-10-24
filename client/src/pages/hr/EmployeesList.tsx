@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, X, UserPlus } from 'lucide-react'
+import { Search, X, UserPlus, Eye } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
@@ -483,8 +483,8 @@ export default function EmployeesList() {
       </div>
 
       <Card>
-        <div className="p-4 pb-0">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="p-4 pb-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
@@ -495,23 +495,88 @@ export default function EmployeesList() {
                 className="pl-10"
               />
             </div>
-            <select
-              className="input"
-              style={{ width: '150px' }}
-              value={departmentFilter}
-              onChange={(e) => setDepartmentFilter(e.target.value)}
-            >
-              {departments.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </select>
-            <div className="text-sm text-gray-500 whitespace-nowrap">
-              {filteredEmployees.length} employees
+            <div className="flex items-center gap-2">
+              <select
+                className="input w-full sm:w-40"
+                value={departmentFilter}
+                onChange={(e) => setDepartmentFilter(e.target.value)}
+              >
+                {departments.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+              <div className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">
+                {filteredEmployees.length} employees
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile Connected Box Cards View - No Horizontal Scroll Needed */}
+        <div className="md:hidden space-y-3 px-4 pb-4">
+          {paginatedItems.map((employee) => (
+            <div 
+              key={employee.id}
+              className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-blue-200 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div 
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+                    style={{ background: '#2f5df5' }}
+                  >
+                    {getInitials(employee.name)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-gray-900 truncate">{employee.name}</div>
+                    <div className="text-[11px] text-gray-500 font-mono">{employee.empId}</div>
+                  </div>
+                </div>
+                <Badge variant="success">{employee.status}</Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs py-2.5 border-y border-gray-100 my-1">
+                <div>
+                  <span className="text-gray-400 block text-[10px]">Position</span>
+                  <span className="font-medium text-gray-800 truncate block">{employee.position}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block text-[10px]">Department</span>
+                  <span className="font-semibold text-blue-600 truncate block">{employee.department}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block text-[10px]">Employed Date</span>
+                  <span className="text-gray-600">{fmtDateShort(employee.dateEmployed)}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block text-[10px]">Attendance Rate</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="flex-1 bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                      <div 
+                        className="h-full bg-[#0ea885] transition-all"
+                        style={{ width: `${employee.attendance}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-xs font-bold text-gray-700">{employee.attendance}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end pt-1.5">
+                <button
+                  className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  onClick={() => setSelectedEmployee(employee)}
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  View Profile
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="data-table">
             <thead>
               <tr>

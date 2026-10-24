@@ -388,9 +388,9 @@ export default function AttendancePage() {
         {/* Monthly Report Tab */}
         {activeTab === 'monthly' && (
           <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <h3 className="text-sm font-semibold text-gray-900">Monthly Attendance — October 2026</h3>
-              <Button variant="outline" size="sm" onClick={handlePrintReport}>
+              <Button variant="outline" size="sm" onClick={handlePrintReport} className="self-start sm:self-auto">
                 <Printer className="w-4 h-4" />
                 Print Report
               </Button>
@@ -473,56 +473,121 @@ function MonthlyReportTable({ employees }: { employees: any[] }) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th style={{ textAlign: 'right' }}>Working Days</th>
-            <th style={{ textAlign: 'right' }}>Present</th>
-            <th style={{ textAlign: 'right' }}>Late</th>
-            <th style={{ textAlign: 'right' }}>Absent</th>
-            <th style={{ textAlign: 'right' }}>Leave</th>
-            <th style={{ textAlign: 'right' }}>Attendance %</th>
-          </tr>
-        </thead>
-        <tbody>
-          {monthlyData.map((record, idx) => (
-            <tr key={idx}>
-              <td>
-                <div className="text-sm font-medium text-gray-900">{record.name}</div>
-              </td>
-              <td style={{ textAlign: 'right' }}>
-                <div className="text-sm text-gray-700">{record.workingDays}</div>
-              </td>
-              <td style={{ textAlign: 'right' }}>
-                <div className="text-sm text-[#0ea885] font-medium">{record.present}</div>
-              </td>
-              <td style={{ textAlign: 'right' }}>
-                <div className="text-sm text-[#c97a1a]">{record.late}</div>
-              </td>
-              <td style={{ textAlign: 'right' }}>
-                <div className="text-sm text-[#c2372c]">{record.absent}</div>
-              </td>
-              <td style={{ textAlign: 'right' }}>
-                <div className="text-sm text-gray-600">{record.leave}</div>
-              </td>
-              <td style={{ textAlign: 'right' }}>
+    <>
+      {/* Mobile Connected Box Cards View - No Horizontal Scroll Needed */}
+      <div className="md:hidden space-y-3">
+        {monthlyData.map((record, idx) => {
+          const color = record.attendancePercent >= 90 ? '#0ea885' : 
+                        record.attendancePercent >= 70 ? '#c97a1a' : 
+                        record.attendancePercent > 0 ? '#c2372c' : '#9ca3af'
+          const bg = record.attendancePercent >= 90 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
+                     record.attendancePercent >= 70 ? 'bg-amber-50 text-amber-700 border-amber-200' : 
+                     record.attendancePercent > 0 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-gray-50 text-gray-600 border-gray-200'
+
+          return (
+            <div 
+              key={idx}
+              className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-blue-200 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-gray-900 truncate">
+                  {record.name}
+                </span>
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${bg}`}>
+                  {record.attendancePercent}% Rate
+                </span>
+              </div>
+
+              {/* Attendance Progress Bar */}
+              <div className="w-full bg-gray-100 rounded-full h-1.5 mb-2.5 overflow-hidden">
                 <div 
-                  className="text-sm font-semibold"
-                  style={{ 
-                    color: record.attendancePercent >= 90 ? '#0ea885' : 
-                           record.attendancePercent >= 70 ? '#c97a1a' : 
-                           record.attendancePercent > 0 ? '#c2372c' : '#9ca3af'
-                  }}
-                >
-                  {record.attendancePercent}%
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${record.attendancePercent}%`, backgroundColor: color }}
+                />
+              </div>
+
+              {/* Connected Mini Stat Boxes */}
+              <div className="grid grid-cols-4 gap-1.5 p-2 bg-gray-50 rounded-lg border border-gray-100 text-center">
+                <div>
+                  <span className="text-[10px] text-gray-400 block">Days</span>
+                  <span className="text-xs font-bold text-gray-800">{record.workingDays}</span>
                 </div>
-              </td>
+                <div>
+                  <span className="text-[10px] text-gray-400 block">Present</span>
+                  <span className="text-xs font-bold text-emerald-600">{record.present}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-gray-400 block">Late</span>
+                  <span className="text-xs font-bold text-amber-600">{record.late}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-gray-400 block">Absent</span>
+                  <span className="text-xs font-bold text-red-600">{record.absent}</span>
+                </div>
+              </div>
+
+              {record.leave > 0 && (
+                <div className="text-[11px] text-gray-500 mt-2 text-right">
+                  On Leave: <span className="font-semibold text-gray-700">{record.leave} day{record.leave > 1 ? 's' : ''}</span>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th style={{ textAlign: 'right' }}>Working Days</th>
+              <th style={{ textAlign: 'right' }}>Present</th>
+              <th style={{ textAlign: 'right' }}>Late</th>
+              <th style={{ textAlign: 'right' }}>Absent</th>
+              <th style={{ textAlign: 'right' }}>Leave</th>
+              <th style={{ textAlign: 'right' }}>Attendance %</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {monthlyData.map((record, idx) => (
+              <tr key={idx}>
+                <td>
+                  <div className="text-sm font-medium text-gray-900">{record.name}</div>
+                </td>
+                <td style={{ textAlign: 'right' }}>
+                  <div className="text-sm text-gray-700">{record.workingDays}</div>
+                </td>
+                <td style={{ textAlign: 'right' }}>
+                  <div className="text-sm text-[#0ea885] font-medium">{record.present}</div>
+                </td>
+                <td style={{ textAlign: 'right' }}>
+                  <div className="text-sm text-[#c97a1a]">{record.late}</div>
+                </td>
+                <td style={{ textAlign: 'right' }}>
+                  <div className="text-sm text-[#c2372c]">{record.absent}</div>
+                </td>
+                <td style={{ textAlign: 'right' }}>
+                  <div className="text-sm text-gray-600">{record.leave}</div>
+                </td>
+                <td style={{ textAlign: 'right' }}>
+                  <div 
+                    className="text-sm font-semibold"
+                    style={{ 
+                      color: record.attendancePercent >= 90 ? '#0ea885' : 
+                             record.attendancePercent >= 70 ? '#c97a1a' : 
+                             record.attendancePercent > 0 ? '#c2372c' : '#9ca3af'
+                    }}
+                  >
+                    {record.attendancePercent}%
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }

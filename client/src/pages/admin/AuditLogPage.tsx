@@ -263,31 +263,99 @@ export default function AuditLogPage() {
           </div>
 
           {/* Date Filter */}
-          <div className="mt-3 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-gray-500" />
-            <input
-              type="date"
-              className="input"
-              style={{ width: '180px' }}
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-            />
-            {dateFilter && (
-              <button
-                className="text-xs text-gray-600 hover:text-gray-900 underline"
-                onClick={() => setDateFilter('')}
-              >
-                Clear date
-              </button>
-            )}
-            <div className="ml-auto text-sm text-gray-500">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <input
+                type="date"
+                className="input w-full sm:w-44"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              />
+              {dateFilter && (
+                <button
+                  className="text-xs text-gray-600 hover:text-gray-900 underline whitespace-nowrap"
+                  onClick={() => setDateFilter('')}
+                >
+                  Clear date
+                </button>
+              )}
+            </div>
+            <div className="sm:ml-auto text-xs sm:text-sm text-gray-500">
               Showing {filteredLogs.length} of {totalActions} actions
             </div>
           </div>
         </div>
 
-        {/* Audit Log Table */}
-        <div className="overflow-x-auto">
+        {/* Mobile Connected Box Cards View - No Horizontal Scroll Needed */}
+        <div className="md:hidden space-y-3 p-4">
+          {paginatedItems.length > 0 ? (
+            paginatedItems.map((log) => {
+              const CategoryIcon = getCategoryIcon(log.category)
+              const categoryColor = getCategoryColor(log.category)
+
+              return (
+                <div 
+                  key={log.id}
+                  className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-blue-200 transition-colors"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-gray-50 border border-gray-100">
+                      <CategoryIcon 
+                        className="w-3.5 h-3.5" 
+                        style={{ color: categoryColor }}
+                      />
+                      <span className="text-xs font-semibold" style={{ color: categoryColor }}>
+                        {log.category}
+                      </span>
+                    </div>
+                    <Badge 
+                      variant={
+                        log.status === 'Success' 
+                          ? 'success' 
+                          : log.status === 'Failed' 
+                          ? 'danger' 
+                          : 'warning'
+                      }
+                    >
+                      {log.status}
+                    </Badge>
+                  </div>
+
+                  <div className="py-2 border-y border-gray-100 my-1.5 space-y-1">
+                    <div className="text-sm font-semibold text-gray-900">{log.action}</div>
+                    <div className="text-xs text-gray-600 leading-relaxed">{log.details}</div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 text-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div 
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0"
+                        style={{ background: '#2f5df5' }}
+                      >
+                        {log.user}
+                      </div>
+                      <span className="font-medium text-gray-800 truncate">{log.userName}</span>
+                    </div>
+                    <div className="text-right text-[11px] text-gray-400">
+                      <div>{log.timestamp}</div>
+                      <div className="font-mono text-[10px]">{log.ipAddress}</div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          ) : (
+            <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+              <FileText className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+              <div className="text-sm font-medium">No audit logs found</div>
+              <div className="text-xs text-gray-400">Try adjusting your filters</div>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="data-table">
             <thead>
               <tr>
