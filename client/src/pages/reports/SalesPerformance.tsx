@@ -125,12 +125,12 @@ export default function SalesPerformance() {
 
   return (
     <div className="fade-in">
-      <div className="page-head">
+      <div className="page-head flex-col sm:flex-row items-start sm:items-center gap-3">
         <div>
           <h1 className="page-title">Sales Performance by Employee</h1>
           <p className="page-sub">Track individual salesperson performance and rankings</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3 sm:ml-auto">
           <button
             onClick={() => fetchSales()}
             className="px-4 py-2 bg-[#2f5df5] text-white rounded-lg text-sm font-medium hover:bg-[#2651d4] transition-colors flex items-center gap-2"
@@ -143,7 +143,7 @@ export default function SalesPerformance() {
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
           >
             <option value="all">All Time</option>
             <option value="current">Current Month</option>
@@ -163,7 +163,7 @@ export default function SalesPerformance() {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
           >
             <option value="2024">2024</option>
             <option value="2025">2025</option>
@@ -174,7 +174,7 @@ export default function SalesPerformance() {
       </div>
 
       {/* Summary KPIs */}
-      <div className="grid mb-5" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: '18px' }}>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
         <Card className="kpi">
           <div className="kpi-icon" style={{ background: '#e3f8f2' }}>
             <DollarSign className="w-5 h-5" style={{ color: '#0ea885' }} />
@@ -217,9 +217,9 @@ export default function SalesPerformance() {
       </div>
 
       {/* Charts */}
-      <div className="grid mb-5" style={{ gridTemplateColumns: '2fr 1fr', gap: '18px' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
         {/* Revenue by Employee Bar Chart */}
-        <Card>
+        <Card className="lg:col-span-2">
           <div className="mb-4">
             <h2 className="font-display font-semibold text-base text-gray-900 mb-1">
               Revenue by Salesperson

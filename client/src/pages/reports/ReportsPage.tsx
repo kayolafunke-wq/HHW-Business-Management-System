@@ -341,7 +341,7 @@ export default function ReportsPage() {
         return (
           <div className="space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <StatCard 
                 label="Total Revenue"
                 value={money(sales.reduce((sum, s) => sum + s.total, 0))}
@@ -510,7 +510,7 @@ export default function ReportsPage() {
         return (
           <div className="space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <StatCard 
                 label="Total Stock In"
                 value={movements.filter((m: any) => m.type === 'IN' || m.type === 'Stock In').reduce((sum: number, m: any) => sum + (m.quantity || 0), 0)}
@@ -829,28 +829,28 @@ export default function ReportsPage() {
   return (
     <div className="fade-in">
       {/* Header with gradient background */}
-      <div className="mb-6 p-6 rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white shadow-lg">
-        <div className="flex items-center justify-between">
+      <div className="mb-6 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-              <BarChart3 className="w-8 h-8" />
+            <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2 flex items-center gap-3">
+              <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8" />
               Business Reports
             </h1>
-            <p className="text-blue-100 text-sm">
+            <p className="text-blue-100 text-xs sm:text-sm">
               Comprehensive analytics and insights for your business operations
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <button
               onClick={handlePrint}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center gap-2 font-medium"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/20 hover:bg-white/30 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center gap-2 font-medium text-sm"
             >
               <Printer className="w-4 h-4" />
               Print
             </button>
             <button
               onClick={handleExport}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center gap-2 font-medium"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/20 hover:bg-white/30 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center gap-2 font-medium text-sm"
             >
               <Download className="w-4 h-4" />
               Export
@@ -860,7 +860,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Report type selector with gradient cards */}
-      <div className="grid grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 mb-6">
         {reportOptions.map((option) => {
           const Icon = option.icon
           const isActive = activeReport === option.id
@@ -1043,7 +1043,7 @@ function EmployeeAttendanceReport({ employees }: { employees: any[] }) {
       ) : (
         <>
           {/* Summary Cards */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div 
               className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
               style={{ background: 'linear-gradient(135deg, #2f5df5 0%, #1e40af 100%)' }}
@@ -1289,7 +1289,7 @@ function BusinessPerformanceReport({ sales, products }: { sales: any[]; products
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div 
           className="relative p-5 rounded-xl text-white overflow-hidden shadow-md"
           style={{ background: 'linear-gradient(135deg, #2f5df5 0%, #1e40af 100%)' }}
@@ -1414,6 +1414,7 @@ function BusinessPerformanceReport({ sales, products }: { sales: any[]; products
         </div>
 
         {filteredSales.length > 0 ? (
+          <div className="overflow-x-auto">
           <table className="data-table">
             <thead>
               <tr>
@@ -1450,6 +1451,7 @@ function BusinessPerformanceReport({ sales, products }: { sales: any[]; products
               ))}
             </tbody>
           </table>
+          </div>
         ) : (
           <div className="text-center py-12 text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
             <p className="font-semibold text-gray-700 mb-1">No Transactions Found</p>
