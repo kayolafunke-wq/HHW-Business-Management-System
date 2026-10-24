@@ -171,6 +171,12 @@
     grid-template-columns: 1fr !important;
     gap: 14px;
   }
+
+  /* Prevent iOS auto-zoom and field expansion on mobile */
+  input, select, textarea, .input, .filter-input {
+    font-size: 16px !important;
+    max-width: 100% !important;
+  }
 }
 
 html, body {

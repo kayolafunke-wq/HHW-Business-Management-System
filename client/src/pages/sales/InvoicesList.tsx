@@ -640,8 +640,72 @@ export default function InvoicesList() {
           </div>
         </div>
 
-        {/* Invoices Table */}
-        <div className="table-wrap">
+        {/* Mobile Connected Box Cards View - No Horizontal Scroll Needed */}
+        <div className="md:hidden space-y-3 mb-4">
+          {paginatedItems.map((invoice: any) => {
+            const itemCount = Array.isArray(invoice.items) ? invoice.items.length : 0
+
+            return (
+              <div 
+                key={invoice.id}
+                className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-blue-200 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
+                    {invoice.invoiceNo}
+                  </span>
+                  <Badge
+                    variant={
+                      invoice.paymentStatus === 'PAID'
+                        ? 'success'
+                        : invoice.paymentStatus === 'PENDING'
+                        ? 'warning'
+                        : 'default'
+                    }
+                  >
+                    {invoice.paymentStatus === 'PAID' ? 'Paid' : invoice.paymentStatus === 'PENDING' ? 'Pending' : 'Partially Paid'}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs py-2.5 border-y border-gray-100 my-1">
+                  <div>
+                    <span className="text-gray-400 block text-[10px]">Customer</span>
+                    <span className="font-semibold text-gray-900 truncate block">{invoice.customer}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px]">Date</span>
+                    <span className="text-gray-600">{fmtDateLong(invoice.saleDate.split('T')[0])}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px]">Items</span>
+                    <span className="text-gray-700 font-medium">{itemCount} item(s)</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px]">Subtotal (excl. VAT)</span>
+                    <span className="text-gray-700 font-medium">{money(invoice.subtotal || 0)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  <div>
+                    <span className="text-[10px] text-gray-400 block">Total</span>
+                    <span className="text-base font-bold text-gray-900">{money(invoice.total)}</span>
+                  </div>
+                  <button 
+                    className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                    onClick={() => setSelectedInvoice(invoice)}
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    View
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Desktop Table */}
+        <div className="hidden md:block table-wrap">
           <table className="data-table">
             <thead>
               <tr>

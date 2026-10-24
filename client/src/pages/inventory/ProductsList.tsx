@@ -213,79 +213,147 @@ export default function ProductsList() {
         </div>
 
         {/* Products Table */}
-        <div className="table-wrap">
+        <div>
           {loadingProducts ? (
             <div className="empty-state">
               <div className="text-sm font-semibold text-gray-700 mb-1">Loading products...</div>
             </div>
           ) : (
-            <table className="data-table">
-            <thead>
-              <tr>
-                <th>SKU</th>
-                <th>Product Name</th>
-                <th>Category</th>
-                <th>Cost</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Min</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.map((product) => (
-                <tr key={product.id}>
-                  <td>
-                    <div className="cell-sub">{product.sku}</div>
-                  </td>
-                  <td>
-                    <div className="cell-strong">{product.name}</div>
-                  </td>
-                  <td>
-                    <div className="text-gray-700">{product.category}</div>
-                  </td>
-                  <td>
-                    <div className="text-gray-700">{money(product.cost)}</div>
-                  </td>
-                  <td>
-                    <div className="cell-strong">{money(product.price)}</div>
-                  </td>
-                  <td>
-                    <div className="text-gray-900 font-semibold">{product.stock}</div>
-                  </td>
-                  <td>
-                    <div className="text-gray-500">{product.minStock}</div>
-                  </td>
-                  <td>
-                    <Badge
-                      variant={
-                        product.status === 'IN_STOCK'
-                          ? 'green'
-                          : product.status === 'LOW_STOCK'
-                          ? 'amber'
-                          : 'red'
-                      }
-                    >
-                      {product.status === 'IN_STOCK' ? 'In Stock' : product.status === 'LOW_STOCK' ? 'Low Stock' : 'Out of Stock'}
-                    </Badge>
-                  </td>
-                  <td>
-                    <button 
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => {
-                        setEditingProduct(product)
-                        setShowEditModal(true)
-                      }}
-                    >
-                      <Edit className="w-3 h-3" />
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <>
+              {/* Mobile Connected Box Cards View - No Horizontal Scroll Needed */}
+              <div className="md:hidden space-y-3 mb-4">
+                {filteredProducts.map((product) => (
+                  <div 
+                    key={product.id}
+                    className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-blue-200 transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-bold text-gray-900 truncate">
+                        {product.name}
+                      </span>
+                      <Badge
+                        variant={
+                          product.status === 'IN_STOCK'
+                            ? 'green'
+                            : product.status === 'LOW_STOCK'
+                            ? 'amber'
+                            : 'red'
+                        }
+                      >
+                        {product.status === 'IN_STOCK' ? 'In Stock' : product.status === 'LOW_STOCK' ? 'Low Stock' : 'Out of Stock'}
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs py-2.5 border-y border-gray-100 my-1">
+                      <div>
+                        <span className="text-gray-400 block text-[10px]">SKU</span>
+                        <span className="font-mono text-gray-700 text-xs font-semibold">{product.sku}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block text-[10px]">Category</span>
+                        <span className="text-gray-700">{product.category}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block text-[10px]">Current Stock</span>
+                        <span className="font-bold text-gray-900">{product.stock} units</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block text-[10px]">Cost / Unit</span>
+                        <span className="text-gray-600">{money(product.cost)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2">
+                      <div>
+                        <span className="text-[10px] text-gray-400 block">Selling Price</span>
+                        <span className="text-base font-bold text-blue-600">{money(product.price)}</span>
+                      </div>
+                      <button 
+                        className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                        onClick={() => {
+                          setEditingProduct(product)
+                          setShowEditModal(true)
+                        }}
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                        Edit
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block table-wrap">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th>Product Name</th>
+                      <th>Category</th>
+                      <th>Cost</th>
+                      <th>Price</th>
+                      <th>Stock</th>
+                      <th>Min</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredProducts.map((product) => (
+                      <tr key={product.id}>
+                        <td>
+                          <div className="cell-sub">{product.sku}</div>
+                        </td>
+                        <td>
+                          <div className="cell-strong">{product.name}</div>
+                        </td>
+                        <td>
+                          <div className="text-gray-700">{product.category}</div>
+                        </td>
+                        <td>
+                          <div className="text-gray-700">{money(product.cost)}</div>
+                        </td>
+                        <td>
+                          <div className="cell-strong">{money(product.price)}</div>
+                        </td>
+                        <td>
+                          <div className="text-gray-900 font-semibold">{product.stock}</div>
+                        </td>
+                        <td>
+                          <div className="text-gray-500">{product.minStock}</div>
+                        </td>
+                        <td>
+                          <Badge
+                            variant={
+                              product.status === 'IN_STOCK'
+                                ? 'green'
+                                : product.status === 'LOW_STOCK'
+                                ? 'amber'
+                                : 'red'
+                            }
+                          >
+                            {product.status === 'IN_STOCK' ? 'In Stock' : product.status === 'LOW_STOCK' ? 'Low Stock' : 'Out of Stock'}
+                          </Badge>
+                        </td>
+                        <td>
+                          <button 
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => {
+                              setEditingProduct(product)
+                              setShowEditModal(true)
+                            }}
+                          >
+                            <Edit className="w-3 h-3" />
+                            Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 

@@ -1414,44 +1414,92 @@ function BusinessPerformanceReport({ sales, products }: { sales: any[]; products
         </div>
 
         {filteredSales.length > 0 ? (
-          <div className="overflow-x-auto">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Invoice</th>
-                <th>Customer</th>
-                <th>Date</th>
-                <th>Payment</th>
-                <th>Status</th>
-                <th style={{ textAlign: 'right' }}>Total</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Mobile Connected Box Cards View - No Horizontal Scroll Needed */}
+            <div className="md:hidden space-y-2.5">
               {filteredSales.map((s: any) => (
-                <tr key={s.id}>
-                  <td><div className="text-sm font-semibold text-blue-600">{s.invoiceNo}</div></td>
-                  <td><div className="text-sm text-gray-900">{s.customer || 'Walk-in'}</div></td>
-                  <td>
-                    <div className="text-xs text-gray-500">
-                      {s.saleDate ? new Date(s.saleDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
-                    </div>
-                  </td>
-                  <td><div className="text-xs font-medium text-gray-700">{s.paymentMethod}</div></td>
-                  <td>
+                <div 
+                  key={s.id} 
+                  className="p-3.5 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-blue-200 transition-colors"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
+                      {s.invoiceNo}
+                    </span>
                     <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
                       s.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                     }`}>
                       {s.paymentStatus}
                     </span>
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div className="text-sm font-bold text-gray-900">{money(s.total)}</div>
-                  </td>
-                </tr>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs py-2 border-y border-gray-100 my-1.5">
+                    <div>
+                      <span className="text-gray-400 block text-[10px]">Customer</span>
+                      <span className="font-medium text-gray-900 truncate block">
+                        {s.customer || 'Walk-in'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block text-[10px]">Date</span>
+                      <span className="text-gray-600">
+                        {s.saleDate ? new Date(s.saleDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-xs text-gray-500 font-medium">
+                      {s.paymentMethod || 'Cash'}
+                    </span>
+                    <span className="text-sm font-bold text-gray-900">
+                      {money(s.total)}
+                    </span>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-          </div>
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Invoice</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredSales.map((s: any) => (
+                    <tr key={s.id}>
+                      <td><div className="text-sm font-semibold text-blue-600">{s.invoiceNo}</div></td>
+                      <td><div className="text-sm text-gray-900">{s.customer || 'Walk-in'}</div></td>
+                      <td>
+                        <div className="text-xs text-gray-500">
+                          {s.saleDate ? new Date(s.saleDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                        </div>
+                      </td>
+                      <td><div className="text-xs font-medium text-gray-700">{s.paymentMethod}</div></td>
+                      <td>
+                        <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
+                          s.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {s.paymentStatus}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div className="text-sm font-bold text-gray-900">{money(s.total)}</div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         ) : (
           <div className="text-center py-12 text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
             <p className="font-semibold text-gray-700 mb-1">No Transactions Found</p>
