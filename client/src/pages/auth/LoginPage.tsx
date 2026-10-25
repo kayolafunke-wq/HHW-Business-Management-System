@@ -213,8 +213,8 @@ export default function LoginPage() {
 
       {/* Right side - Login form - Full width & clean on mobile, half on desktop */}
       <div className="w-full lg:w-1/2 lg:ml-auto min-h-[100dvh] flex flex-col bg-white">
-        {/* Mobile Top Hero Header (matches PC design, flush with top of screen) */}
-        <div className="lg:hidden w-full bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] text-white px-6 pt-12 pb-9 rounded-b-[36px] relative overflow-hidden shadow-2xl">
+        {/* Mobile Top Hero Header (matches PC design, flush with top of screen, increased height) */}
+        <div className="lg:hidden w-full bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] text-white px-6 pt-14 pb-11 rounded-b-[36px] relative overflow-hidden shadow-2xl">
           {/* Glowing orbs */}
           <div className="absolute -top-12 -left-12 w-48 h-48 bg-blue-500/30 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-purple-500/30 rounded-full blur-3xl pointer-events-none" />
@@ -229,25 +229,23 @@ export default function LoginPage() {
           />
 
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3.5">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-xl shadow-lg ring-2 ring-white/10 flex-shrink-0">
-                  H
+            <div className="flex items-center gap-3.5 mb-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-xl shadow-lg ring-2 ring-white/10 flex-shrink-0">
+                H
+              </div>
+              <div>
+                <div className="font-display font-bold text-lg text-white leading-tight">
+                  HHW Business Manager
                 </div>
-                <div>
-                  <div className="font-display font-bold text-lg text-white leading-tight">
-                    HHW Business Manager
-                  </div>
-                  <div className="text-xs text-blue-300 font-medium">Enterprise Operations Suite</div>
-                </div>
+                <div className="text-xs text-blue-300 font-medium">Enterprise Operations Suite</div>
               </div>
             </div>
 
             <p className="text-xs text-blue-100/90 font-medium leading-relaxed mb-3.5">
-              Run your entire business from one smart dashboard — sales, inventory, team, and finance.
+              Run your entire business from one smart dashboard.
             </p>
 
-            <div className="flex items-center gap-3 text-[11px] text-blue-200/80 font-medium flex-wrap mb-4">
+            <div className="flex items-center gap-3 text-[11px] text-blue-200/80 font-medium flex-wrap">
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 Sales & Invoicing
@@ -260,22 +258,6 @@ export default function LoginPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
                 HR & Reports
               </span>
-            </div>
-
-            {/* Quick Stats Pills from PC */}
-            <div className="grid grid-cols-3 gap-2.5 pt-3.5 border-t border-white/10">
-              <div className="py-2 px-2 rounded-xl bg-white/[0.08] border border-white/10 text-center">
-                <div className="text-base font-bold text-white leading-tight">25</div>
-                <div className="text-[10px] text-blue-200/80 font-medium mt-0.5">Products</div>
-              </div>
-              <div className="py-2 px-2 rounded-xl bg-white/[0.08] border border-white/10 text-center">
-                <div className="text-base font-bold text-white leading-tight">12</div>
-                <div className="text-[10px] text-blue-200/80 font-medium mt-0.5">Team</div>
-              </div>
-              <div className="py-2 px-2 rounded-xl bg-white/[0.08] border border-white/10 text-center">
-                <div className="text-base font-bold text-white leading-tight">21M</div>
-                <div className="text-[10px] text-blue-200/80 font-medium mt-0.5">MK Sales</div>
-              </div>
             </div>
           </div>
         </div>
