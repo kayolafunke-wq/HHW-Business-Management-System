@@ -1,26 +1,41 @@
-import { Search, Bell } from 'lucide-react'
+import { Search, Bell, Menu } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { getInitials } from '@/lib/utils'
 
-export default function Topbar() {
+interface TopbarProps {
+  onMenuClick?: () => void
+}
+
+export default function Topbar({ onMenuClick }: TopbarProps) {
   const { user } = useAuthStore()
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between pl-14 pr-4 sm:px-6 sticky top-0 z-30">
-      {/* Search - Hidden on mobile, visible on tablet+ */}
-      <div className="hidden md:flex items-center gap-3 flex-1 max-w-md">
-        <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 w-full">
-          <Search className="w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search products, invoices, employees..."
-            className="bg-transparent border-none outline-none text-sm text-gray-900 placeholder-gray-400 w-full"
-          />
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-3.5 sm:px-6 sticky top-0 z-20">
+      {/* Left section: Hamburger button on mobile + Search on desktop */}
+      <div className="flex items-center gap-3">
+        {onMenuClick && (
+          <button
+            type="button"
+            onClick={onMenuClick}
+            aria-label="Open navigation menu"
+            className="lg:hidden w-9 h-9 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-700 hover:bg-gray-50 active:scale-95 transition-all shadow-sm"
+          >
+            <Menu className="w-5 h-5 text-gray-800" />
+          </button>
+        )}
+
+        {/* Search - Hidden on mobile, visible on tablet+ */}
+        <div className="hidden md:flex items-center gap-3 flex-1 max-w-md">
+          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 w-full">
+            <Search className="w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search products, invoices, employees..."
+              className="bg-transparent border-none outline-none text-sm text-gray-900 placeholder-gray-400 w-full"
+            />
+          </div>
         </div>
       </div>
-
-      {/* Mobile spacer */}
-      <div className="md:hidden flex-1"></div>
 
       {/* Right section */}
       <div className="flex items-center gap-2 sm:gap-3">
