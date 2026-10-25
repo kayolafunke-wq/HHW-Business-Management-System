@@ -212,23 +212,60 @@ export default function LoginPage() {
       </div>
 
       {/* Right side - Login form - Full width & clean on mobile, half on desktop */}
-      <div className="w-full lg:w-1/2 lg:ml-auto min-h-[100dvh] flex flex-col justify-center items-center px-6 py-8 sm:p-10 bg-white">
-        <div className="w-full max-w-[380px] mx-auto my-auto">
-          {/* Mobile Logo Header */}
-          <div className="lg:hidden flex items-center gap-3.5 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-xl shadow-lg shadow-blue-500/25 flex-shrink-0">
-              H
-            </div>
-            <div>
-              <div className="font-display font-bold text-lg text-gray-900 leading-tight">
-                HHW Business Manager
+      <div className="w-full lg:w-1/2 lg:ml-auto min-h-[100dvh] flex flex-col bg-white">
+        {/* Mobile Top Hero Header (matches PC design, flush with top of screen) */}
+        <div className="lg:hidden w-full bg-gradient-to-br from-[#0a0e1a] via-[#1a1f3a] to-[#0f1729] text-white px-6 pt-10 pb-7 rounded-b-[28px] relative overflow-hidden shadow-lg">
+          {/* Glowing orbs */}
+          <div className="absolute -top-12 -left-12 w-44 h-44 bg-blue-500/25 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-10 -right-10 w-44 h-44 bg-purple-500/25 rounded-full blur-3xl pointer-events-none" />
+          {/* Grid line texture */}
+          <div
+            className="absolute inset-0 opacity-20 pointer-events-none"
+            style={{
+              backgroundImage:
+                'linear-gradient(rgba(147,197,253,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(147,197,253,0.12) 1px, transparent 1px)',
+              backgroundSize: '28px 28px',
+            }}
+          />
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2.5">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-lg shadow-md ring-2 ring-white/10 flex-shrink-0">
+                H
               </div>
-              <div className="text-xs text-gray-500 font-medium mt-0.5">Enterprise Operations Suite</div>
+              <div>
+                <div className="font-display font-bold text-base text-white leading-tight">
+                  HHW Business Manager
+                </div>
+                <div className="text-xs text-blue-300 font-medium">Enterprise Operations Suite</div>
+              </div>
+            </div>
+
+            <p className="text-xs text-blue-100/90 font-medium leading-relaxed mb-2.5">
+              Run your entire business from one smart dashboard.
+            </p>
+
+            <div className="flex items-center gap-3 text-[11px] text-blue-200/80 font-medium flex-wrap">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                Sales & Invoicing
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                Inventory
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                HR & Reports
+              </span>
             </div>
           </div>
+        </div>
 
+        {/* Form container */}
+        <div className="w-full max-w-[380px] mx-auto px-6 py-6 sm:py-10 flex-1 flex flex-col justify-center">
           <div className="mb-6">
-            <h2 className="font-display font-bold text-2xl text-gray-900 mb-1.5">Welcome back</h2>
+            <h2 className="font-display font-bold text-2xl text-gray-900 mb-1">Welcome back</h2>
             <p className="text-sm text-gray-500">Sign in to access your workspace</p>
           </div>
 
