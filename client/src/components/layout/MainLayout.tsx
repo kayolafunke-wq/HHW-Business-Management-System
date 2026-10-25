@@ -45,15 +45,17 @@ export default function MainLayout() {
         <Sidebar />
       </div>
 
-      {/* Mobile Menu Button - Styled neatly on the top left */}
-      <button
-        type="button"
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        aria-label="Toggle navigation menu"
-        className="lg:hidden fixed top-3.5 left-3.5 z-50 p-2 bg-white/90 backdrop-blur-md rounded-xl shadow-md border border-gray-200/80 hover:bg-white text-gray-700 transition-all active:scale-95"
-      >
-        {mobileMenuOpen ? <X className="w-5 h-5 text-gray-900" /> : <Menu className="w-5 h-5 text-gray-900" />}
-      </button>
+      {/* Mobile Menu Button - Only visible when menu is CLOSED */}
+      {!mobileMenuOpen && (
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          aria-label="Open navigation menu"
+          className="lg:hidden fixed top-3.5 left-3.5 z-30 p-2 bg-white/90 backdrop-blur-md rounded-xl shadow-md border border-gray-200/80 hover:bg-white text-gray-700 transition-all active:scale-95"
+        >
+          <Menu className="w-5 h-5 text-gray-900" />
+        </button>
+      )}
 
       {/* Mobile Sidebar Overlay with smooth fade */}
       {mobileMenuOpen && (
