@@ -64,24 +64,26 @@ interface KPICardProps {
 
 function KPICard({ icon: Icon, iconColor, iconBg, label, value, delta, trending = true }: KPICardProps) {
   return (
-    <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow overflow-hidden group">
+    <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-5 hover:shadow-md transition-shadow overflow-hidden group">
       {/* Subtle gradient overlay on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-blue-50/0 group-hover:from-blue-50/50 group-hover:to-transparent transition-all pointer-events-none"></div>
       
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-3">
-          <div className={`w-11 h-11 rounded-lg ${iconBg} flex items-center justify-center shadow-sm`}>
-            <Icon className={`${iconColor}`} size={20} strokeWidth={2.5} />
+      <div className="relative z-10 flex flex-col justify-between h-full">
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <div className={`w-8 h-8 sm:w-11 sm:h-11 rounded-lg ${iconBg} flex items-center justify-center shadow-sm flex-shrink-0`}>
+            <Icon className={`${iconColor} w-4 h-4 sm:w-5 sm:h-5`} strokeWidth={2.5} />
           </div>
           {delta && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${trending ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-              {trending ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-              {delta}
+            <div className={`flex items-center gap-0.5 sm:gap-1 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md text-[10px] sm:text-xs font-semibold ${trending ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'} truncate max-w-[95px] sm:max-w-none`}>
+              {trending ? <ArrowUpRight className="w-3 h-3 flex-shrink-0" /> : <ArrowDownRight className="w-3 h-3 flex-shrink-0" />}
+              <span className="truncate">{delta}</span>
             </div>
           )}
         </div>
-        <div className="text-sm font-medium text-gray-600 mb-1">{label}</div>
-        <div className="text-2xl font-bold text-gray-900">{value}</div>
+        <div>
+          <div className="text-[11px] sm:text-sm font-medium text-gray-500 mb-0.5 sm:mb-1 truncate">{label}</div>
+          <div className="text-base sm:text-2xl font-bold text-gray-900 truncate tracking-tight">{value}</div>
+        </div>
       </div>
     </div>
   )
@@ -291,7 +293,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Top KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-3 sm:mb-5">
         <KPICard
           icon={Package}
           iconColor="text-[#1f43c9]"
@@ -331,7 +333,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Second row KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-3 sm:mb-5">
         <KPICard
           icon={Users}
           iconColor="text-[#374151]"

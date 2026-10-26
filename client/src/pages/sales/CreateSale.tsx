@@ -262,6 +262,7 @@ export default function CreateSale() {
   const [discount, setDiscount] = useState(0)
   const [paymentMethod, setPaymentMethod] = useState('Cash')
   const [completedSale, setCompletedSale] = useState<CompletedSale | null>(null)
+  const [mobileTab, setMobileTab] = useState<'products' | 'cart'>('products')
 
   // Filter products
   const filteredProducts = products
@@ -393,6 +394,7 @@ export default function CreateSale() {
       setDiscount(0)
       setCustomer('Walk-in Customer')
       setPaymentMethod('Cash')
+      setMobileTab('products')
 
       toast.success('Sale completed! Stock updated.')
     } catch (error: any) {
@@ -421,92 +423,137 @@ export default function CreateSale() {
 
   return (
     <div className="fade-in">
-      <div className="page-head">
+      <div className="page-head flex-wrap gap-3">
         <div>
           <h1 className="page-title">Create Sale</h1>
           <p className="page-sub">Ring up a new transaction</p>
         </div>
-        <Button variant="outline" onClick={clearCart}>
-          <Trash2 className="w-4 h-4" />
-          Clear Cart
-        </Button>
+        <div className="flex items-center gap-2">
+          {cart.length > 0 && (
+            <Button variant="outline" onClick={clearCart} className="text-xs">
+              <Trash2 className="w-3.5 h-3.5" />
+              Clear Cart
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="grid" style={{ gridTemplateColumns: '1.4fr 1fr', gap: '20px' }}>
-        {/* Left: Product List */}
-        <Card>
-          <div className="mb-4">
-            <form onSubmit={handleBarcodeScan} className="mb-3">
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="Scan or enter barcode/SKU..."
-                  value={barcodeInput}
-                  onChange={(e) => setBarcodeInput(e.target.value)}
-                  className="pr-20"
-                  autoFocus
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs font-semibold text-brand hover:text-brand-dark"
-                >
-                  Scan
-                </button>
-              </div>
-            </form>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search products to add..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
+      {/* Mobile Tab Switcher */}
+      <div className="lg:hidden flex bg-gray-100 p-1 rounded-xl mb-4">
+        <button
+          type="button"
+          onClick={() => setMobileTab('products')}
+          className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+            mobileTab === 'products'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-900'
+          }`}
+        >
+          <Search className="w-3.5 h-3.5" />
+          Products ({filteredProducts.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('cart')}
+          className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+            mobileTab === 'cart'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-900'
+          }`}
+        >
+          <ShoppingCart className="w-3.5 h-3.5" />
+          Cart ({cart.reduce((s, i) => s + i.quantity, 0)})
+          {cart.length > 0 && (
+            <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] bg-blue-100 text-blue-700 font-bold">
+              {money(total)}
+            </span>
+          )}
+        </button>
+      </div>
 
-          <div className="space-y-2 max-h-[600px] overflow-y-auto">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-brand hover:bg-blue-50 transition-colors"
-              >
-                <div className="flex-1">
-                  <div className="font-semibold text-sm text-gray-900">{product.name}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{product.sku}</div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="font-bold text-sm text-gray-900">{money(product.price)}</div>
-                    <div className="text-xs text-gray-500">{product.stock} in stock</div>
-                  </div>
+      <div className={`grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-5 ${cart.length > 0 && mobileTab === 'products' ? 'pb-20 lg:pb-0' : ''}`}>
+        {/* Left: Product List */}
+        <div className={`${mobileTab === 'products' ? 'block' : 'hidden'} lg:block`}>
+          <Card>
+            <div className="mb-4">
+              <form onSubmit={handleBarcodeScan} className="mb-3">
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder="Scan or enter barcode/SKU..."
+                    value={barcodeInput}
+                    onChange={(e) => setBarcodeInput(e.target.value)}
+                    className="pr-20"
+                  />
                   <button
-                    onClick={() => addToCart(product.id)}
-                    className="btn btn-sm btn-primary flex items-center gap-1"
+                    type="submit"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs font-semibold text-brand hover:text-brand-dark px-2 py-1"
                   >
-                    <Plus className="w-3 h-3" />
-                    Add
+                    Scan
                   </button>
                 </div>
+              </form>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search products to add..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-            ))}
+            </div>
 
-            {filteredProducts.length === 0 && (
-              <div className="empty-state py-12">
-                <ShoppingCart className="w-10 h-10 text-gray-400 mb-3 mx-auto" />
-                <div className="text-sm font-semibold text-gray-700 mb-1">No products found</div>
-                <div className="text-xs text-gray-500">Try a different search term</div>
-              </div>
-            )}
-          </div>
-        </Card>
+            <div className="space-y-2 max-h-[600px] overflow-y-auto">
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-brand hover:bg-blue-50 transition-colors"
+                >
+                  <div className="flex-1 min-w-0 pr-3">
+                    <div className="font-semibold text-sm text-gray-900 truncate">{product.name}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{product.sku}</div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="text-right">
+                      <div className="font-bold text-sm text-gray-900">{money(product.price)}</div>
+                      <div className="text-xs text-gray-500">{product.stock} in stock</div>
+                    </div>
+                    <button
+                      onClick={() => addToCart(product.id)}
+                      className="btn btn-sm btn-primary flex items-center gap-1 active:scale-95"
+                    >
+                      <Plus className="w-3 h-3" />
+                      Add
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {filteredProducts.length === 0 && (
+                <div className="empty-state py-12">
+                  <ShoppingCart className="w-10 h-10 text-gray-400 mb-3 mx-auto" />
+                  <div className="text-sm font-semibold text-gray-700 mb-1">No products found</div>
+                  <div className="text-xs text-gray-500">Try a different search term</div>
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
 
         {/* Right: Cart & Checkout */}
-        <div className="space-y-4">
+        <div className={`${mobileTab === 'cart' ? 'block' : 'hidden'} lg:block space-y-4`}>
           <Card>
-            <div className="card-head">
+            <div className="card-head flex items-center justify-between">
               <div className="card-title">Current Sale</div>
+              <button
+                type="button"
+                onClick={() => setMobileTab('products')}
+                className="lg:hidden text-xs font-semibold text-brand hover:underline"
+              >
+                ← Add more items
+              </button>
             </div>
 
             {/* Customer Selection */}
@@ -646,6 +693,22 @@ export default function CreateSale() {
           </Card>
         </div>
       </div>
+
+      {/* Mobile Sticky Cart Bar */}
+      {cart.length > 0 && mobileTab === 'products' && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-2xl z-40 flex items-center justify-between gap-3">
+          <div>
+            <div className="text-xs text-gray-500">
+              {cart.reduce((sum, item) => sum + item.quantity, 0)} item{cart.reduce((sum, item) => sum + item.quantity, 0) > 1 ? 's' : ''} in cart
+            </div>
+            <div className="text-base font-bold text-gray-900">{money(total)}</div>
+          </div>
+          <Button onClick={() => setMobileTab('cart')} className="!py-2.5 !px-4 text-xs font-semibold shadow-md shadow-blue-500/20">
+            <ShoppingCart className="w-3.5 h-3.5" />
+            View Cart & Pay
+          </Button>
+        </div>
+      )}
 
       {/* Receipt Modal */}
       {completedSale && (

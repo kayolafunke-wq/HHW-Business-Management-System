@@ -65,9 +65,9 @@ export default function EmployeeRegistration() {
 
       <Card>
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
             {/* Full Name */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Full Name</label>
               <Input
                 type="text"
@@ -78,7 +78,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Employee ID */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Employee ID</label>
               <Input
                 type="text"
@@ -88,7 +88,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Phone Number */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Phone Number</label>
               <Input
                 type="text"
@@ -99,7 +99,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Email */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Email</label>
               <Input
                 type="email"
@@ -110,7 +110,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Position */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Position</label>
               <Input
                 type="text"
@@ -121,7 +121,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Department */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Department</label>
               <select
                 className="input w-full"
@@ -137,7 +137,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Date Employed */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Date Employed</label>
               <Input
                 type="date"
@@ -147,7 +147,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Salary */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Salary (MK)</label>
               <Input
                 type="number"
@@ -158,7 +158,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Address */}
-            <div className="field col-span-2">
+            <div className="field min-w-0 sm:col-span-2">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Address</label>
               <Input
                 type="text"
@@ -169,7 +169,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Emergency Contact */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Emergency Contact</label>
               <Input
                 type="text"
@@ -180,7 +180,7 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Status */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Status</label>
               <select
                 className="input w-full"

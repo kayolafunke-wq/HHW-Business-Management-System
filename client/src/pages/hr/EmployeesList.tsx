@@ -121,9 +121,9 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
         </div>
 
         <div className="modal-body">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
             {/* Full Name */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Full Name</label>
               <Input
                 type="text"
@@ -134,7 +134,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Employee ID */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Employee ID</label>
               <Input
                 type="text"
@@ -144,7 +144,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Phone Number */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Phone Number</label>
               <Input
                 type="text"
@@ -155,7 +155,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Email */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Email</label>
               <Input
                 type="email"
@@ -166,7 +166,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Position */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Position</label>
               <Input
                 type="text"
@@ -177,7 +177,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Department */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Department</label>
               <select
                 className="input w-full"
@@ -193,7 +193,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Date Employed */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Date Employed</label>
               <Input
                 type="date"
@@ -203,7 +203,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Salary */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Salary (MK)</label>
               <Input
                 type="number"
@@ -214,7 +214,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Address */}
-            <div className="field col-span-2">
+            <div className="field min-w-0 sm:col-span-2">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Address</label>
               <Input
                 type="text"
@@ -225,7 +225,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Emergency Contact */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Emergency Contact</label>
               <Input
                 type="text"
@@ -236,7 +236,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Status */}
-            <div className="field">
+            <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Status</label>
               <select
                 className="input w-full"
@@ -277,74 +277,71 @@ function EmployeeProfileModal({ employee, onClose }: { employee: Employee; onClo
         </div>
 
         <div className="modal-body">
-          {/* Header with avatar and name */}
-          <div className="flex items-center gap-3 mb-4">
+          {/* Header with avatar, name, and status badge */}
+          <div className="flex items-center gap-3.5 p-3.5 bg-gray-50 rounded-xl mb-4 border border-gray-100">
             <div 
-              className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-base"
+              className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-sm flex-shrink-0"
               style={{ background: 'linear-gradient(135deg, #2f5df5, #6a4fd6)' }}
             >
               {getInitials(employee.name)}
             </div>
-            <div>
-              <div className="font-semibold text-base text-gray-900">{employee.name}</div>
-              <div className="text-xs text-gray-500">{employee.position} · {employee.department}</div>
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-base text-gray-900 truncate">{employee.name}</div>
+              <div className="text-xs text-gray-500 mt-0.5 truncate">{employee.position} · {employee.department}</div>
             </div>
+            <Badge variant={employee.status === 'Active' ? 'success' : employee.status === 'On Leave' ? 'warning' : 'danger'}>
+              {employee.status}
+            </Badge>
           </div>
 
-          {/* Grid layout with 2 columns */}
-          <div className="grid grid-cols-2 gap-x-8">
+          {/* Details list - single column on mobile, 2 columns on tablet/desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-8">
             {/* Employee ID */}
-            <div className="flex items-center justify-between gap-3 py-2.5 pr-4 border-b" style={{ borderColor: '#f2f3f6' }}>
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">Employee ID</span>
-              <span className="text-[13px] text-gray-900">{employee.empId}</span>
-            </div>
-
-            {/* Status */}
-            <div className="flex items-center justify-between gap-3 py-2.5 pl-4 border-b" style={{ borderColor: '#f2f3f6' }}>
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">Status</span>
-              <Badge variant="success">{employee.status}</Badge>
+            <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 sm:pr-4">
+              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">Employee ID</span>
+              <span className="text-xs sm:text-[13px] font-semibold text-gray-900">{employee.empId}</span>
             </div>
 
             {/* Phone */}
-            <div className="flex items-center justify-between gap-3 py-2.5 pr-4 border-b" style={{ borderColor: '#f2f3f6' }}>
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">Phone</span>
-              <span className="text-[13px] text-gray-900">{employee.phone}</span>
+            <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 sm:pl-4">
+              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">Phone</span>
+              <span className="text-xs sm:text-[13px] font-semibold text-gray-900">{employee.phone}</span>
             </div>
 
             {/* Email */}
-            <div className="flex items-center justify-between gap-3 py-2.5 pl-4 border-b" style={{ borderColor: '#f2f3f6' }}>
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">Email</span>
-              <span className="text-[13px] text-gray-900">{employee.email}</span>
-            </div>
-
-            {/* Date Employed */}
-            <div className="flex items-center justify-between gap-3 py-2.5 pr-4 border-b" style={{ borderColor: '#f2f3f6' }}>
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">Date Employed</span>
-              <span className="text-[13px] text-gray-900">{fmtDateShort(employee.dateEmployed)}</span>
-            </div>
-
-            {/* Salary */}
-            <div className="flex items-center justify-between gap-3 py-2.5 pl-4 border-b" style={{ borderColor: '#f2f3f6' }}>
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">Salary</span>
-              <span className="text-[13px] font-medium text-gray-900">{money(employee.salary)}</span>
-            </div>
-
-            {/* Address */}
-            <div className="flex items-center justify-between gap-3 py-2.5 pr-4 border-b" style={{ borderColor: '#f2f3f6' }}>
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">Address</span>
-              <span className="text-[13px] text-gray-900">{employee.address}</span>
+            <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 sm:pr-4">
+              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">Email</span>
+              <span className="text-xs sm:text-[13px] font-semibold text-gray-900 break-all text-right">{employee.email}</span>
             </div>
 
             {/* Emergency Contact */}
-            <div className="flex items-center justify-between gap-3 py-2.5 pl-4 border-b" style={{ borderColor: '#f2f3f6' }}>
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">Emergency Contact</span>
-              <span className="text-[13px] text-gray-900">{employee.emergencyContact}</span>
+            <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 sm:pl-4">
+              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">Emergency Contact</span>
+              <span className="text-xs sm:text-[13px] font-semibold text-gray-900 text-right">{employee.emergencyContact || 'N/A'}</span>
+            </div>
+
+            {/* Date Employed */}
+            <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 sm:pr-4">
+              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">Date Employed</span>
+              <span className="text-xs sm:text-[13px] font-semibold text-gray-900">{fmtDateShort(employee.dateEmployed)}</span>
+            </div>
+
+            {/* Salary */}
+            <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 sm:pl-4">
+              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">Salary</span>
+              <span className="text-xs sm:text-[13px] font-semibold text-gray-900">{money(employee.salary)}</span>
+            </div>
+
+            {/* Address */}
+            <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 sm:pr-4">
+              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">Address</span>
+              <span className="text-xs sm:text-[13px] font-semibold text-gray-900 text-right">{employee.address || 'N/A'}</span>
             </div>
 
             {/* Attendance */}
-            <div className="flex items-center justify-between gap-3 py-2.5 pr-4">
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">Attendance</span>
-              <span className="text-[13px] text-gray-900">{employee.attendance}%</span>
+            <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 sm:border-b-0 sm:pl-4">
+              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">Attendance</span>
+              <span className="text-xs sm:text-[13px] font-semibold text-gray-900">{employee.attendance}%</span>
             </div>
           </div>
         </div>
