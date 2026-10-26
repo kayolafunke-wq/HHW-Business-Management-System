@@ -121,7 +121,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
         </div>
 
         <div className="modal-body">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {/* Full Name */}
             <div className="field min-w-0">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Full Name</label>
@@ -214,7 +214,7 @@ function EmployeeRegistrationModal({ onClose, onSave }: { onClose: () => void; o
             </div>
 
             {/* Address */}
-            <div className="field min-w-0 sm:col-span-2">
+            <div className="field min-w-0 col-span-2">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Address</label>
               <Input
                 type="text"
