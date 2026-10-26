@@ -266,24 +266,32 @@ export default function CreateSale() {
   const [completedSale, setCompletedSale] = useState<CompletedSale | null>(null)
   const [mobileTab, setMobileTab] = useState<'products' | 'cart'>('products')
 
-  // Filter products
+  // Filter products — show all matching items, never hide 0 stock products
   const filteredProducts = products
     .filter(
       (p) =>
-        p.stock > 0 &&
-        (p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (p.barcode && p.barcode.toLowerCase().includes(searchQuery.toLowerCase())))
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.barcode && p.barcode.toLowerCase().includes(searchQuery.toLowerCase()))
     )
     .slice(0, 20)
 
-  // Add product to cart
+  // Add product to cart with strict stock limit
   const addToCart = (productId: string) => {
     const product = products.find((p) => p.id === productId)
     if (!product) return
 
+    if (product.stock <= 0) {
+      toast.error(`"${product.name}" is out of stock (0 available). Cannot sell.`)
+      return
+    }
+
     const existingItem = cart.find((item) => item.productId === productId)
     if (existingItem) {
+      if (existingItem.quantity + 1 > product.stock) {
+        toast.error(`Cannot add more. Only ${product.stock} units available in stock.`)
+        return
+      }
       // Increase quantity
       setCart(
         cart.map((item) =>
@@ -318,12 +326,19 @@ export default function CreateSale() {
     setCart(cart.filter((item) => item.productId !== productId))
   }
 
-  // Update quantity
+  // Update quantity with strict stock limit
   const updateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) {
       removeFromCart(productId)
       return
     }
+
+    const product = products.find((p) => p.id === productId)
+    if (product && newQuantity > product.stock) {
+      toast.error(`Cannot add more than ${product.stock} units available in stock.`)
+      return
+    }
+
     setCart(
       cart.map((item) =>
         item.productId === productId
@@ -529,33 +544,57 @@ export default function CreateSale() {
             </div>
 
             <div className="space-y-2 max-h-[600px] overflow-y-auto">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-brand hover:bg-blue-50 transition-colors"
-                >
-                  <div className="flex-1 min-w-0 pr-3">
-                    <div className="font-semibold text-sm text-gray-900 truncate">{product.name}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{product.sku}</div>
-                    {product.barcode && (
-                      <div className="text-[10px] text-gray-400 font-mono">{product.barcode}</div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="text-right">
-                      <div className="font-bold text-sm text-gray-900">{money(product.price)}</div>
-                      <div className="text-xs text-gray-500">{product.stock} in stock</div>
+              {filteredProducts.map((product) => {
+                const isOutOfStock = product.stock <= 0
+                return (
+                  <div
+                    key={product.id}
+                    className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
+                      isOutOfStock
+                        ? 'border-gray-200 bg-gray-50/80 opacity-75'
+                        : 'border-gray-200 hover:border-brand hover:bg-blue-50'
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0 pr-3">
+                      <div className="flex items-center gap-2">
+                        <div className={`font-semibold text-sm truncate ${isOutOfStock ? 'text-gray-500' : 'text-gray-900'}`}>
+                          {product.name}
+                        </div>
+                        {isOutOfStock && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-100 text-red-700 whitespace-nowrap">
+                            Out of stock
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-0.5">{product.sku}</div>
+                      {product.barcode && (
+                        <div className="text-[10px] text-gray-400 font-mono">{product.barcode}</div>
+                      )}
                     </div>
-                    <button
-                      onClick={() => addToCart(product.id)}
-                      className="btn btn-sm btn-primary flex items-center gap-1 active:scale-95"
-                    >
-                      <Plus className="w-3 h-3" />
-                      Add
-                    </button>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="text-right">
+                        <div className="font-bold text-sm text-gray-900">{money(product.price)}</div>
+                        <div className={`text-xs font-semibold ${isOutOfStock ? 'text-red-600' : 'text-gray-500'}`}>
+                          {isOutOfStock ? '0 in stock' : `${product.stock} in stock`}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => addToCart(product.id)}
+                        disabled={isOutOfStock}
+                        className={`btn btn-sm flex items-center gap-1 active:scale-95 ${
+                          isOutOfStock
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200'
+                            : 'btn-primary'
+                        }`}
+                        title={isOutOfStock ? 'Out of stock — cannot sell' : 'Add to cart'}
+                      >
+                        <Plus className="w-3 h-3" />
+                        {isOutOfStock ? 'Out' : 'Add'}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
 
               {filteredProducts.length === 0 && (
                 <div className="empty-state py-12">

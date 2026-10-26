@@ -117,6 +117,9 @@ export const createStockMovement = async (req: AuthRequest, res: Response): Prom
 
     // Transaction: Create movement and update product
     const result = await prisma.$transaction(async (tx) => {
+      const actorName = req.user?.name || req.user?.email || 'System'
+      const roleSuffix = req.user?.role === 'ADMINISTRATOR' ? ' (Admin)' : (req.user?.role ? ` (${req.user.role})` : '')
+
       // Create stock movement
       const movement = await tx.stockMovement.create({
         data: {
@@ -126,6 +129,7 @@ export const createStockMovement = async (req: AuthRequest, res: Response): Prom
           supplier: type === 'IN' ? supplier : null,
           reason,
           notes,
+          performedBy: `${actorName}${roleSuffix}`,
           productId,
         },
         include: {

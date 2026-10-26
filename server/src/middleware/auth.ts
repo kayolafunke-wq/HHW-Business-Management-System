@@ -10,6 +10,7 @@ export interface AuthRequest extends Request {
     id: string
     firebaseUid: string
     email: string
+    name: string
     role: string
   }
 }
@@ -48,6 +49,7 @@ export const authenticate = async (
         id: user.id,
         firebaseUid: user.firebaseUid,
         email: user.email,
+        name: user.name,
         role: user.role,
       }
 
@@ -74,6 +76,7 @@ export const authenticate = async (
             id: user.id,
             firebaseUid: user.firebaseUid,
             email: user.email,
+            name: user.name,
             role: user.role,
           }
 

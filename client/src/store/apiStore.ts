@@ -98,11 +98,21 @@ export const useApiStore = create<ApiState>()((set, get) => ({
     }
   },
 
-  // Add product
+  // Add product (handles both new product and restock of existing product)
   addProduct: async (data) => {
     try {
       const newProduct = await productsApi.create(data)
-      set((state) => ({ products: [...state.products, newProduct] }))
+      set((state) => {
+        const existingIndex = state.products.findIndex((p) => p.id === newProduct.id)
+        if (existingIndex >= 0) {
+          const updated = [...state.products]
+          updated[existingIndex] = newProduct
+          return { products: updated }
+        }
+        return { products: [...state.products, newProduct] }
+      })
+      // Refresh movements in background so tracking stays in sync
+      get().fetchStockMovements()
       return newProduct
     } catch (error: any) {
       console.error('Add product error:', error)

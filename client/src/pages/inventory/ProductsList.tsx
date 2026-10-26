@@ -80,7 +80,7 @@ export default function ProductsList() {
     }
 
     try {
-      await addProduct({
+      const savedProduct = await addProduct({
         sku: newProduct.sku || '',   // blank = server will auto-generate
         barcode: newProduct.barcode || undefined,  // blank = server will auto-generate
         name: newProduct.name,
@@ -89,9 +89,14 @@ export default function ProductsList() {
         price,
         stock,
         minStock,
-      })
+      }) as any
 
-      toast.success('Product added successfully! Barcode generated automatically.')
+      if (savedProduct?._isRestock) {
+        toast.success(savedProduct._message || `Added ${stock} units to existing stock!`, { duration: 4000 })
+      } else {
+        toast.success(savedProduct?._message || 'Product added successfully! Barcode generated automatically.')
+      }
+
       setShowAddModal(false)
       setNewProduct({
         name: '',

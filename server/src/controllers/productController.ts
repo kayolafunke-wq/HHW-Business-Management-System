@@ -68,6 +68,84 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
       return
     }
 
+    // ── Check if Product already exists (by SKU, Barcode, or Name) ────────────
+    let existingProduct = null
+
+    if (sku && sku.trim()) {
+      existingProduct = await prisma.product.findUnique({ where: { sku: sku.trim() } })
+    }
+
+    if (!existingProduct && barcode && barcode.trim()) {
+      existingProduct = await prisma.product.findUnique({ where: { barcode: barcode.trim() } })
+    }
+
+    if (!existingProduct && name && name.trim()) {
+      existingProduct = await prisma.product.findFirst({
+        where: { name: { equals: name.trim(), mode: 'insensitive' } }
+      })
+    }
+
+    // IF PRODUCT EXISTS -> RESTOCK IT (Add to existing stock instead of duplicating!)
+    if (existingProduct) {
+      const addedQty = parseInt(stock) || 0
+      const oldStock = existingProduct.stock
+      const newStock = oldStock + addedQty
+
+      let newStatus: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' = 'IN_STOCK'
+      if (newStock === 0) newStatus = 'OUT_OF_STOCK'
+      else if (newStock <= existingProduct.minStock) newStatus = 'LOW_STOCK'
+
+      // Optionally update price/cost if provided
+      const updateData: any = {
+        stock: newStock,
+        status: newStatus,
+      }
+      if (cost !== undefined && parseFloat(cost) > 0) updateData.cost = parseFloat(cost)
+      if (price !== undefined && parseFloat(price) > 0) updateData.price = parseFloat(price)
+      if (barcode && barcode.trim() && !existingProduct.barcode) updateData.barcode = barcode.trim()
+
+      const updated = await prisma.product.update({
+        where: { id: existingProduct.id },
+        data: updateData,
+      })
+
+      // Record restock movement if addedQty > 0
+      if (addedQty > 0) {
+        const actorName = req.user?.name || req.user?.email || 'Admin'
+        const roleSuffix = req.user?.role === 'ADMINISTRATOR' ? ' (Admin)' : (req.user?.role ? ` (${req.user.role})` : '')
+        await prisma.stockMovement.create({
+          data: {
+            productId: existingProduct.id,
+            type: 'IN',
+            quantity: addedQty,
+            reference: `RESTOCK-${existingProduct.sku}`,
+            reason: 'Restock / Product Add',
+            notes: `Added ${addedQty} units to existing stock (${oldStock} → ${newStock})`,
+            performedBy: `${actorName}${roleSuffix}`,
+          },
+        })
+      }
+
+      // Log audit
+      if (req.user) {
+        await logAudit(
+          req.user.id,
+          'Product Restocked',
+          `Restocked existing product: ${existingProduct.name} (+${addedQty} units, stock: ${oldStock} → ${newStock})`,
+          req.ip,
+          req.get('user-agent')
+        )
+      }
+
+      res.status(200).json({
+        success: true,
+        isRestock: true,
+        data: updated,
+        message: `Found existing '${existingProduct.name}'! Added ${addedQty} units to stock (${oldStock} → ${newStock}).`,
+      })
+      return
+    }
+
     // Use provided SKU or generate one
     let productSku = sku ? sku.trim() : ''
     if (!productSku) {
@@ -75,28 +153,9 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
       productSku = generateSKU(category, productCount + 1)
     }
 
-    // Check if SKU already exists
-    const existingProduct = await prisma.product.findUnique({
-      where: { sku: productSku },
-    })
-
-    if (existingProduct) {
-      res.status(400).json({ success: false, message: `SKU '${productSku}' already exists` })
-      return
-    }
-
     // Barcode: if provided, use it; otherwise AUTO-GENERATE a unique standard EAN-13 barcode
     let productBarcode = barcode ? barcode.trim() : ''
-    if (productBarcode) {
-      // Check if existing barcode
-      const existingBarcode = await prisma.product.findUnique({
-        where: { barcode: productBarcode },
-      })
-      if (existingBarcode) {
-        res.status(400).json({ success: false, message: `Barcode '${productBarcode}' is already assigned to '${existingBarcode.name}'` })
-        return
-      }
-    } else {
+    if (!productBarcode) {
       // Auto-generate unique barcode
       let unique = false
       let attempts = 0
@@ -131,6 +190,23 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
       },
     })
 
+    // Record initial stock movement if stock > 0
+    if (parseInt(stock) > 0) {
+      const actorName = req.user?.name || req.user?.email || 'Admin'
+      const roleSuffix = req.user?.role === 'ADMINISTRATOR' ? ' (Admin)' : (req.user?.role ? ` (${req.user.role})` : '')
+      await prisma.stockMovement.create({
+        data: {
+          productId: product.id,
+          type: 'IN',
+          quantity: parseInt(stock),
+          reference: `INIT-${productSku}`,
+          reason: 'Initial stock',
+          notes: `Added initial stock of ${stock} units`,
+          performedBy: `${actorName}${roleSuffix}`,
+        },
+      })
+    }
+
     // Log audit
     if (req.user) {
       await logAudit(
@@ -160,6 +236,8 @@ export const updateProduct = async (req: AuthRequest, res: Response): Promise<vo
       res.status(404).json({ success: false, message: 'Product not found' })
       return
     }
+
+    const oldStock = existingProduct.stock
 
     // Prepare update data
     const updateData: any = {}
@@ -210,12 +288,43 @@ export const updateProduct = async (req: AuthRequest, res: Response): Promise<vo
       data: updateData,
     })
 
+    // ── Stock Movement Tracking ──────────────────────────────────────────────
+    // If stock quantity changed, record a movement with who did it
+    if (stock !== undefined) {
+      const newStock = parseInt(stock)
+      const diff = newStock - oldStock
+
+      if (diff !== 0) {
+        const actorName = req.user?.name || req.user?.email || 'Admin'
+        const roleSuffix = req.user?.role === 'ADMINISTRATOR' ? ' (Admin)' : (req.user?.role ? ` (${req.user.role})` : '')
+        const performedBy = `${actorName}${roleSuffix}`
+        const movementType = diff > 0 ? 'IN' : 'OUT'
+        const absDiff = Math.abs(diff)
+
+        await prisma.stockMovement.create({
+          data: {
+            productId: id,
+            type: movementType as any,
+            quantity: absDiff,
+            reference: `ADJ-${existingProduct.sku}`,
+            reason: 'Manual adjustment',
+            notes: `Stock changed from ${oldStock} to ${newStock} (${diff > 0 ? '+' : ''}${diff})`,
+            performedBy,
+          },
+        })
+      }
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     // Log audit
     if (req.user) {
+      const stockNote = stock !== undefined && parseInt(stock) !== oldStock
+        ? ` | Stock: ${oldStock} → ${parseInt(stock)}`
+        : ''
       await logAudit(
         req.user.id,
         'Product Updated',
-        `Updated product: ${product.name}`,
+        `Updated product: ${product.name}${stockNote}`,
         req.ip,
         req.get('user-agent')
       )

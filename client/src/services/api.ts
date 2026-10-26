@@ -94,8 +94,13 @@ export const productsApi = {
   },
 
   create: async (data: Omit<Product, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => {
-    const response = await api.post<{ success: boolean; data: Product }>('/products', data)
-    return response.data.data
+    const response = await api.post<{ success: boolean; data: Product; message?: string; isRestock?: boolean }>('/products', data)
+    const product = response.data.data
+    return {
+      ...product,
+      _message: response.data.message,
+      _isRestock: response.data.isRestock,
+    } as Product & { _message?: string; _isRestock?: boolean }
   },
 
   update: async (id: string, data: Partial<Product>) => {
@@ -211,6 +216,7 @@ export interface StockMovement {
   supplier?: string
   reason: string
   notes?: string
+  performedBy?: string
   movementDate: string
   createdAt: string
   productId: string

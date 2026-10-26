@@ -144,6 +144,29 @@ export const createSale = async (req: AuthRequest, res: Response): Promise<void>
     const year = new Date().getFullYear()
     const invoiceNo = `INV-${year}-${String(salesCount + 1).padStart(6, '0')}`
 
+    // Validate stock availability for all items before creating the sale
+    for (const item of items) {
+      const product = await prisma.product.findUnique({ where: { id: item.productId } })
+      if (!product) {
+        res.status(404).json({ success: false, message: `Product not found (ID: ${item.productId})` })
+        return
+      }
+      if (product.stock === 0) {
+        res.status(400).json({
+          success: false,
+          message: `Cannot sell '${product.name}' — it is out of stock (0 available).`
+        })
+        return
+      }
+      if (product.stock < item.quantity) {
+        res.status(400).json({
+          success: false,
+          message: `Cannot sell ${item.quantity} units of '${product.name}'. Only ${product.stock} units available in stock.`
+        })
+        return
+      }
+    }
+
     // Start transaction
     const result = await prisma.$transaction(async (tx) => {
       // Create sale with items
@@ -206,6 +229,7 @@ export const createSale = async (req: AuthRequest, res: Response): Promise<void>
               reference: invoiceNo,
               reason: 'Sale',
               notes: `Sold to ${customer}`,
+              performedBy: cashier || req.user?.name || 'Cashier',
               productId: item.productId,
             },
           })
@@ -329,6 +353,7 @@ export const deleteSale = async (req: AuthRequest, res: Response): Promise<void>
               reference: `VOID-${sale.invoiceNo}`,
               reason: 'Sale Voided',
               notes: `Sale deleted: ${sale.invoiceNo}`,
+              performedBy: req.user?.name || 'Admin',
               productId: item.productId,
             },
           })

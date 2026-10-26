@@ -91,6 +91,13 @@ export default function InventoryTracking() {
         // Update stock level for next iteration
         stockLevels[movement.productId] = after
         
+        const actor = movement.performedBy || 'Admin'
+        const cleanName = actor.replace(/\(.*?\)/g, '').trim()
+        const parts = cleanName.split(' ').filter(Boolean)
+        const initials = parts.length >= 2 
+          ? (parts[0][0] + parts[1][0]).toUpperCase()
+          : (cleanName.substring(0, 2) || 'AD').toUpperCase()
+
         return {
           id: movement.id,
           date: movementDate.toISOString().split('T')[0],
@@ -103,8 +110,8 @@ export default function InventoryTracking() {
           afterAmount: after,
           reason: movement.reason || 'N/A',
           reference: movement.reference || 'N/A',
-          user: movement.product?.name?.substring(0, 2).toUpperCase() || 'UN',
-          userName: 'System User',
+          user: initials,
+          userName: actor,
         }
       })
       
