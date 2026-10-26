@@ -557,56 +557,56 @@ export default function InvoicesList() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-4 mb-5">
-        <Card className="kpi">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
-            <div className="kpi-icon bg-[#e8eefd]">
+            <div className="kpi-icon bg-[#e8eefd] !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]">
               <svg className="w-4 h-4 text-[#2f5df5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M16 2H8a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2Z"/>
                 <path d="M9 8h6M9 12h6M9 16h4"/>
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Total Invoices</div>
-          <div className="kpi-value">{totalInvoices}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Total Invoices</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{totalInvoices}</div>
         </Card>
 
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
-            <div className="kpi-icon bg-[#e3f8f2]">
+            <div className="kpi-icon bg-[#e3f8f2] !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]">
               <svg className="w-4 h-4 text-[#0ea885]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10"/>
                 <path d="m9 12 2 2 4-4"/>
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Paid</div>
-          <div className="kpi-value">{paidCount}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Paid</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{paidCount}</div>
         </Card>
 
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
-            <div className="kpi-icon bg-[#fbf0dd]">
+            <div className="kpi-icon bg-[#fbf0dd] !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]">
               <svg className="w-4 h-4 text-[#c97a1a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10"/>
                 <path d="M12 6v6l4 2"/>
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Pending</div>
-          <div className="kpi-value">{pendingCount}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Pending</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{pendingCount}</div>
         </Card>
 
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
-            <div className="kpi-icon bg-[#efeafb]">
+            <div className="kpi-icon bg-[#efeafb] !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]">
               <svg className="w-4 h-4 text-[#6a4fd6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Total Revenue</div>
-          <div className="kpi-value">{money(totalRevenue)}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Total Revenue</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px] truncate">{money(totalRevenue)}</div>
         </Card>
       </div>
 
