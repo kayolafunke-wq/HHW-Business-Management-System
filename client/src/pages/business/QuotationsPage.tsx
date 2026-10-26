@@ -123,24 +123,26 @@ This quotation is valid until ${fmtDateLong(quotation.validUntil)}
 
         <div className="modal-body">
           {/* Company Header */}
-          <div className="flex items-start justify-between mb-6 pb-4 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-lg">
-                H
-              </div>
-              <div>
-                <div className="font-display font-semibold text-base text-gray-900">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3.5 sm:gap-4 mb-5 sm:mb-6 pb-4 border-b border-gray-200">
+            <div className="flex items-center sm:items-start gap-3 min-w-0">
+              <img
+                src="/hhw-logo.png"
+                alt="HHW Logo"
+                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-contain shadow-sm ring-1 ring-blue-500/30 flex-shrink-0"
+              />
+              <div className="min-w-0">
+                <div className="font-display font-bold text-base text-gray-900 leading-tight">
                   H.H Wholesalers
                 </div>
-                <div className="text-xs text-gray-500">Area 4, Chilambura Road, Opposite Chipiku</div>
-                <div className="text-xs text-gray-500">Lilongwe, Malawi</div>
-                <div className="text-xs text-gray-500">+265 (0) 999 888 747 · hhw.malawi@gmail.com</div>
+                <div className="text-xs text-gray-500 leading-tight mt-0.5">Area 4, Chilambura Road, Opposite Chipiku</div>
+                <div className="text-xs text-gray-500 leading-tight">Lilongwe, Malawi</div>
+                <div className="text-xs text-gray-500 leading-tight mt-0.5">+265 (0) 999 888 747 · hhw.malawi@gmail.com</div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="font-display font-bold text-lg text-gray-900 mb-1">QUOTATION</div>
-              <div className="text-sm font-semibold text-gray-900">{quotation.quoteNo}</div>
-              <div className="text-xs text-gray-500">{fmtDateLong(quotation.date)}</div>
+            <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right pt-2.5 sm:pt-0 border-t sm:border-t-0 border-gray-100 flex-shrink-0">
+              <div className="font-display font-bold text-base sm:text-lg text-gray-900">QUOTATION</div>
+              <div className="text-xs sm:text-sm font-semibold text-[#2f5df5] font-mono whitespace-nowrap">{quotation.quoteNo}</div>
+              <div className="text-xs text-gray-500 whitespace-nowrap">{fmtDateLong(quotation.date)}</div>
             </div>
           </div>
 
