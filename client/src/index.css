@@ -178,23 +178,31 @@
     max-width: 100% !important;
   }
 
-  /* Date inputs on mobile must not overflow column tracks */
+  /* Date inputs on mobile must not overflow column tracks and must have complete closed borders */
   input[type="date"] {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-color: #ffffff !important;
     font-size: 13px !important;
-    padding-left: 6px !important;
-    padding-right: 6px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
     min-width: 0 !important;
     max-width: 100% !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+    display: block !important;
   }
 
   input[type="date"]::-webkit-date-and-time-value {
     min-width: 0 !important;
-    text-align: center !important;
+    text-align: left !important;
     font-size: 13px !important;
     padding: 0 !important;
     margin: 0 !important;
+    min-height: 1.4em !important;
   }
 }
 
