@@ -137,23 +137,25 @@ export default function EmployeeRegistration() {
             </div>
 
             {/* Date Employed */}
-            <div className="field min-w-0">
+            <div className="field min-w-0 overflow-hidden">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Date Employed</label>
               <Input
                 type="date"
                 value={formData.dateEmployed}
                 onChange={(e) => setFormData({ ...formData, dateEmployed: e.target.value })}
+                className="!text-xs sm:!text-sm !px-1.5 sm:!px-3 !w-full !max-w-full"
               />
             </div>
 
             {/* Salary */}
-            <div className="field min-w-0">
+            <div className="field min-w-0 overflow-hidden">
               <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Salary (MK)</label>
               <Input
                 type="number"
                 placeholder="e.g. 220000"
                 value={formData.salary}
                 onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                className="!text-xs sm:!text-sm !px-2 sm:!px-3 !w-full !max-w-full"
               />
             </div>
 

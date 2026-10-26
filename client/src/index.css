@@ -178,10 +178,23 @@
     max-width: 100% !important;
   }
 
+  /* Date inputs on mobile must not overflow column tracks */
   input[type="date"] {
+    font-size: 13px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
     min-width: 0 !important;
     max-width: 100% !important;
+    width: 100% !important;
     box-sizing: border-box !important;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value {
+    min-width: 0 !important;
+    text-align: center !important;
+    font-size: 13px !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 }
 

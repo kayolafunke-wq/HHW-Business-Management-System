@@ -147,26 +147,26 @@ export default function AuditLogPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5">
         {/* Total Actions */}
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
             <div
-              className="kpi-icon"
+              className="kpi-icon !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]"
               style={{ background: '#e8eefd', color: '#2f5df5' }}
             >
               <FileText className="w-4 h-4" />
             </div>
           </div>
-          <div className="kpi-label">Total Actions</div>
-          <div className="kpi-value">{totalActions}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Total Actions</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{totalActions}</div>
         </Card>
 
         {/* Success */}
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
             <div
-              className="kpi-icon"
+              className="kpi-icon !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]"
               style={{ background: '#e3f8f2', color: '#0ea885' }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -175,15 +175,15 @@ export default function AuditLogPage() {
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Success</div>
-          <div className="kpi-value">{successCount}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Success</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{successCount}</div>
         </Card>
 
         {/* Failed */}
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
             <div
-              className="kpi-icon"
+              className="kpi-icon !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]"
               style={{ background: '#fbe9e7', color: '#c2372c' }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -192,15 +192,15 @@ export default function AuditLogPage() {
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Failed</div>
-          <div className="kpi-value">{failedCount}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Failed</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{failedCount}</div>
         </Card>
 
         {/* Warnings */}
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
             <div
-              className="kpi-icon"
+              className="kpi-icon !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]"
               style={{ background: '#fbf0dd', color: '#c97a1a' }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -209,17 +209,17 @@ export default function AuditLogPage() {
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Warnings</div>
-          <div className="kpi-value">{warningCount}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Warnings</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{warningCount}</div>
         </Card>
       </div>
 
       <Card>
         {/* Filters */}
         <div className="p-4 border-b border-gray-200">
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Search */}
-            <div className="col-span-2 relative">
+            <div className="col-span-1 sm:col-span-2 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 type="text"
