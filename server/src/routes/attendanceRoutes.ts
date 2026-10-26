@@ -18,13 +18,16 @@ router.post('/daily', authenticate, async (req: AuthRequest, res) => {
       })
     }
 
+    const dateStr = String(date).split('T')[0]
+    const recordDate = new Date(`${dateStr}T00:00:00.000Z`)
+
     // Save each attendance record
     const attendancePromises = records.map((record: any) =>
       prisma.attendance.upsert({
         where: {
           employeeId_date: {
             employeeId: record.employeeId,
-            date: new Date(date)
+            date: recordDate
           }
         },
         update: {
@@ -33,7 +36,7 @@ router.post('/daily', authenticate, async (req: AuthRequest, res) => {
         },
         create: {
           employeeId: record.employeeId,
-          date: new Date(date),
+          date: recordDate,
           status: record.status.toUpperCase(), // Convert to uppercase for enum
           markedBy: userId || 'system'
         }
@@ -56,14 +59,65 @@ router.post('/daily', authenticate, async (req: AuthRequest, res) => {
   }
 })
 
+// Get today's attendance summary for dashboard (MUST be before /daily/:date)
+router.get('/today-summary', authenticate, async (req, res) => {
+  try {
+    const todayStr = new Date().toISOString().split('T')[0]
+    const startOfDay = new Date(`${todayStr}T00:00:00.000Z`)
+    const endOfDay = new Date(`${todayStr}T23:59:59.999Z`)
+
+    const [totalEmployees, records] = await Promise.all([
+      prisma.employee.count({ where: { status: 'ACTIVE' } }),
+      prisma.attendance.findMany({
+        where: {
+          date: {
+            gte: startOfDay,
+            lte: endOfDay
+          }
+        }
+      })
+    ])
+
+    const presentCount = records.filter(r => r.status === 'PRESENT' || r.status === 'LATE').length
+    const exactlyPresent = records.filter(r => r.status === 'PRESENT').length
+    const lateCount = records.filter(r => r.status === 'LATE').length
+    const absentCount = records.filter(r => r.status === 'ABSENT').length
+    const leaveCount = records.filter(r => r.status === 'LEAVE').length
+
+    res.json({
+      success: true,
+      data: {
+        date: todayStr,
+        totalEmployees,
+        presentCount,
+        exactlyPresent,
+        lateCount,
+        absentCount,
+        leaveCount,
+        totalMarked: records.length,
+        isMarked: records.length > 0
+      }
+    })
+  } catch (error: any) {
+    console.error('Get today attendance error:', error)
+    res.status(500).json({ success: false, message: 'Failed to fetch today attendance summary' })
+  }
+})
+
 // Get attendance for a specific date
 router.get('/daily/:date', authenticate, async (req, res) => {
   try {
     const { date } = req.params
+    const dateStr = String(date).split('T')[0]
+    const startOfDay = new Date(`${dateStr}T00:00:00.000Z`)
+    const endOfDay = new Date(`${dateStr}T23:59:59.999Z`)
     
     const attendance = await prisma.attendance.findMany({
       where: {
-        date: new Date(date)
+        date: {
+          gte: startOfDay,
+          lte: endOfDay
+        }
       },
       include: {
         employee: true

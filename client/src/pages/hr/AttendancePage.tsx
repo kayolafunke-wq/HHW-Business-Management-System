@@ -110,7 +110,11 @@ export default function AttendancePage() {
         setEmployees(prevEmployees =>
           prevEmployees.map(emp => {
             const attendance = data.data.find((a: any) => a.employeeId === emp.id)
-            return attendance ? { ...emp, status: attendance.status } : emp
+            if (attendance) {
+              const formattedStatus = (attendance.status.charAt(0).toUpperCase() + attendance.status.slice(1).toLowerCase()) as any
+              return { ...emp, status: formattedStatus }
+            }
+            return emp
           })
         )
       }

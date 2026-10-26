@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Package,
   Layers,
@@ -14,6 +16,7 @@ import {
 import { Card } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import { useApiStore } from '@/store/apiStore'
+import { API_BASE_URL } from '@/services/api'
 import {
   lowStockItems,
   outOfStockItems,
@@ -60,11 +63,17 @@ interface KPICardProps {
   value: string
   delta: string | null
   trending?: boolean
+  onClick?: () => void
 }
 
-function KPICard({ icon: Icon, iconColor, iconBg, label, value, delta, trending = true }: KPICardProps) {
+function KPICard({ icon: Icon, iconColor, iconBg, label, value, delta, trending = true, onClick }: KPICardProps) {
   return (
-    <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-5 hover:shadow-md transition-shadow overflow-hidden group">
+    <div
+      onClick={onClick}
+      className={`relative bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-5 hover:shadow-md transition-shadow overflow-hidden group ${
+        onClick ? 'cursor-pointer hover:border-blue-200' : ''
+      }`}
+    >
       {/* Subtle gradient overlay on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-blue-50/0 group-hover:from-blue-50/50 group-hover:to-transparent transition-all pointer-events-none"></div>
       
@@ -90,7 +99,36 @@ function KPICard({ icon: Icon, iconColor, iconBg, label, value, delta, trending 
 }
 
 export default function AdminDashboard() {
+  const navigate = useNavigate()
   const { products, sales, stockMovements, employees } = useApiStore()
+  const [todayAttendance, setTodayAttendance] = useState<{
+    presentCount: number
+    exactlyPresent: number
+    lateCount: number
+    absentCount: number
+    leaveCount: number
+    totalEmployees: number
+    isMarked: boolean
+  } | null>(null)
+
+  // Fetch real attendance for today from the API
+  useEffect(() => {
+    const fetchTodayAttendance = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await fetch(`${API_BASE_URL}/attendance/today-summary`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        const json = await res.json()
+        if (json.success && json.data) {
+          setTodayAttendance(json.data)
+        }
+      } catch (err) {
+        console.error('Failed to fetch today attendance:', err)
+      }
+    }
+    fetchTodayAttendance()
+  }, [])
 
   // Calculate today's sales - using API saleDate field
   const today = new Date().toISOString().split('T')[0]
@@ -123,8 +161,10 @@ export default function AdminDashboard() {
   // Outstanding invoices - using API paymentStatus field
   const outstanding = sales.filter(s => s.paymentStatus === 'PENDING' || s.paymentStatus === 'PARTIALLY_PAID')
 
-  // Present today calculation (simplified - 75% present)
-  const presentToday = Math.floor(employees.length * 0.75)
+  // Real attendance calculations
+  const totalEmpCount = todayAttendance?.totalEmployees || employees.length
+  const isAttendanceMarked = Boolean(todayAttendance && todayAttendance.isMarked)
+  const presentToday = todayAttendance?.presentCount ?? 0
 
   // Generate 14-day sales trend data
   console.log('📊 Generating sales trend data...')
@@ -348,9 +388,22 @@ export default function AdminDashboard() {
           iconColor="text-[#0ea885]"
           iconBg="bg-[#e3f8f2]"
           label="Present Today"
-          value={`${presentToday} / ${employees.length}`}
-          delta={null}
-          trending={true}
+          value={
+            isAttendanceMarked
+              ? `${presentToday} / ${totalEmpCount}`
+              : totalEmpCount > 0
+              ? `0 / ${totalEmpCount}`
+              : '0 / 0'
+          }
+          delta={
+            isAttendanceMarked
+              ? todayAttendance && todayAttendance.absentCount > 0
+                ? `${todayAttendance.absentCount} absent${todayAttendance.lateCount > 0 ? ` · ${todayAttendance.lateCount} late` : ''}`
+                : '100% present'
+              : 'Not marked yet'
+          }
+          trending={isAttendanceMarked ? todayAttendance?.absentCount === 0 : false}
+          onClick={() => navigate('/hr/attendance')}
         />
         <KPICard
           icon={AlertTriangle}
