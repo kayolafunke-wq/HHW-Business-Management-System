@@ -34,6 +34,30 @@ function getInitials(name: string): string {
   return name.split(' ').map(n => n[0]).join('').substring(0, 2)
 }
 
+function formatAuditTimestamp(raw: string): { dateStr: string; timeStr: string } {
+  if (!raw) return { dateStr: '—', timeStr: '' }
+  try {
+    const d = new Date(raw)
+    if (isNaN(d.getTime())) {
+      const parts = raw.split(' ')
+      return { dateStr: parts[0] || raw, timeStr: parts[1] || '' }
+    }
+    const dateStr = d.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    })
+    const timeStr = d.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
+    return { dateStr, timeStr }
+  } catch {
+    return { dateStr: raw, timeStr: '' }
+  }
+}
+
 function getCategoryIcon(category: string) {
   switch (category) {
     case 'Sales':
@@ -306,12 +330,13 @@ export default function AuditLogPage() {
                 paginatedItems.map((log) => {
                   const CategoryIcon = getCategoryIcon(log.category)
                   const categoryColor = getCategoryColor(log.category)
+                  const { dateStr, timeStr } = formatAuditTimestamp(log.timestamp)
 
                   return (
                     <tr key={log.id}>
-                      <td>
-                        <div className="text-sm text-gray-900">{log.timestamp.split(' ')[0]}</div>
-                        <div className="text-xs text-gray-500">{log.timestamp.split(' ')[1]}</div>
+                      <td className="whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{dateStr}</div>
+                        <div className="text-xs text-gray-500">{timeStr}</div>
                       </td>
                       <td>
                         <div className="flex items-center gap-2">

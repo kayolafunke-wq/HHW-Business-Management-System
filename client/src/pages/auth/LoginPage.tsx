@@ -127,12 +127,14 @@ export default function LoginPage() {
 
         <div className="relative z-10">
           {/* Logo with glow effect */}
-          <div className="flex items-center gap-3 mb-12 group">
+          <div className="flex items-center gap-3.5 mb-12 group">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] rounded-xl blur-xl opacity-60 group-hover:opacity-90 transition-opacity" />
-              <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] flex items-center justify-center font-display font-bold text-white text-xl shadow-2xl ring-2 ring-blue-400/30">
-                H
-              </div>
+              <div className="absolute inset-0 bg-[#2f5df5]/40 rounded-full blur-xl opacity-60 group-hover:opacity-90 transition-opacity" />
+              <img
+                src="/hhw-logo.png"
+                alt="HHW Logo"
+                className="relative w-12 h-12 rounded-full object-contain shadow-2xl ring-2 ring-blue-400/40"
+              />
             </div>
             <div>
               <div className="font-display font-bold text-lg bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
@@ -230,9 +232,11 @@ export default function LoginPage() {
 
           <div className="relative z-10">
             <div className="flex items-center gap-3.5 mb-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-xl shadow-lg ring-2 ring-white/10 flex-shrink-0">
-                H
-              </div>
+              <img
+                src="/hhw-logo.png"
+                alt="HHW Logo"
+                className="w-12 h-12 rounded-full object-contain shadow-lg ring-2 ring-blue-400/40 flex-shrink-0"
+              />
               <div>
                 <div className="font-display font-bold text-lg text-white leading-tight">
                   HHW Business Manager

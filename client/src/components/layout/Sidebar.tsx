@@ -143,12 +143,14 @@ export default function Sidebar({ onLinkClick, onClose, className }: SidebarProp
       {/* Brand */}
       <div className="flex items-center justify-between p-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2f5df5] to-[#6a4fd6] flex items-center justify-center font-display font-bold text-white text-sm">
-            H
-          </div>
+          <img
+            src="/hhw-logo.png"
+            alt="HHW Logo"
+            className="w-8 h-8 rounded-full object-contain shadow-md ring-1 ring-blue-500/40 flex-shrink-0"
+          />
           <div>
             <div className="font-display font-semibold text-white text-sm leading-tight">HHW Business Manager</div>
-            <div className="text-[10px] text-gray-500 tracking-wide">Operations Suite</div>
+            <div className="text-[10px] text-gray-400 tracking-wide">Operations Suite</div>
           </div>
         </div>
         {onClose && (
