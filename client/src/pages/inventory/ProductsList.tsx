@@ -122,54 +122,54 @@ export default function ProductsList() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-4 mb-5">
-        <Card className="kpi">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
-            <div className="kpi-icon bg-[#e8eefd]">
+            <div className="kpi-icon bg-[#e8eefd] !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]">
               <Package className="w-4 h-4 text-[#2f5df5]" strokeWidth={2.5} />
             </div>
           </div>
-          <div className="kpi-label">Total Products</div>
-          <div className="kpi-value">{totalProducts}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Total Products</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{totalProducts}</div>
         </Card>
 
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
-            <div className="kpi-icon bg-[#efeafb]">
+            <div className="kpi-icon bg-[#efeafb] !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]">
               <svg className="w-4 h-4 text-[#6a4fd6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
                 <path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Stock Value</div>
-          <div className="kpi-value">{money(stockValue)}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Stock Value</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px] truncate">{money(stockValue)}</div>
         </Card>
 
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
-            <div className="kpi-icon bg-[#fbf0dd]">
+            <div className="kpi-icon bg-[#fbf0dd] !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]">
               <svg className="w-4 h-4 text-[#c97a1a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
                 <path d="M12 9v4M12 17h.01"/>
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Low Stock</div>
-          <div className="kpi-value">{lowStock.length}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Low Stock</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{lowStock.length}</div>
         </Card>
 
-        <Card className="kpi">
+        <Card className="kpi !p-3 sm:!p-[17px]">
           <div className="kpi-top">
-            <div className="kpi-icon bg-[#fbe9e7]">
+            <div className="kpi-icon bg-[#fbe9e7] !w-8 !h-8 sm:!w-[34px] sm:!h-[34px]">
               <svg className="w-4 h-4 text-[#c2372c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10"/>
                 <path d="m15 9-6 6m0-6 6 6"/>
               </svg>
             </div>
           </div>
-          <div className="kpi-label">Out of Stock</div>
-          <div className="kpi-value">{outOfStock.length}</div>
+          <div className="kpi-label !text-[11px] sm:!text-[12px] !mt-2 sm:!mt-3">Out of Stock</div>
+          <div className="kpi-value !text-base sm:!text-2xl !mt-0.5 sm:!mt-[3px]">{outOfStock.length}</div>
         </Card>
       </div>
 

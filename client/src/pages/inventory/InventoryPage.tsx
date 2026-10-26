@@ -102,30 +102,30 @@ export default function InventoryPage() {
   return (
     <div className="fade-in">
       {/* Modern Header with gradient */}
-      <div className="mb-6 p-6 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-700 text-white shadow-lg">
-        <div className="flex items-center justify-between">
+      <div className="mb-5 sm:mb-6 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-700 text-white shadow-lg overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-              <Package className="w-8 h-8" />
+            <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2 flex items-center gap-2.5 sm:gap-3">
+              <Package className="w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0" />
               Inventory Management
             </h1>
-            <p className="text-purple-100 text-sm">
+            <p className="text-purple-100 text-xs sm:text-sm">
               Monitor stock levels, track movements, and manage your inventory value
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => navigate('/inventory/stock-in')}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center gap-2 font-medium"
+              className="flex-1 sm:flex-initial justify-center px-3 sm:px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium active:scale-95 whitespace-nowrap shadow-sm"
             >
-              <ArrowDownRight className="w-4 h-4" />
+              <ArrowDownRight className="w-4 h-4 flex-shrink-0" />
               Stock In
             </button>
             <button
               onClick={() => navigate('/inventory/stock-out')}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center gap-2 font-medium"
+              className="flex-1 sm:flex-initial justify-center px-3 sm:px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium active:scale-95 whitespace-nowrap shadow-sm"
             >
-              <ArrowUpRight className="w-4 h-4" />
+              <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
               Stock Out
             </button>
           </div>
@@ -133,82 +133,82 @@ export default function InventoryPage() {
       </div>
 
       {/* Modern KPI Cards with gradients */}
-      <div className="grid grid-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5 sm:mb-6">
         {/* Total Inventory Value */}
-        <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow overflow-hidden group">
+        <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-5 hover:shadow-md transition-shadow overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-50/0 to-purple-50/0 group-hover:from-purple-50/50 group-hover:to-transparent transition-all pointer-events-none"></div>
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-11 h-11 rounded-lg bg-[#efeafb] flex items-center justify-center shadow-sm">
-                <DollarSign className="text-[#6a4fd6]" size={20} strokeWidth={2.5} />
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-[#efeafb] flex items-center justify-center shadow-sm flex-shrink-0">
+                <DollarSign className="text-[#6a4fd6] w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
               </div>
             </div>
-            <div className="text-sm font-medium text-gray-600 mb-1">Total Inventory Value</div>
-            <div className="text-2xl font-bold text-gray-900">{money(totalValue)}</div>
+            <div className="text-[11px] sm:text-sm font-medium text-gray-600 mb-0.5 sm:mb-1 truncate">Total Inventory Value</div>
+            <div className="text-base sm:text-2xl font-bold text-gray-900 truncate">{money(totalValue)}</div>
           </div>
         </div>
 
         {/* In Stock */}
-        <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow overflow-hidden group">
+        <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-5 hover:shadow-md transition-shadow overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-blue-50/0 group-hover:from-blue-50/50 group-hover:to-transparent transition-all pointer-events-none"></div>
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-11 h-11 rounded-lg bg-[#e8eefd] flex items-center justify-center shadow-sm">
-                <Package className="text-[#2f5df5]" size={20} strokeWidth={2.5} />
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-[#e8eefd] flex items-center justify-center shadow-sm flex-shrink-0">
+                <Package className="text-[#2f5df5] w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
               </div>
-              <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-green-50 text-green-700">
-                <ArrowUpRight size={12} />
+              <div className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-xs font-semibold bg-green-50 text-green-700">
+                <ArrowUpRight className="w-3 h-3" />
                 {products.length > 0 ? Math.round((inStockProducts.length / products.length) * 100) : 0}%
               </div>
             </div>
-            <div className="text-sm font-medium text-gray-600 mb-1">In Stock</div>
-            <div className="text-2xl font-bold text-gray-900">{inStockProducts.length}</div>
+            <div className="text-[11px] sm:text-sm font-medium text-gray-600 mb-0.5 sm:mb-1 truncate">In Stock</div>
+            <div className="text-base sm:text-2xl font-bold text-gray-900">{inStockProducts.length}</div>
           </div>
         </div>
 
         {/* Low Stock */}
-        <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow overflow-hidden group">
+        <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-5 hover:shadow-md transition-shadow overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-orange-50/0 to-orange-50/0 group-hover:from-orange-50/50 group-hover:to-transparent transition-all pointer-events-none"></div>
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-11 h-11 rounded-lg bg-[#fbf0dd] flex items-center justify-center shadow-sm">
-                <AlertTriangle className="text-[#c97a1a]" size={20} strokeWidth={2.5} />
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-[#fbf0dd] flex items-center justify-center shadow-sm flex-shrink-0">
+                <AlertTriangle className="text-[#c97a1a] w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
               </div>
               {lowStockProducts.length > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-orange-50 text-orange-700">
-                  <ArrowDownRight size={12} />
+                <div className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-xs font-semibold bg-orange-50 text-orange-700">
+                  <ArrowDownRight className="w-3 h-3" />
                   Reorder
                 </div>
               )}
             </div>
-            <div className="text-sm font-medium text-gray-600 mb-1">Low Stock</div>
-            <div className="text-2xl font-bold text-gray-900">{lowStockProducts.length}</div>
+            <div className="text-[11px] sm:text-sm font-medium text-gray-600 mb-0.5 sm:mb-1 truncate">Low Stock</div>
+            <div className="text-base sm:text-2xl font-bold text-gray-900">{lowStockProducts.length}</div>
           </div>
         </div>
 
         {/* Out of Stock */}
-        <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow overflow-hidden group">
+        <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-5 hover:shadow-md transition-shadow overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-red-50/0 to-red-50/0 group-hover:from-red-50/50 group-hover:to-transparent transition-all pointer-events-none"></div>
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-11 h-11 rounded-lg bg-[#fbe9e7] flex items-center justify-center shadow-sm">
-                <Package className="text-[#c2372c]" size={20} strokeWidth={2.5} />
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-[#fbe9e7] flex items-center justify-center shadow-sm flex-shrink-0">
+                <Package className="text-[#c2372c] w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
               </div>
               {outOfStockProducts.length > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-red-50 text-red-700">
-                  <ArrowDownRight size={12} />
+                <div className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-xs font-semibold bg-red-50 text-red-700">
+                  <ArrowDownRight className="w-3 h-3" />
                   Urgent
                 </div>
               )}
             </div>
-            <div className="text-sm font-medium text-gray-600 mb-1">Out of Stock</div>
-            <div className="text-2xl font-bold text-gray-900">{outOfStockProducts.length}</div>
+            <div className="text-[11px] sm:text-sm font-medium text-gray-600 mb-0.5 sm:mb-1 truncate">Out of Stock</div>
+            <div className="text-base sm:text-2xl font-bold text-gray-900">{outOfStockProducts.length}</div>
           </div>
         </div>
       </div>
 
       {/* Modern Charts Row */}
-      <div className="grid grid-2 gap-[18px] mb-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-[18px] mb-5">
         {/* Stock by Category */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
           <div className="mb-4">
@@ -286,7 +286,7 @@ export default function InventoryPage() {
       </div>
 
       {/* Modern Activity Cards */}
-      <div className="grid grid-2 gap-[18px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-[18px]">
         {/* Low Stock & Out of Stock Alerts */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-gradient-to-r from-orange-50/50 to-transparent">
