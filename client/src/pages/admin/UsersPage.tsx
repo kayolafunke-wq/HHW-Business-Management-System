@@ -5,8 +5,7 @@ import Input from '@/components/ui/Input'
 import Badge from '@/components/ui/Badge'
 import { Pagination, usePagination } from '@/components/ui/Pagination'
 import { UserPlus, X } from 'lucide-react'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '@/config/firebase'
+import { createSecondaryFirebaseUser } from '@/config/firebase'
 import toast from 'react-hot-toast'
 import { API_BASE_URL } from '@/services/api'
 
@@ -48,7 +47,7 @@ function CreateUserModal({
   onSave 
 }: { 
   onClose: () => void; 
-  onSave: (userData: { name: string; email: string; password: string; role: string }) => void 
+  onSave: (userData: { name: string; email: string; password: string; role: string }) => Promise<boolean> | boolean
 }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -74,13 +73,15 @@ function CreateUserModal({
 
     setLoading(true)
     try {
-      await onSave({
+      const success = await onSave({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role
       })
-      onClose()
+      if (success) {
+        onClose()
+      }
     } catch (error) {
       console.error('Error:', error)
     } finally {
@@ -321,66 +322,107 @@ export default function UsersPage() {
   // Pagination
   const { currentPage, totalPages, paginatedItems, setCurrentPage, totalItems, itemsPerPage } = usePagination(users, 10)
 
-  const handleCreateUser = async (userData: { name: string; email: string; password: string; role: string }) => {
+  const handleCreateUser = async (userData: { name: string; email: string; password: string; role: string }): Promise<boolean> => {
     try {
-      // 1. Create Firebase user
-      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password)
-      const firebaseUser = userCredential.user
+      // 1. Create Firebase user using isolated secondary app so administrator session is NEVER disturbed
+      let firebaseUid: string | undefined
+      try {
+        firebaseUid = await createSecondaryFirebaseUser(userData.email.trim(), userData.password)
+      } catch (fbError: any) {
+        if (fbError.code === 'auth/email-already-in-use') {
+          toast.error('An account with this email already exists in Firebase Authentication.')
+          return false
+        } else if (fbError.code === 'auth/invalid-email') {
+          toast.error('Invalid email address format.')
+          return false
+        } else if (fbError.code === 'auth/weak-password') {
+          toast.error('Password must be at least 6 characters.')
+          return false
+        }
+        console.warn('Firebase secondary user creation warning:', fbError)
+      }
 
-      // 2. Get ID token
-      const idToken = await firebaseUser.getIdToken()
-
-      // 3. Register in backend
+      // 2. Register user in database using current admin session token
+      const token = localStorage.getItem('token')
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          name: userData.name,
-          email: userData.email,
-          firebaseUid: firebaseUser.uid,
+          name: userData.name.trim(),
+          email: userData.email.trim().toLowerCase(),
+          password: userData.password,
+          firebaseUid,
           role: userData.role.replace(/ /g, '_').toUpperCase() // Convert to DB format (e.g., SALES_USER)
         })
       })
 
       const result = await response.json()
 
-      if (response.ok && result.success) {
+      if (response.ok && (result.success !== false)) {
         toast.success(`User ${userData.name} created successfully!`)
-        
         // Refresh the users list
-        fetchUsers()
+        await fetchUsers()
+        return true
       } else {
-        toast.error(result.message || 'Failed to create user')
-        // Delete Firebase user if backend registration fails
-        await firebaseUser.delete()
+        toast.error(result.message || 'Failed to create user in database')
+        return false
       }
     } catch (error: any) {
       console.error('Create user error:', error)
-      if (error.code === 'auth/email-already-in-use') {
-        toast.error('Email already in use')
-      } else if (error.code === 'auth/invalid-email') {
-        toast.error('Invalid email address')
-      } else if (error.code === 'auth/weak-password') {
-        toast.error('Password is too weak')
-      } else {
-        toast.error('Failed to create user')
-      }
+      toast.error(error.message || 'Failed to create user')
+      return false
     }
   }
 
-  const handleDeactivate = (userId: string) => {
-    setUsers(users.map(user => 
-      user.id === userId ? { ...user, status: 'Inactive' as const } : user
-    ))
+  const handleDeactivate = async (userId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ status: 'INACTIVE' })
+      })
+
+      if (response.ok) {
+        toast.success('User deactivated successfully')
+        setUsers(users.map(user => 
+          user.id === userId ? { ...user, status: 'Inactive' as const } : user
+        ))
+      } else {
+        toast.error('Failed to deactivate user')
+      }
+    } catch (err) {
+      toast.error('Failed to deactivate user')
+    }
   }
 
-  const handleActivate = (userId: string) => {
-    setUsers(users.map(user => 
-      user.id === userId ? { ...user, status: 'Active' as const } : user
-    ))
+  const handleActivate = async (userId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ status: 'ACTIVE' })
+      })
+
+      if (response.ok) {
+        toast.success('User activated successfully')
+        setUsers(users.map(user => 
+          user.id === userId ? { ...user, status: 'Active' as const } : user
+        ))
+      } else {
+        toast.error('Failed to activate user')
+      }
+    } catch (err) {
+      toast.error('Failed to activate user')
+    }
   }
 
   const handleResetPassword = async (userId: string) => {

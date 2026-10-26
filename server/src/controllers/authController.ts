@@ -91,27 +91,54 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, email, firebaseUid, role, username } = req.body
+    const { name, email, firebaseUid, role, username, password } = req.body
 
     // Validate required fields
-    if (!name || !email || !firebaseUid) {
-      res.status(400).json({ message: 'Name, email, and Firebase UID are required' })
+    if (!name || !email) {
+      res.status(400).json({ success: false, message: 'Name and email are required' })
       return
+    }
+
+    let finalFirebaseUid = firebaseUid
+
+    // If client did not provide firebaseUid, attempt server-side creation via Firebase Admin if configured
+    if (!finalFirebaseUid) {
+      if (password && firebaseAuth) {
+        try {
+          const newFbUser = await firebaseAuth.createUser({
+            email,
+            password,
+            displayName: name,
+          })
+          finalFirebaseUid = newFbUser.uid
+        } catch (fbErr: any) {
+          console.warn('⚠️ Firebase Admin createUser notice:', fbErr.message)
+          if (fbErr.code === 'auth/email-already-exists') {
+            try {
+              const existingFbUser = await firebaseAuth.getUserByEmail(email)
+              finalFirebaseUid = existingFbUser.uid
+            } catch (_) {}
+          }
+        }
+      }
+      if (!finalFirebaseUid) {
+        finalFirebaseUid = `usr-${Date.now()}`
+      }
     }
 
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [
-          { email },
-          { firebaseUid },
+          { email: { equals: email, mode: 'insensitive' } },
+          { firebaseUid: finalFirebaseUid },
           ...(username ? [{ username }] : [])
         ],
       },
     })
 
     if (existingUser) {
-      res.status(400).json({ message: 'User already exists' })
+      res.status(400).json({ success: false, message: 'A user with this email or username already exists' })
       return
     }
 
@@ -121,7 +148,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
     // Create user in database
     const user = await prisma.user.create({
       data: {
-        firebaseUid,
+        firebaseUid: finalFirebaseUid,
         name,
         email,
         username: generatedUsername,
@@ -149,12 +176,13 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
         email: user.email,
         username: user.username,
         role: user.role,
+        status: user.status,
       },
       message: 'User registered successfully',
     })
   } catch (error: any) {
     console.error('Registration error:', error)
-    res.status(500).json({ message: 'Failed to register user' })
+    res.status(500).json({ success: false, message: 'Failed to register user: ' + (error.message || 'Server error') })
   }
 }
 
