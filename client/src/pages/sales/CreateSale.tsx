@@ -328,14 +328,18 @@ export default function CreateSale() {
 
   // Update quantity with strict stock limit
   const updateQuantity = (productId: string, newQuantity: number) => {
-    if (newQuantity < 1) {
-      removeFromCart(productId)
-      return
-    }
+    if (newQuantity < 0) return
 
     const product = products.find((p) => p.id === productId)
     if (product && newQuantity > product.stock) {
-      toast.error(`Cannot add more than ${product.stock} units available in stock.`)
+      toast.error(`Cannot add more than ${product.stock} units available in stock. Capped to ${product.stock}.`)
+      setCart(
+        cart.map((item) =>
+          item.productId === productId
+            ? { ...item, quantity: product.stock, subtotal: product.stock * item.price }
+            : item
+        )
+      )
       return
     }
 
@@ -365,6 +369,12 @@ export default function CreateSale() {
   const completeSale = async () => {
     if (cart.length === 0) {
       toast.error('Cart is empty')
+      return
+    }
+
+    const invalidItem = cart.find((i) => i.quantity <= 0)
+    if (invalidItem) {
+      toast.error(`Please enter a valid quantity for "${invalidItem.name}"`)
       return
     }
 
@@ -649,45 +659,83 @@ export default function CreateSale() {
                 </div>
               ) : (
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                  {cart.map((item) => (
-                    <div
-                      key={item.productId}
-                      className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold text-gray-900 truncate">
-                          {item.name}
+                  {cart.map((item) => {
+                    const prod = products.find((p) => p.id === item.productId)
+                    const maxStock = prod?.stock ?? 99999
+                    return (
+                      <div
+                        key={item.productId}
+                        className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-100"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-semibold text-gray-900 truncate">
+                            {item.name}
+                          </div>
+                          <div className="text-[11px] text-gray-500">
+                            {money(item.price)} each
+                            {prod && (
+                              <span className="text-gray-400 ml-1">· max {prod.stock}</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500">{money(item.price)} each</div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (item.quantity <= 1) {
+                                removeFromCart(item.productId)
+                              } else {
+                                updateQuantity(item.productId, item.quantity - 1)
+                              }
+                            }}
+                            className="w-6 h-6 rounded bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-sm active:scale-95 transition-transform"
+                            title="Decrease quantity"
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            min="1"
+                            max={maxStock}
+                            value={item.quantity === 0 ? '' : item.quantity}
+                            onChange={(e) => {
+                              const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10)
+                              if (!isNaN(val)) {
+                                updateQuantity(item.productId, val)
+                              }
+                            }}
+                            onBlur={() => {
+                              if (!item.quantity || item.quantity < 1) {
+                                updateQuantity(item.productId, 1)
+                              }
+                            }}
+                            className="w-12 h-6 text-center font-bold text-xs bg-white border border-gray-300 rounded focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-sm"
+                            title={`Type quantity directly (Max: ${maxStock})`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                            disabled={prod ? item.quantity >= prod.stock : false}
+                            className="w-6 h-6 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-gray-700 font-bold text-sm active:scale-95 transition-transform"
+                            title="Increase quantity"
+                          >
+                            +
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeFromCart(item.productId)}
+                            className="w-6 h-6 rounded bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-600 transition-colors ml-0.5"
+                            title="Remove from cart"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <div className="text-xs font-bold text-gray-900 w-16 text-right">
+                          {money(item.subtotal)}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="w-6 h-6 rounded bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-sm"
-                        >
-                          −
-                        </button>
-                        <span className="text-sm font-semibold text-gray-900 w-6 text-center">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="w-6 h-6 rounded bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-sm"
-                        >
-                          +
-                        </button>
-                        <button
-                          onClick={() => removeFromCart(item.productId)}
-                          className="w-6 h-6 rounded bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                      <div className="text-sm font-bold text-gray-900 w-20 text-right">
-                        {money(item.subtotal)}
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
