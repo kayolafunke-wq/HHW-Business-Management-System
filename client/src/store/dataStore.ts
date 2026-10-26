@@ -5,6 +5,7 @@ import { API_BASE_URL } from '@/services/api'
 interface Product {
   id: string
   sku: string
+  barcode?: string
   name: string
   category: string
   cost: number

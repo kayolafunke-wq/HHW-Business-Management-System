@@ -28,6 +28,7 @@ export enum UserStatus {
 export interface Product {
   id: string
   sku: string
+  barcode?: string
   name: string
   category: ProductCategory
   description?: string

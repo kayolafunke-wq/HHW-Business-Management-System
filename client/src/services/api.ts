@@ -69,6 +69,7 @@ api.interceptors.response.use(
 export interface Product {
   id: string
   sku: string
+  barcode?: string
   name: string
   category: string
   description?: string

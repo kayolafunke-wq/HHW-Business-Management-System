@@ -272,7 +272,8 @@ export default function CreateSale() {
       (p) =>
         p.stock > 0 &&
         (p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.sku.toLowerCase().includes(searchQuery.toLowerCase()))
+          p.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (p.barcode && p.barcode.toLowerCase().includes(searchQuery.toLowerCase())))
     )
     .slice(0, 20)
 
@@ -405,21 +406,41 @@ export default function CreateSale() {
     }
   }
 
-  // Handle barcode scan
+  // Handle barcode scan — matches barcode field first, then falls back to SKU
   const handleBarcodeScan = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!barcodeInput.trim()) return
+    const query = barcodeInput.trim()
+    if (!query) return
 
-    // Find product by SKU (barcode)
-    const product = products.find(
-      (p) => p.sku.toLowerCase() === barcodeInput.toLowerCase() && p.stock > 0
+    // 1. Match by barcode field (exact, so a scanner auto-submit works)
+    let product = products.find(
+      (p) => p.barcode && p.barcode === query && p.stock > 0
     )
+
+    // 2. Fall back to matching by SKU
+    if (!product) {
+      product = products.find(
+        (p) => p.sku.toLowerCase() === query.toLowerCase() && p.stock > 0
+      )
+    }
+
+    // 3. Check if product exists but is out of stock
+    if (!product) {
+      const outOfStock = products.find(
+        (p) => (p.barcode === query || p.sku.toLowerCase() === query.toLowerCase()) && p.stock === 0
+      )
+      if (outOfStock) {
+        toast.error(`"${outOfStock.name}" is out of stock`)
+        return
+      }
+    }
 
     if (product) {
       addToCart(product.id)
+      toast.success(`${product.name} added to cart`, { duration: 1500 })
       setBarcodeInput('')
     } else {
-      toast.error('Product not found or out of stock')
+      toast.error('Product not found. Check the barcode or SKU.')
     }
   }
 
@@ -516,6 +537,9 @@ export default function CreateSale() {
                   <div className="flex-1 min-w-0 pr-3">
                     <div className="font-semibold text-sm text-gray-900 truncate">{product.name}</div>
                     <div className="text-xs text-gray-500 mt-0.5">{product.sku}</div>
+                    {product.barcode && (
+                      <div className="text-[10px] text-gray-400 font-mono">{product.barcode}</div>
+                    )}
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <div className="text-right">

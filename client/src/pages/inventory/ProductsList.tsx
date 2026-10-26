@@ -29,14 +29,13 @@ export default function ProductsList() {
   const [newProduct, setNewProduct] = useState({
     name: '',
     sku: '',
+    barcode: '',        // leave blank = auto-generated on save
     category: 'ELECTRONICS',
     cost: '',
     price: '',
     stock: '',
     minStock: ''
   })
-
-  console.log('ProductsList render - showAddModal:', showAddModal)
 
   // Calculate KPIs
   const totalProducts = products.length
@@ -47,19 +46,21 @@ export default function ProductsList() {
   // Get unique categories
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))]
 
-  // Filter products
+  // Filter products — search by name, SKU, or barcode
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         p.sku.toLowerCase().includes(searchQuery.toLowerCase())
+    const q = searchQuery.toLowerCase()
+    const matchesSearch = p.name.toLowerCase().includes(q) ||
+                         p.sku.toLowerCase().includes(q) ||
+                         (p.barcode && p.barcode.toLowerCase().includes(q))
     const matchesCategory = categoryFilter === 'All' || p.category === categoryFilter
     const matchesStatus = statusFilter === 'All' || p.status === statusFilter
     return matchesSearch && matchesCategory && matchesStatus
   })
 
   const handleAddProduct = async () => {
-    // Validate form
-    if (!newProduct.name || !newProduct.sku || !newProduct.cost || !newProduct.price || !newProduct.stock || !newProduct.minStock) {
-      toast.error('Please fill all fields')
+    // Validate form — SKU is now optional (auto-generated server-side)
+    if (!newProduct.name || !newProduct.cost || !newProduct.price || !newProduct.stock || !newProduct.minStock) {
+      toast.error('Please fill all required fields')
       return
     }
 
@@ -80,7 +81,8 @@ export default function ProductsList() {
 
     try {
       await addProduct({
-        sku: newProduct.sku,
+        sku: newProduct.sku || '',   // blank = server will auto-generate
+        barcode: newProduct.barcode || undefined,  // blank = server will auto-generate
         name: newProduct.name,
         category: newProduct.category,
         cost,
@@ -89,11 +91,12 @@ export default function ProductsList() {
         minStock,
       })
 
-      toast.success('Product added successfully')
+      toast.success('Product added successfully! Barcode generated automatically.')
       setShowAddModal(false)
       setNewProduct({
         name: '',
         sku: '',
+        barcode: '',
         category: 'ELECTRONICS',
         cost: '',
         price: '',
@@ -250,8 +253,8 @@ export default function ProductsList() {
                         <span className="font-mono text-gray-700 text-xs font-semibold">{product.sku}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400 block text-[10px]">Category</span>
-                        <span className="text-gray-700">{product.category}</span>
+                        <span className="text-gray-400 block text-[10px]">Barcode</span>
+                        <span className="font-mono text-gray-700 text-[10px]">{product.barcode || '—'}</span>
                       </div>
                       <div>
                         <span className="text-gray-400 block text-[10px]">Current Stock</span>
@@ -290,6 +293,7 @@ export default function ProductsList() {
                     <tr>
                       <th>SKU</th>
                       <th>Product Name</th>
+                      <th>Barcode</th>
                       <th>Category</th>
                       <th>Cost</th>
                       <th>Price</th>
@@ -307,6 +311,11 @@ export default function ProductsList() {
                         </td>
                         <td>
                           <div className="cell-strong">{product.name}</div>
+                        </td>
+                        <td>
+                          <div className="font-mono text-xs text-gray-600 whitespace-nowrap">
+                            {product.barcode || <span className="text-gray-300 italic">auto</span>}
+                          </div>
                         </td>
                         <td>
                           <div className="text-gray-700">{product.category}</div>
@@ -379,7 +388,8 @@ export default function ProductsList() {
 
             <div className="modal-body">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
+                {/* Full-width: Product Name */}
+                <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
                     Product Name *
                   </label>
@@ -393,14 +403,36 @@ export default function ProductsList() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
-                    SKU *
+                    SKU <span style={{ color: '#6b7280', fontWeight: 400 }}>(optional — auto-generated)</span>
                   </label>
                   <Input
                     type="text"
-                    placeholder="e.g., SKU-ELE-001"
+                    placeholder="Leave blank to auto-generate"
                     value={newProduct.sku}
                     onChange={(e) => setNewProduct({...newProduct, sku: e.target.value})}
                   />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
+                    Barcode <span style={{ color: '#6b7280', fontWeight: 400 }}>(optional — auto-generated)</span>
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="Scan, type, or leave blank"
+                      value={newProduct.barcode}
+                      onChange={(e) => setNewProduct({...newProduct, barcode: e.target.value})}
+                    />
+                    {!newProduct.barcode && (
+                      <span style={{
+                        position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                        fontSize: '10px', color: '#9ca3af', pointerEvents: 'none', whiteSpace: 'nowrap'
+                      }}>
+                        🔖 auto
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -498,7 +530,9 @@ export default function ProductsList() {
 
             <div className="modal-body">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
+
+                {/* Product Name — full width */}
+                <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
                     Product Name *
                   </label>
@@ -512,13 +546,26 @@ export default function ProductsList() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
-                    SKU *
+                    SKU
                   </label>
                   <Input
                     type="text"
                     placeholder="e.g. ELEC-001"
                     value={editingProduct.sku}
                     disabled
+                    style={{ opacity: 0.6 }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: '#374151' }}>
+                    Barcode <span style={{ color: '#6b7280', fontWeight: 400 }}>(scan or type to update)</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="Scan or type barcode"
+                    value={editingProduct.barcode || ''}
+                    onChange={(e) => setEditingProduct({...editingProduct, barcode: e.target.value})}
                   />
                 </div>
 
@@ -590,6 +637,7 @@ export default function ProductsList() {
                     onChange={(e) => setEditingProduct({...editingProduct, minStock: parseInt(e.target.value)})}
                   />
                 </div>
+
               </div>
             </div>
 
@@ -609,6 +657,7 @@ export default function ProductsList() {
                     body: JSON.stringify({
                       name: editingProduct.name,
                       category: editingProduct.category,
+                      barcode: editingProduct.barcode || null,
                       cost: editingProduct.cost,
                       price: editingProduct.price,
                       stock: editingProduct.stock,
